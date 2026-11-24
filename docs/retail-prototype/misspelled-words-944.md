@@ -56,8 +56,9 @@ the golden catalogue still has its pliers.
 The industrial catalogue titles only 4 SKUs with `pliers`, against 3 with `pliars`, so the served
 `pliars` search showed no suggestion (gen#1130). `type_specs/pliers.py` sells eight plain pairs of
 pliers (combination, long nose, side cutter, water pump, slip joint and locking) in Home > DIY &
-Tools > Pliers, two handle colors a pair, each drawn as its own jaw by `kit_pliers.py`. With the
-industrial pliers that is 20 titles at the small build, over the 15 the 5x ratio needs.
+Tools > Pliers, two handle colors a pair, each drawn as its own jaw by `kit_pliers.py`. The ceiling
+build holds `pliers` in 17 retail SKU titles (these 16 and one decoy) and 4 industrial ones: 21, over
+the 15 the 5x ratio needs.
 `test_the_common_spelling_is_five_times_more_common` counts titles SKU by SKU, as the Engine does.
 
 ## What else moves
