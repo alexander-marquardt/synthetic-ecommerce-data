@@ -16,6 +16,7 @@ from synthetic_ecommerce_data.domains.retail import (
 from synthetic_ecommerce_data.domains.retail import (
     kit_pliers,  # noqa: F401 -- registers pliers
 )
+from synthetic_ecommerce_data.domains.retail.outdoor_helpers import u
 from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec, a
 
 _PT = "Pliers"
@@ -28,7 +29,7 @@ def _pair(code, words, brand, price, jaw, size, mm, desc):
         brand,
         price,
         desc,
-        (a("jaw_type", "Jaw type", words), a("plier_length", "Length", f"{mm} mm")),
+        (a("jaw_type", "Jaw type", words), u("plier_length", "Length", mm, "MMT")),
         (("jaw", jaw), ("size", size)),
     )
 
