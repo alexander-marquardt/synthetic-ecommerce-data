@@ -58,7 +58,8 @@ def _shard_count() -> int:
 
 def test_the_tests_job_is_a_matrix_of_shards_that_each_know_the_shard_count() -> None:
     job = _jobs()["tests"]
-    assert job["strategy"]["fail-fast"] is False, "one red shard must not hide the others' reds"
+    # False on a push and a dispatched run: there one red shard must not hide the others' reds.
+    assert job["strategy"]["fail-fast"] == "${{ github.event_name == 'pull_request' }}"
     assert _shard_count() >= 2
     runs = " ".join(step.get("run", "") for step in job["steps"])
     assert "scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }}" in runs

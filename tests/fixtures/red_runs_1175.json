@@ -1,0 +1,697 @@
+{
+ "source": "gh api repos/alexander-marquardt/synthetic-ecommerce-data/actions/runs/<id>/jobs?per_page=100&filter=latest, recorded 2026-11-23 (#1175); each job trimmed to the four fields the replay reads",
+ "runs": {
+  "45102749533": {
+   "pr": 1171,
+   "jobs": [
+    {
+     "name": "no-derived-files",
+     "conclusion": "success",
+     "started_at": "2026-11-23T02:55:47Z",
+     "completed_at": "2026-11-23T02:58:53Z"
+    },
+    {
+     "name": "customer-name-check",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:06:24Z",
+     "completed_at": "2026-11-23T03:07:10Z"
+    },
+    {
+     "name": "ceiling-catalogue (ceiling)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T02:58:55Z",
+     "completed_at": "2026-11-23T03:01:33Z"
+    },
+    {
+     "name": "file-size",
+     "conclusion": "success",
+     "started_at": "2026-11-23T02:59:11Z",
+     "completed_at": "2026-11-23T02:59:51Z"
+    },
+    {
+     "name": "lint",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:08:22Z",
+     "completed_at": "2026-11-23T03:08:31Z"
+    },
+    {
+     "name": "red-commit-proof",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:13:50Z",
+     "completed_at": "2026-11-23T03:16:02Z"
+    },
+    {
+     "name": "ceiling-catalogue (hundred_k)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:08:44Z",
+     "completed_at": "2026-11-23T03:12:22Z"
+    },
+    {
+     "name": "commit-messages",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:17:41Z",
+     "completed_at": "2026-11-23T03:18:12Z"
+    },
+    {
+     "name": "main-merged-tree",
+     "conclusion": "skipped",
+     "started_at": "2026-11-23T02:53:30Z",
+     "completed_at": "2026-11-23T02:53:29Z"
+    },
+    {
+     "name": "tests (2)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:38:19Z",
+     "completed_at": "2026-11-23T03:47:28Z"
+    },
+    {
+     "name": "tests (1)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:44:36Z",
+     "completed_at": "2026-11-23T03:52:42Z"
+    },
+    {
+     "name": "tests (3)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:49:35Z",
+     "completed_at": "2026-11-23T03:58:17Z"
+    },
+    {
+     "name": "tests (8)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:39:07Z",
+     "completed_at": "2026-11-23T03:49:27Z"
+    },
+    {
+     "name": "tests (9)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:16:16Z",
+     "completed_at": "2026-11-23T04:25:08Z"
+    },
+    {
+     "name": "tests (11)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:11:59Z",
+     "completed_at": "2026-11-23T04:20:32Z"
+    },
+    {
+     "name": "tests (4)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:44:23Z",
+     "completed_at": "2026-11-23T03:52:18Z"
+    },
+    {
+     "name": "tests (10)",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T04:20:23Z",
+     "completed_at": "2026-11-23T04:26:22Z"
+    },
+    {
+     "name": "tests (12)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:45:50Z",
+     "completed_at": "2026-11-23T03:53:01Z"
+    },
+    {
+     "name": "tests (16)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:26:47Z",
+     "completed_at": "2026-11-23T04:27:51Z"
+    },
+    {
+     "name": "tests (13)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:47:39Z",
+     "completed_at": "2026-11-23T03:56:38Z"
+    },
+    {
+     "name": "tests (6)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:06:07Z",
+     "completed_at": "2026-11-23T04:15:12Z"
+    },
+    {
+     "name": "tests (7)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:40:24Z",
+     "completed_at": "2026-11-23T04:52:44Z"
+    },
+    {
+     "name": "tests (5)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:36:29Z",
+     "completed_at": "2026-11-23T04:47:46Z"
+    },
+    {
+     "name": "tests (14)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:25:12Z",
+     "completed_at": "2026-11-23T04:34:57Z"
+    },
+    {
+     "name": "tests (15)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:01:00Z",
+     "completed_at": "2026-11-23T05:04:04Z"
+    },
+    {
+     "name": "tests (19)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:49:30Z",
+     "completed_at": "2026-11-23T04:50:36Z"
+    },
+    {
+     "name": "tests (17)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:54:31Z",
+     "completed_at": "2026-11-23T04:55:41Z"
+    },
+    {
+     "name": "tests (18)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:01:00Z",
+     "completed_at": "2026-11-23T05:02:16Z"
+    }
+   ]
+  },
+  "45103039265": {
+   "pr": 1166,
+   "jobs": [
+    {
+     "name": "file-size",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:16:21Z",
+     "completed_at": "2026-11-23T03:16:58Z"
+    },
+    {
+     "name": "commit-messages",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:28:13Z",
+     "completed_at": "2026-11-23T03:28:53Z"
+    },
+    {
+     "name": "ceiling-catalogue (ceiling)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:30:45Z",
+     "completed_at": "2026-11-23T03:33:25Z"
+    },
+    {
+     "name": "no-derived-files",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:30:27Z",
+     "completed_at": "2026-11-23T03:33:51Z"
+    },
+    {
+     "name": "customer-name-check",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:42:19Z",
+     "completed_at": "2026-11-23T03:42:55Z"
+    },
+    {
+     "name": "lint",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:49:52Z",
+     "completed_at": "2026-11-23T03:50:01Z"
+    },
+    {
+     "name": "ceiling-catalogue (hundred_k)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:35:12Z",
+     "completed_at": "2026-11-23T03:38:28Z"
+    },
+    {
+     "name": "red-commit-proof",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T03:53:40Z",
+     "completed_at": "2026-11-23T03:54:17Z"
+    },
+    {
+     "name": "main-merged-tree",
+     "conclusion": "skipped",
+     "started_at": "2026-11-23T02:56:36Z",
+     "completed_at": "2026-11-23T02:56:36Z"
+    },
+    {
+     "name": "tests (10)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:02:35Z",
+     "completed_at": "2026-11-23T05:11:03Z"
+    },
+    {
+     "name": "tests (3)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:56:17Z",
+     "completed_at": "2026-11-23T04:03:13Z"
+    },
+    {
+     "name": "tests (2)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:02:27Z",
+     "completed_at": "2026-11-23T05:11:33Z"
+    },
+    {
+     "name": "tests (6)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:09:54Z",
+     "completed_at": "2026-11-23T04:17:52Z"
+    },
+    {
+     "name": "tests (9)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:02:49Z",
+     "completed_at": "2026-11-23T05:13:14Z"
+    },
+    {
+     "name": "tests (5)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:01:56Z",
+     "completed_at": "2026-11-23T04:15:59Z"
+    },
+    {
+     "name": "tests (7)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:16:29Z",
+     "completed_at": "2026-11-23T04:26:37Z"
+    },
+    {
+     "name": "tests (4)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:05:19Z",
+     "completed_at": "2026-11-23T04:12:47Z"
+    },
+    {
+     "name": "tests (8)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:23:00Z",
+     "completed_at": "2026-11-23T04:32:59Z"
+    },
+    {
+     "name": "tests (13)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:15:31Z",
+     "completed_at": "2026-11-23T04:22:50Z"
+    },
+    {
+     "name": "tests (15)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:18:05Z",
+     "completed_at": "2026-11-23T04:30:08Z"
+    },
+    {
+     "name": "tests (16)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:15:25Z",
+     "completed_at": "2026-11-23T04:16:31Z"
+    },
+    {
+     "name": "tests (12)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:31:27Z",
+     "completed_at": "2026-11-23T04:40:44Z"
+    },
+    {
+     "name": "tests (19)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:35:08Z",
+     "completed_at": "2026-11-23T04:36:20Z"
+    },
+    {
+     "name": "tests (14)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:35:41Z",
+     "completed_at": "2026-11-23T04:44:00Z"
+    },
+    {
+     "name": "tests (11)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:44:22Z",
+     "completed_at": "2026-11-23T04:54:18Z"
+    },
+    {
+     "name": "tests (18)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:36:53Z",
+     "completed_at": "2026-11-23T04:37:47Z"
+    },
+    {
+     "name": "tests (1)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:00:45Z",
+     "completed_at": "2026-11-23T05:09:06Z"
+    },
+    {
+     "name": "tests (17)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:44:10Z",
+     "completed_at": "2026-11-23T04:45:21Z"
+    }
+   ]
+  },
+  "45106728542": {
+   "pr": 1172,
+   "jobs": [
+    {
+     "name": "commit-messages",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:39:53Z",
+     "completed_at": "2026-11-23T03:40:32Z"
+    },
+    {
+     "name": "no-derived-files",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:43:03Z",
+     "completed_at": "2026-11-23T03:45:59Z"
+    },
+    {
+     "name": "ceiling-catalogue (ceiling)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:43:40Z",
+     "completed_at": "2026-11-23T03:46:05Z"
+    },
+    {
+     "name": "red-commit-proof",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T03:59:30Z",
+     "completed_at": "2026-11-23T04:00:15Z"
+    },
+    {
+     "name": "customer-name-check",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:43:20Z",
+     "completed_at": "2026-11-23T03:44:03Z"
+    },
+    {
+     "name": "file-size",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:44:46Z",
+     "completed_at": "2026-11-23T03:45:22Z"
+    },
+    {
+     "name": "ceiling-catalogue (hundred_k)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:55:59Z",
+     "completed_at": "2026-11-23T03:59:18Z"
+    },
+    {
+     "name": "lint",
+     "conclusion": "success",
+     "started_at": "2026-11-23T03:47:52Z",
+     "completed_at": "2026-11-23T03:48:02Z"
+    },
+    {
+     "name": "main-merged-tree",
+     "conclusion": "skipped",
+     "started_at": "2026-11-23T03:34:00Z",
+     "completed_at": "2026-11-23T03:33:59Z"
+    },
+    {
+     "name": "tests (11)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:04:41Z",
+     "completed_at": "2026-11-23T04:11:50Z"
+    },
+    {
+     "name": "tests (2)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:07:23Z",
+     "completed_at": "2026-11-23T04:16:06Z"
+    },
+    {
+     "name": "tests (8)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:16:10Z",
+     "completed_at": "2026-11-23T04:25:20Z"
+    },
+    {
+     "name": "tests (7)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:22:26Z",
+     "completed_at": "2026-11-23T04:32:24Z"
+    },
+    {
+     "name": "tests (4)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:37:56Z",
+     "completed_at": "2026-11-23T04:46:25Z"
+    },
+    {
+     "name": "tests (1)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:12:57Z",
+     "completed_at": "2026-11-23T04:19:31Z"
+    },
+    {
+     "name": "tests (12)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:32:34Z",
+     "completed_at": "2026-11-23T04:40:13Z"
+    },
+    {
+     "name": "tests (9)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:46:32Z",
+     "completed_at": "2026-11-23T04:53:07Z"
+    },
+    {
+     "name": "tests (6)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:44:40Z",
+     "completed_at": "2026-11-23T04:53:07Z"
+    },
+    {
+     "name": "tests (5)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:51:50Z",
+     "completed_at": "2026-11-23T05:01:12Z"
+    },
+    {
+     "name": "tests (10)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:10:26Z",
+     "completed_at": "2026-11-23T04:18:02Z"
+    },
+    {
+     "name": "tests (16)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:41:05Z",
+     "completed_at": "2026-11-23T04:42:14Z"
+    },
+    {
+     "name": "tests (3)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:53:19Z",
+     "completed_at": "2026-11-23T05:04:55Z"
+    },
+    {
+     "name": "tests (15)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:35:15Z",
+     "completed_at": "2026-11-23T04:36:06Z"
+    },
+    {
+     "name": "tests (19)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:47:59Z",
+     "completed_at": "2026-11-23T04:49:03Z"
+    },
+    {
+     "name": "tests (17)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:49:12Z",
+     "completed_at": "2026-11-23T04:50:17Z"
+    },
+    {
+     "name": "tests (18)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T05:03:53Z",
+     "completed_at": "2026-11-23T05:04:57Z"
+    },
+    {
+     "name": "tests (14)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:55:52Z",
+     "completed_at": "2026-11-23T05:08:33Z"
+    },
+    {
+     "name": "tests (13)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T04:57:37Z",
+     "completed_at": "2026-11-23T05:07:10Z"
+    }
+   ]
+  },
+  "45084861912": {
+   "pr": 1120,
+   "jobs": [
+    {
+     "name": "no-derived-files",
+     "conclusion": "success",
+     "started_at": "2026-11-22T23:47:29Z",
+     "completed_at": "2026-11-22T23:51:11Z"
+    },
+    {
+     "name": "ceiling-catalogue (hundred_k)",
+     "conclusion": "success",
+     "started_at": "2026-11-22T23:48:34Z",
+     "completed_at": "2026-11-22T23:51:21Z"
+    },
+    {
+     "name": "lint",
+     "conclusion": "success",
+     "started_at": "2026-11-22T23:53:08Z",
+     "completed_at": "2026-11-22T23:53:18Z"
+    },
+    {
+     "name": "red-commit-proof",
+     "conclusion": "failure",
+     "started_at": "2026-11-22T23:53:04Z",
+     "completed_at": "2026-11-22T23:53:42Z"
+    },
+    {
+     "name": "ceiling-catalogue (ceiling)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:00:49Z",
+     "completed_at": "2026-11-23T00:03:32Z"
+    },
+    {
+     "name": "customer-name-check",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:09:55Z",
+     "completed_at": "2026-11-23T00:10:40Z"
+    },
+    {
+     "name": "commit-messages",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:11:20Z",
+     "completed_at": "2026-11-23T00:12:01Z"
+    },
+    {
+     "name": "file-size",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:11:05Z",
+     "completed_at": "2026-11-23T00:11:56Z"
+    },
+    {
+     "name": "main-merged-tree",
+     "conclusion": "skipped",
+     "started_at": "2026-11-22T23:44:31Z",
+     "completed_at": "2026-11-22T23:44:30Z"
+    },
+    {
+     "name": "tests (1)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:22:32Z",
+     "completed_at": "2026-11-23T00:32:43Z"
+    },
+    {
+     "name": "tests (4)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:15:21Z",
+     "completed_at": "2026-11-23T00:21:52Z"
+    },
+    {
+     "name": "tests (2)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:16:02Z",
+     "completed_at": "2026-11-23T00:22:13Z"
+    },
+    {
+     "name": "tests (6)",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T00:22:54Z",
+     "completed_at": "2026-11-23T00:32:04Z"
+    },
+    {
+     "name": "tests (3)",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T00:57:03Z",
+     "completed_at": "2026-11-23T01:06:11Z"
+    },
+    {
+     "name": "tests (14)",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T00:54:52Z",
+     "completed_at": "2026-11-23T01:07:11Z"
+    },
+    {
+     "name": "tests (11)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:25:31Z",
+     "completed_at": "2026-11-23T00:33:13Z"
+    },
+    {
+     "name": "tests (15)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:36:56Z",
+     "completed_at": "2026-11-23T00:37:59Z"
+    },
+    {
+     "name": "tests (8)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:34:25Z",
+     "completed_at": "2026-11-23T00:41:41Z"
+    },
+    {
+     "name": "tests (13)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:45:07Z",
+     "completed_at": "2026-11-23T00:53:39Z"
+    },
+    {
+     "name": "tests (19)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:54:25Z",
+     "completed_at": "2026-11-23T00:55:24Z"
+    },
+    {
+     "name": "tests (18)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:55:36Z",
+     "completed_at": "2026-11-23T00:56:33Z"
+    },
+    {
+     "name": "tests (16)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:41:38Z",
+     "completed_at": "2026-11-23T00:42:48Z"
+    },
+    {
+     "name": "tests (5)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:47:53Z",
+     "completed_at": "2026-11-23T00:58:08Z"
+    },
+    {
+     "name": "tests (9)",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T00:45:45Z",
+     "completed_at": "2026-11-23T00:56:49Z"
+    },
+    {
+     "name": "tests (10)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:55:53Z",
+     "completed_at": "2026-11-23T01:03:28Z"
+    },
+    {
+     "name": "tests (12)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:56:37Z",
+     "completed_at": "2026-11-23T01:04:48Z"
+    },
+    {
+     "name": "tests (17)",
+     "conclusion": "success",
+     "started_at": "2026-11-23T00:56:19Z",
+     "completed_at": "2026-11-23T00:57:14Z"
+    },
+    {
+     "name": "tests (7)",
+     "conclusion": "failure",
+     "started_at": "2026-11-23T00:57:21Z",
+     "completed_at": "2026-11-23T01:08:43Z"
+    }
+   ]
+  }
+ }
+}
