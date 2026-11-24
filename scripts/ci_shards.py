@@ -251,11 +251,20 @@ def deal(
     divided = [name for name in files if name in split] if count > 1 else []
     peaks = load_peaks() if peaks is None else peaks
     spread = (spread_files(files) if spread is None else spread) | split
+    if concurrent_peak(divided, peaks, spread)[0] > SHARD_PEAK_MB:
+        raise PlanError(_refusal(divided, count, peaks, spread))
     weight = {name: weights.get(name, DEFAULT_SECONDS) for name in files}
     shards: list[list[str]] = [list(divided) for _ in range(count)]
     load = [sum(weight[name] for name in divided) / count] * count
     for name in sorted(whole, key=lambda f: (-weight[f], f)):
-        fits = range(count)
+        fits = [
+            i
+            for i in range(count)
+            if concurrent_peak([*shards[i], name], peaks, spread)[0] <= SHARD_PEAK_MB
+        ]
+        if not fits:
+            best = min(shards, key=lambda shard: concurrent_peak([*shard, name], peaks, spread)[0])
+            raise PlanError(_refusal([*best, name], count, peaks, spread))
         lightest = min(fits, key=lambda i: (load[i], i))
         shards[lightest].append(name)
         load[lightest] += weight[name]
