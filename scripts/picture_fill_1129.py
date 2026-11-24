@@ -922,7 +922,8 @@ def main(argv: list[str] | None = None) -> int:
     (args.out / "worst40.html").write_text(contact_sheet(types, svgs), encoding="utf-8")
     (args.out / "worst40.svg").write_text(contact_svg(types, svgs), encoding="utf-8")
     (args.out / "rows.json").write_text(
-        json.dumps({"cost": spent, "renders": renders}, indent=1, default=str), encoding="utf-8"
+        json.dumps({"cost": spent, "renders": renders, "types": types}, indent=1, default=str),
+        encoding="utf-8",
     )
     print(
         f"{len(renders)} renders, {len(types)} type rows, {len(kits_drawn)} kits, "
