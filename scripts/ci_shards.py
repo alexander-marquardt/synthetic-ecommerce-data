@@ -41,6 +41,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -184,7 +185,7 @@ def run_order(
 
 
 def deal(
-    files: list[str],
+    files: Sequence[str],
     count: int,
     weights: dict[str, float],
     split: frozenset[str] | None = None,
@@ -212,17 +213,18 @@ def deal(
 @functools.lru_cache(
     maxsize=1
 )  # the plans of one range, of every shard, read the tree once (#1035)
-def scoped_files(base: str, head: str, root: Path = REPO) -> list[str] | None:
+def scoped_files(base: str, head: str, root: Path = REPO) -> tuple[str, ...] | None:
     """The test files the change ``base..head`` reaches (scripts/ci_select.py), or None for
-    every test file: no range (a push to main, a manual run) or a diff git cannot read."""
+    every test file: no range (a push to main, a manual run) or a diff git cannot read.
+    A tuple: the selection is kept, and no caller may change it for the next."""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import ci_select
 
     chosen = ci_select.selection_for_range(base, head, root)
-    return None if chosen is None else sorted(chosen)
+    return None if chosen is None else tuple(sorted(chosen))
 
 
-def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
+def shards_needed(files: Sequence[str], of: int, weights: dict[str, float]) -> int:
     """How many of the ``of`` shards a selection is dealt to: enough that none holds more than
     ``SCOPED_SHARD_SECONDS`` of work, at least one, at most ``of``.
 
@@ -237,7 +239,7 @@ def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
     return count
 
 
-def _dealt_loads(files: list[str], count: int, weights: dict[str, float]) -> list[float]:
+def _dealt_loads(files: Sequence[str], count: int, weights: dict[str, float]) -> list[float]:
     """The seconds of work each of ``count`` shards holds when ``files`` are dealt to them."""
     return [
         sum(
