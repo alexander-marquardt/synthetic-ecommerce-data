@@ -12,9 +12,9 @@ from __future__ import annotations
 KINDS = ("Crossbody Bag", "Shoulder Bag", "Clutch Bag")
 #: The lead word of a model.
 LEADS = (
-    "Boulevard", "Matinee", "Rendezvous", "Vignette", "Arcade", "Esplanade", "Overture",
+    "Boulevard", "Matinee", "Rendezvous", "Vignette", "Colonnade", "Esplanade", "Overture",
     "Interlude", "Cabaret", "Serenade", "Debut", "Piazza", "Atelier", "Mezzanine", "Recital",
-    "Ballroom", "Cameo", "Sonnet", "Cadenza", "Masquerade", "Quartet", "Premiere",
+    "Rotunda", "Cameo", "Sonnet", "Cadenza", "Masquerade", "Quartet", "Premiere",
 )  # fmt: skip
 #: The sub-model word that may follow the lead.
 SUBS = ("Mini", "Duo", "Lux")

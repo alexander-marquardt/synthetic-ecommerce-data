@@ -47,8 +47,8 @@ SPEC = TypeSpec(
             "CBGDRD", "Crossbody Bag with Red Strap", bc.WRENFIELD, 27.0,
             "A black nylon crossbody with a red strap and a zip top.", (bc.BLACK,), "Camera", "Nylon", "Zip", "Adjustable")),
         bc.decoy(4, "leather crossbody bag", "generic", _row(
-            "CBGDLK", "Leather-Look Crossbody Bag", bc.THISTLE, 25.0,
-            "A crossbody with a leather-look finish; there is no leather in it.", (bc.TAN,), "Saddle", "Faux Leather", "Flap", "Adjustable")),
+            "CBGDLK", "Faux Leather Saddle Crossbody Bag", bc.THISTLE, 25.0,
+            "A rounded faux leather crossbody with a stud flap; there is no leather in it.", (bc.TAN,), "Saddle", "Faux Leather", "Flap", "Adjustable")),
         bc.decoy(6, "canvas crossbody bag", "generic", _row(
             "CBGDCN", "Blank Canvas Crossbody Bag", bc.CALDERBY, 38.0,
             "From the Blank Canvas range: a smooth crossbody with a zip top.", (bc.WHITE,), "Camera", "Nylon", "Zip", "Adjustable")),
