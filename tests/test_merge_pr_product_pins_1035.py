@@ -77,8 +77,6 @@ def test_the_freshness_tests_are_real_tests_of_the_golden_files() -> None:
             "pytest",
             "-o",
             "addopts=",
-            "-p",
-            "no:randomly",
             "--collect-only",
             "-q",
             "-p",
