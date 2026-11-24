@@ -29,6 +29,8 @@ ALLOWLIST = ROOT / ".github" / "dependency_allowlist.json"
 #: Where the copy comes from: the elastic/prism commit and the blob id `git ls-tree` prints there.
 CORE_COMMIT = "687e078cb60f5c96d2315f9aca043e6ba615bef7"
 CORE_BLOB = "2e25f4c2b922661c5802ba716f1f313053bc6128"
+#: The SHA-256 of the check step's ``run`` in core's reusable-dependency-gate.yaml there.
+STEP_SHA256 = "f13b5f9b9f3260e49b632826003cab43d0a2cb23865786846b43f07f609bd5bb"
 
 PYPROJECT = """\
 [project]
@@ -66,6 +68,11 @@ def test_the_script_is_cores_byte_for_byte() -> None:
     data = _installed(SCRIPT).read_bytes()
     blob = hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
     assert blob == CORE_BLOB, f"not elastic/prism's script at {CORE_COMMIT}: docs, 'Update it'"
+
+
+def test_the_check_step_is_cores_word_for_word() -> None:
+    run = _job()["steps"][-1]["run"]
+    assert hashlib.sha256(run.encode()).hexdigest() == STEP_SHA256
 
 
 def test_the_list_names_every_direct_dependency_of_this_repository() -> None:

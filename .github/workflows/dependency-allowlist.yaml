@@ -1,0 +1,67 @@
+---
+# Core's direct-dependency allowlist check, as this public repository runs it (#1106,
+# elastic/prism#16448). A public repository cannot call the private core's reusable workflow, so
+# the script is a byte-for-byte copy and the last step below is the check step of core's
+# reusable-dependency-gate.yaml, word for word: a new copy of one takes the other
+# (docs/dependency-allowlist.md).
+#
+# Its own workflow, not a job of ci.yaml: the approval is a label, so adding one must run this
+# check again, and a label should not run the whole suite.
+name: dependency-allowlist
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  merge_group:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+# A silent git transfer aborts after 20 s, so the checkout's own fetch retry runs inside its cap.
+env:
+  GIT_HTTP_LOW_SPEED_LIMIT: 1
+  GIT_HTTP_LOW_SPEED_TIME: 20
+jobs:
+  dependency-allowlist:
+    name: dependency-allowlist
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # The default checkout keeps its token, which the base fetch below needs. It sits under
+      # caller/, as in core, so the step below reads core's two paths beside it.
+      - name: Check out this repository
+        timeout-minutes: 3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: caller
+      # retry.sh is the copy the vulnerability gate already pins (.github/vuln-gate/PIN.json).
+      - name: Put the copies where core's check step reads them
+        timeout-minutes: 1
+        run: |
+          mkdir -p .prism-core/.github/scripts
+          ln -sf "$GITHUB_WORKSPACE/caller/.github/scripts/check_dependency_allowlist.py" "$GITHUB_WORKSPACE/caller/.github/vuln-gate/.github/scripts/retry.sh" .prism-core/.github/scripts/
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        timeout-minutes: 2
+        with:
+          python-version: "3.12"
+      - name: Check the direct-dependency allowlist
+        timeout-minutes: 4
+        working-directory: caller
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          ALLOWLIST: .github/dependency_allowlist.json
+        run: |
+          set -euo pipefail
+          BASE_ARGS=()
+          # Only a pull_request run carries the PR's labels, so only it
+          # compares the list and the locks with the base's; every event checks
+          # list == tree. The base is checked out whole, outside the caller's
+          # tree, so its locks are counted where they sit (#16760).
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            bash "$GITHUB_WORKSPACE/.prism-core/.github/scripts/retry.sh" --timeout 40 git fetch --no-tags --depth=1 origin "$PR_BASE_SHA"
+            BASE_TREE="$(mktemp -d "$RUNNER_TEMP/base.XXXXXX")/tree"
+            git worktree add --quiet --detach "$BASE_TREE" "$PR_BASE_SHA"
+            BASE_ARGS=(--base-root "$BASE_TREE")
+          fi
+          python3 "$GITHUB_WORKSPACE/.prism-core/.github/scripts/check_dependency_allowlist.py" --root . --allowlist "$ALLOWLIST" "${BASE_ARGS[@]}" --labels "$PR_LABELS" | tee -a "$GITHUB_STEP_SUMMARY"
