@@ -3,13 +3,14 @@
 A lager, sour or alcohol free beer used to draw the generic ``kit.tin``, and a pale ale, fruit
 beer, cider or perry the generic ``kit.bottle``, each shrunk by :mod:`pack_scale`; a 4-pack was
 four copies of that one drawing. ``beer`` draws the container each pack is sold in, at its real proportions,
-from the SKU's own ``pack_size`` and its line's ``sold_in`` and ``glass`` (per-SKU drawing params):
+from the SKU's own ``pack_size`` (a hand-written row's ``net_volume_ml``) and its line's
+``sold_in`` and ``glass`` (per-SKU drawing params):
 
 =======================  ====================================================================
 pack                     draws
 =======================  ====================================================================
-330ml, 500ml in a        a glass beer bottle: a crown cap on a bead, a long neck, a label,
-bottle line              the beer through the glass (:data:`GLASSES`: brown, clear, green)
+330ml, 500ml, 750ml in   a glass beer bottle: a crown cap on a bead, a long neck, a label,
+a bottle line            the beer through the glass (:data:`GLASSES`: brown, clear, green)
 1L or more in a bottle   a PET bottle (``kit_soft_drinks``): a screw cap, a petaloid foot,
 line                     the drink through its clear wall (a cider's 2L)
 330ml, 440ml in a can    a ring-pull can printed in the beer's own color (``kit_soft_drinks``)
@@ -48,6 +49,7 @@ from synthetic_ecommerce_data.domains.retail.kit_drinks import (
     STEP_POWER,
     Form,
     millilitres,
+    pack_of,
 )
 from synthetic_ecommerce_data.domains.retail.kit_soft_drinks import (
     CLEAR,
@@ -81,9 +83,9 @@ FORM = Form(
     (0.14, 0.5),
 )
 
-#: A beer bottle's real (height, diameter) in mm by content in ml: a 330ml squat craft bottle
-#: and a 500ml ale bottle.
-BOTTLES = {275: (200, 60), 330: (205, 64), 500: (245, 75)}
+#: A beer bottle's real (height, diameter) in mm by content in ml: a 330ml squat craft bottle,
+#: a 500ml ale bottle and a 750ml sharing bottle.
+BOTTLES = {275: (200, 60), 330: (205, 64), 500: (245, 75), 750: (290, 83)}
 #: The bottle sizes a shop sells beer in: a 440ml (or any other under :data:`PET_FROM`) is a can.
 BOTTLE_SIZES = frozenset(BOTTLES)
 #: A bottle line's single of this many ml or more is a PET bottle (a cider's 2L).
@@ -179,9 +181,12 @@ def basket(n: int, d_over_h: float, beer: str, glass: str, label: str | None) ->
 
 
 def beer(paint: str, fill: Fill, label: str | None, pack_size: str = "330ml", largest: str = "",
-         sold_in: str = "can", glass: str = "brown") -> list[str]:  # fmt: skip
+         sold_in: str = "can", glass: str = "brown",
+         net_volume_ml: str = "") -> list[str]:  # fmt: skip
     """A beer in its ``pack_size`` container, in a line ``sold_in`` cans or bottles in ``glass``,
-    whose largest single bottle is ``largest`` (the SKU's own size when empty)."""
+    whose largest single bottle is ``largest`` (the SKU's own size when empty). ``net_volume_ml``
+    is the pack of a row that sells its sizes by volume (:func:`kit_drinks.pack_of`)."""
+    pack_size = pack_of(pack_size, net_volume_ml)
     if sold_in not in ("can", "bottle"):
         raise ValueError(f"a beer line is sold in cans or bottles, not {sold_in!r}")
     if glass not in GLASSES:

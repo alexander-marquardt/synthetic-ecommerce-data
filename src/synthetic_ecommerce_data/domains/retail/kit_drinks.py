@@ -213,6 +213,12 @@ def millilitres(pack_size: str) -> float:
     return float(m[1]) * _ML_PER[m[2]]
 
 
+def pack_of(pack_size: str, net_volume_ml: str = "") -> str:
+    """The pack to draw: a SKU's ``net_volume_ml`` ("330.0") where its row sells sizes by volume
+    (a hand-written row has no ``pack_size``), else ``pack_size``."""
+    return f"{float(net_volume_ml):g}ml" if net_volume_ml else pack_size
+
+
 def dimensions(form: str, ml: float) -> tuple[float, float]:
     """The real (height, diameter) in mm of a ``form`` bottle holding ``ml``."""
     table = DIMENSIONS[form]

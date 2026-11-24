@@ -1,5 +1,8 @@
 """The picture manifest and its loader: the one bridge from the pictures to our products (gen#1022).
 
+It is read by both paths and imports neither: the pictures (:mod:`..picture_drawings`, step 1) and
+the products (:mod:`..picture_products`, step 2).
+
 A manifest row is the spec one picture was drawn from, in the generator's own drawing vocabulary,
 under an opaque image id. It has a closed schema: every field is one of :data:`FIELDS`, and every
 value is an enum of the generator's, an integer count or a small rounded ratio. There is no
@@ -18,12 +21,17 @@ any other field or value with a ``ValueError`` that names it::
   other id, and it is only a hand-over key: no product, SKU or image file the writer makes keeps it.
 * ``type`` (required): one of :data:`TYPES`, the kit shapes with a table of params.
 * ``color`` (required): one of :data:`COLORS`, the generator's color words.
-* ``parts``: the type's own params (``kit_home_furniture.PARAMS``,
-  ``kit_storage_furniture.PARAMS``). A count (doors, drawers, shelves, tiers, stools) is an
-  integer and any other part is one of the words its shape draws. A part left out is drawn as
-  the shape's default.
+* ``parts``: the type's own params, as its kit shape draws them. A count (doors, drawers, shelves,
+  tiers, stools) is an integer and any other part is one of the words its shape draws. A part left
+  out is drawn as the shape's default.
 * ``proportions``: ``height_per_width`` and ``depth_per_width``, each a number from 0.05 to 20
   with at most two decimals. A ratio left out is the type's nominal one (``drawings.PROPORTIONS``).
+
+A picture whose product is of no type the generator draws is a fallback row: its ``image_id`` and
+a ``department``, one of :data:`DEPARTMENTS`, and nothing else (gen#1220). It is loaded as a
+:class:`Fallback` and drawn as its department's own picture::
+
+    {"image_id": "7c1e0a9d4b2f8e63", "department": "lighting"}
 """
 
 from __future__ import annotations
@@ -38,22 +46,63 @@ from typing import Any
 from synthetic_ecommerce_data import drawings
 from synthetic_ecommerce_data.domains.retail import (
     dark_blues,
+    kit_bath_kitchen,
+    kit_decor_pieces,
     kit_home_furniture,
+    kit_home_variants,
+    kit_softfurn,
     kit_storage_furniture,
 )
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 
 FIELDS: tuple[str, ...] = ("image_id", "type", "color", "parts", "proportions")
 REQUIRED: tuple[str, ...] = ("image_id", "type", "color")
+#: A fallback row's only fields, both required.
+FALLBACK_FIELDS: tuple[str, ...] = ("image_id", "department")
 RATIOS: tuple[str, ...] = ("height_per_width", "depth_per_width")
 #: The least and most a ratio may be, and its decimals: a proportion, never a measured value.
 RATIO_RANGE: tuple[float, float] = (0.05, 20.0)
 RATIO_DECIMALS = 2
 
-#: Each type the manifest names, and the parts its shape draws with the values each takes.
-TYPES: dict[str, dict[str, tuple[str, ...]]] = {
+_PARAMS: dict[str, dict[str, tuple[str, ...]]] = {
     **kit_home_furniture.PARAMS,
     **kit_storage_furniture.PARAMS,
+    **kit_bath_kitchen.PARAMS,
+    **kit_decor_pieces.PARAMS,
+    **kit_home_variants.PARAMS,
+    "rug": kit_softfurn.RUG_PARAMS,
+    "bookcase": {
+        "shelves": tuple("2345678"),
+        "style": ("standard", "ladder", "cube", "glass_door"),
+    },
+    "wardrobe": {
+        "doors": tuple("234"),
+        "mirrored": ("no", "yes"),
+        "door": ("hinged", "sliding"),
+    },
+    "chest_of_drawers": {"drawers": tuple("2345678"), "form": ("tall", "wide")},
+    "sofa": {},
+}
+#: Each type the manifest names (every type ``drawings.render`` draws at proportions), and the
+#: parts its shape draws with the values each takes.
+TYPES: dict[str, dict[str, tuple[str, ...]]] = {t: _PARAMS[t] for t in drawings.PROPORTIONS}
+
+#: Each department a fallback row names, and the kit shape that stands for it: a thing of that
+#: department, never a piece claiming to be the product's own.
+DEPARTMENTS: dict[str, str] = {
+    "furniture": "armchair",
+    "storage": "storage_box",
+    "bedding": "bed_pillow",
+    "bath": "bath_towel",
+    "kitchen": "saucepan",
+    "decor": "ornament",
+    "lighting": "table_lamp",
+    "rugs": "floor_mat",
+    "hardware": "hook_rail",
+    "garden": "watering_can",
+    "kids": "wooden_toy",
+    "pets": "pet_bed",
+    "other": "box",
 }
 
 #: The generator's color words a picture is filled with, and the hex each is drawn in: the six
@@ -72,6 +121,14 @@ COLORS: dict[str, str] = {
 }
 
 _IMAGE_ID = re.compile(r"[0-9a-f]{12,64}")
+
+
+@dataclass(frozen=True)
+class Fallback:
+    """A manifest row of no drawn type: it shows its department's picture."""
+
+    image_id: str
+    department: str
 
 
 @dataclass(frozen=True)
@@ -150,11 +207,33 @@ def _proportions(where: str, type_: str, given: Any) -> tuple[float, float]:
     return (out["height_per_width"], out["depth_per_width"])
 
 
-def check(row: Any, where: str = "row") -> Picture:
-    """One manifest row as a :class:`Picture`; a field or value outside the schema raises
-    ``ValueError`` naming it."""
+def _image_id(where: str, image_id: Any) -> str:
+    if not isinstance(image_id, str) or not _IMAGE_ID.fullmatch(image_id):
+        raise ValueError(f"{where}: image_id must be 12 to 64 lower-case hex digits")
+    return image_id
+
+
+def _fallback(row: Mapping[str, Any], where: str) -> Fallback:
+    unknown = sorted(str(k) for k in row if k not in FALLBACK_FIELDS)
+    if unknown:
+        raise ValueError(
+            f"{where}: a fallback row has no field {unknown[0]!r}; its fields are {FALLBACK_FIELDS}"
+        )
+    if "image_id" not in row:
+        raise ValueError(f"{where}: missing 'image_id'")
+    department = row["department"]
+    if not isinstance(department, str) or department not in DEPARTMENTS:
+        raise ValueError(f"{where}: unknown department {department!r}; one of {tuple(DEPARTMENTS)}")
+    return Fallback(_image_id(where, row["image_id"]), department)
+
+
+def check(row: Any, where: str = "row") -> Picture | Fallback:
+    """One manifest row as a :class:`Picture`, or a :class:`Fallback` when it names a department;
+    a field or value outside the schema raises ``ValueError`` naming it."""
     if not isinstance(row, Mapping):
         raise ValueError(f"{where}: a manifest row is an object, not {type(row).__name__}")
+    if "department" in row:
+        return _fallback(row, where)
     unknown = sorted(str(k) for k in row if k not in FIELDS)
     if unknown:
         raise ValueError(f"{where}: no field {unknown[0]!r}; the manifest's fields are {FIELDS}")
@@ -162,8 +241,7 @@ def check(row: Any, where: str = "row") -> Picture:
     if missing:
         raise ValueError(f"{where}: missing {missing[0]!r}")
     image_id, type_, color = row["image_id"], row["type"], row["color"]
-    if not isinstance(image_id, str) or not _IMAGE_ID.fullmatch(image_id):
-        raise ValueError(f"{where}: image_id must be 12 to 64 lower-case hex digits")
+    _image_id(where, image_id)
     if type_ not in TYPES:
         raise ValueError(f"{where}: unknown type {type_!r}; one of {tuple(TYPES)}")
     if color not in COLORS:
@@ -177,9 +255,9 @@ def check(row: Any, where: str = "row") -> Picture:
     )
 
 
-def load(rows: Iterable[Any]) -> list[Picture]:
+def load(rows: Iterable[Any]) -> list[Picture | Fallback]:
     """Every row of a manifest, checked; a repeated image id is refused too."""
-    out: list[Picture] = []
+    out: list[Picture | Fallback] = []
     seen: set[str] = set()
     for i, row in enumerate(rows):
         picture = check(row, f"row {i}")
@@ -190,7 +268,7 @@ def load(rows: Iterable[Any]) -> list[Picture]:
     return out
 
 
-def load_file(path: str | Path) -> list[Picture]:
+def load_file(path: str | Path) -> list[Picture | Fallback]:
     """A manifest file: a JSON list of rows, or JSON Lines (one row a line)."""
     text = Path(path).read_text(encoding="utf-8")
     if text.lstrip().startswith("["):

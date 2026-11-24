@@ -1,4 +1,4 @@
-"""The retail catalog holds the distractors of three failure classes (gen#125).
+"""The retail domain holds the distractors of three failure classes (gen#125).
 
 On the 76K-SKU build, "mattress topper", "balloon jeans" and "petite sale" did not
 fail without a policy: the catalog lacked the products that win. Each test holds that

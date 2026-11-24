@@ -1,6 +1,6 @@
 """The Automotive department, slice 1: car care (gen#970).
 
-The retail catalogue had no ``Automotive`` top level: ``core/departments.RETAIL`` did not list it
+The retail domain had no ``Automotive`` top level: ``core/departments.RETAIL`` did not list it
 and no ``category_path`` started with it. Slice 1 adds the department and nine car care types
 under ``Automotive > Car Care`` (``automotive_rows``, ``docs/retail-automotive.md``). These checks
 hold the slice's Done-when: the ceiling build holds at least 600 Automotive SKUs, with no product
