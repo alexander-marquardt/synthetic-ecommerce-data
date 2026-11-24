@@ -103,6 +103,79 @@ def _chair_back(x: float, y: float, w: float, h: float, paint: str) -> list[str]
     return [_rect(x, y, w, h, paint, LW_DETAIL, rx=6), _line(f"M{x + 6:.1f},{y + h * 0.5:.1f} L{x + w - 6:.1f},{y + h * 0.5:.1f}", 1.0, ' stroke-opacity=".5"')]
 
 
+def _area(d: str, color: str, opacity: float) -> str:
+    """A translucent tone over ``d`` with no outline: the light or the shade a surface carries."""
+    return f'<path d="{d}" fill="{color}" fill-opacity="{opacity:g}" stroke="none"/>'
+
+
+def _lit(d: str, opacity: float = 0.28) -> str:
+    return _area(d, "#ffffff", opacity)
+
+
+def _dim(d: str, opacity: float = 0.1) -> str:
+    return _area(d, "#000000", opacity)
+
+
+def _quad(*pts: tuple[float, float]) -> str:
+    return "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y in pts) + " Z"
+
+
+def _ground(cx: float, y: float, rx: float, ry: float = 8.0) -> str:
+    """The shadow the piece throws on the floor (``class="ground"``: not a part of the figure)."""
+    return f'<ellipse class="ground" cx="{cx:g}" cy="{y:g}" rx="{rx:g}" ry="{ry:g}" fill="#000000" fill-opacity=".14"/>'
+
+
+def _bar(x0: float, y0: float, x1: float, y1: float, w0: float, w1: float, paint: str) -> str:
+    """A leg, post or rail from one point to the other, ``w0`` wide at its start and ``w1`` at its end."""
+    n = math.hypot(x1 - x0, y1 - y0)
+    ux, uy = -(y1 - y0) / n / 2, (x1 - x0) / n / 2
+    return _path(_quad((x0 + ux * w0, y0 + uy * w0), (x0 - ux * w0, y0 - uy * w0), (x1 - ux * w1, y1 - uy * w1), (x1 + ux * w1, y1 + uy * w1)), paint, LW_DETAIL)
+
+
+def _slab(cx: float, y0: float, y1: float, back: float, front: float, t: float, paint: str, round_: bool = False, cls: str = "") -> list[str]:
+    """A table top seen from above its front edge: its surface from ``y0`` (its back edge, ``back``
+    to each side of ``cx``) to ``y1`` (its front, ``front``), over its edge ``t`` thick, lit from the
+    left and shaded to the right. A round one is an ellipse ``front`` wide to each side."""
+    edge, c = _shade(paint, 0.18), f' class="{cls}"' if cls else ""
+    if round_:
+        cy, ry = (y0 + y1) / 2, (y1 - y0) / 2
+        under = f"M{cx - front:.1f},{cy:.1f} L{cx - front:.1f},{cy + t:.1f} A{front:.1f},{ry:.1f} 0 0 0 {cx + front:.1f},{cy + t:.1f} L{cx + front:.1f},{cy:.1f} Z"
+        lit = f"M{cx - front + 4:.1f},{cy:.1f} A{front - 4:.1f},{ry - 4:.1f} 0 0 1 {cx + front * 0.1:.1f},{y0 + 4:.1f} L{cx - front * 0.35:.1f},{y1 - ry * 0.12:.1f} A{front - 4:.1f},{ry - 4:.1f} 0 0 1 {cx - front + 4:.1f},{cy:.1f} Z"
+        return [_path(under, edge, LW_DETAIL), _path(_top_outline("round", cx, cy, front, ry), paint, LW, c), _lit(lit)]
+    under = _quad((cx - front, y1), (cx + front, y1), (cx + front, y1 + t), (cx - front, y1 + t))
+    lit = _quad((cx - back + 4, y0 + 3), (cx + back * 0.15, y0 + 3), (cx - front * 0.3, y1 - 3), (cx - front + 5, y1 - 3))
+    return [_path(under, edge, LW_DETAIL), _path(_quad((cx - back, y0), (cx + back, y0), (cx + front, y1), (cx - front, y1)), paint, LW, c), _lit(lit)]
+
+
+def _front(x: float, y: float, w: float, h: float) -> list[str]:
+    """The light down the left of an upright front and the shade down its right."""
+    return [_lit(_quad((x + 2, y + 2), (x + w * 0.34, y + 2), (x + w * 0.2, y + h - 2), (x + 2, y + h - 2)), 0.3), _dim(_quad((x + w * 0.72, y + 2), (x + w - 2, y + 2), (x + w - 2, y + h - 2), (x + w * 0.6, y + h - 2)), 0.08)]
+
+
+def _side(x: float, y: float, h: float, depth: float, paint: str) -> str:
+    """The right side of a cabinet, receding ``depth`` from its front edge."""
+    return _path(_quad((x, y), (x + depth, y - depth * 0.4), (x + depth, y + h - depth * 0.5), (x, y + h)), _shade(paint, 0.2), LW_DETAIL)
+
+
+def _table_chair(x: float, y: float, w: float, h: float, paint: str, legs: float = 0.0) -> list[str]:
+    """One chair at a table (``class="seat"``): its back, ``w`` by ``h``, and, for one drawn in
+    front of the table, its legs down to ``legs``."""
+    out = [_bar(x + dx, y + h - 4, x + dx, legs, 13, 10, _shade(paint, 0.15)) for dx in (10, w - 10)] if legs else []
+    out += [_rect(x, y, w, h, paint, LW_DETAIL, rx=9), _lit(_quad((x + 7, y + 6), (x + w * 0.45, y + 6), (x + w * 0.3, y + h - 6), (x + 7, y + h - 6)), 0.25), _dim(_quad((x + w * 0.74, y + 6), (x + w - 5, y + 6), (x + w - 5, y + h - 6), (x + w * 0.62, y + h - 6)), 0.12), _line(f"M{x + 9:.1f},{y + h * 0.72:.1f} L{x + w - 9:.1f},{y + h * 0.72:.1f}", 1.0, ' stroke-opacity=".5"')]
+    return ['<g class="seat">', *out, "</g>"]
+
+
+def _end_chair(side: int, inner: float, outer: float, y: float, floor: float, paint: str) -> list[str]:
+    """One chair at a table's end, its back outward (``class="seat"``)."""
+    cx = 200.0
+    a, b = cx + side * inner, cx + side * outer
+    dark = _shade(paint, 0.15)
+    back = _quad((b - side * 30, y), (b, y + 8), (b, y + 128), (b - side * 30, y + 118))
+    seat = _quad((b - side * 30, y + 92), (a, y + 92), (a, y + 132), (b, y + 132))
+    return ['<g class="seat">', _bar(b - side * 8, y + 124, b - side * 4, floor, 15, 11, dark), _bar(a - side * -8, y + 126, a + side * 8, floor - 14, 13, 10, dark),
+            _path(seat, _shade(paint, 0.05), LW_DETAIL), _path(back, paint, LW_DETAIL), _lit(_quad((b - side * 26, y + 8), (b - side * 14, y + 10), (b - side * 14, y + 112), (b - side * 26, y + 110)), 0.3), "</g>"]
+
+
 def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rectangular", seats: str = "4", extending: str = "no", top: str = "oak") -> list[str]:
     """A dining table and its ``seats`` chair backs: half behind the top, the rest at its ends.
 
@@ -118,83 +191,101 @@ def dining_table(paint: str, fill: Fill, label: str | None, outline: str = "rect
     n = int(seats)
     if n not in (2, 4, 6, 8):
         raise ValueError(f"a dining table seats 2, 4, 6 or 8, not {n}")
-    rx = {"round": 96, "square": 100, "oval": 150, "rectangular": 150}[outline] + (10 if n == 8 else 0)
-    ry = 40 if outline != "round" else 46
-    cx, cy = 200, 196
-    # Every seat is drawn: chair backs in a row behind the top, and one at each end of a long
-    # table of six or more, so the drawn backs (``class="seat"``) count the seats.
-    ends = 2 if n >= 6 and outline in ("rectangular", "oval") else 0
-    behind = n - ends
-    span = rx * 0.78 if behind > 2 else rx * 0.45
-    out: list[str] = []
-    for x in [cx - span + 2 * span * k / (behind - 1) for k in range(behind)]:
-        out += ['<g class="seat">', *_chair_back(x - 24, cy - ry - 70, 48, 66, _shade(paint, 0.08)), "</g>"]
+    cx = 200
+    # Every seat is drawn (``class="seat"``): one chair at each end of a table for two, and of a long
+    # table of six or more, and the rest half behind the top and half in front of it.
+    long = outline in ("rectangular", "oval")
+    ends = 2 if n == 2 or (n >= 6 and long) else 0
+    each = (n - ends) // 2
+    oval = outline in ("round", "oval")
+    y0, y1, t = {"round": (84, 240), "square": (84, 232), "oval": (98, 224), "rectangular": (98, 224)}[outline] + (16,)
+    back, front = {"round": (150, 150), "square": (112, 130), "oval": (128, 128), "rectangular": (116, 132)}[outline]
+    if outline == "square" and n > 2:
+        back, front = back + 22, front + 26
+    cy, rx, ry = (y0 + y1) / 2, front, (y1 - y0) / 2
+    seat = _shade(paint, 0.08)
+    wide = min(84.0, 2 * front * 0.86 / max(each, 1) - 8)
+    xs = [cx + (k - (each - 1) / 2) * (wide + 14) for k in range(each)]
+    out: list[str] = [_ground(cx, 352, 150)]
+    for x in xs:
+        out += _table_chair(x - wide / 2, 34, wide, 86, seat)
     for side in (-1, 1)[:ends]:
-        x = cx + side * (rx + 22)
-        out += ['<g class="seat">', *_chair_back(x - 18, cy - 54, 36, 64, _shade(paint, 0.08)), "</g>"]
-    legs = [cx] if outline == "round" else [cx - rx + 22, cx + rx - 22]
+        out += _end_chair(side, front - 12, 170, 112, 340, seat)
     if outline == "round":
-        out += [_path(f"M{cx - 14},{cy + ry - 6} L{cx + 14},{cy + ry - 6} L{cx + 10},{cy + 140} L{cx - 10},{cy + 140} Z", paint), _path(f"M{cx - 60},{cy + 140} L{cx + 60},{cy + 140} L{cx + 50},{cy + 152} L{cx - 50},{cy + 152} Z", paint, LW_DETAIL)]
+        out += [_path(f"M{cx - 20},{cy + 40} L{cx + 20},{cy + 40} L{cx + 16},{cy + 150} L{cx - 16},{cy + 150} Z", paint), _path(f"M{cx - 78},346 Q{cx},296 {cx + 78},346 L{cx + 78},356 L{cx - 78},356 Z", paint, LW_DETAIL), _dim(f"M{cx + 4},{cy + 90} L{cx + 16},{cy + 90} L{cx + 12},{cy + 146} L{cx + 4},{cy + 146} Z", 0.16)]
     else:
-        out += _legs(legs, cy + ry - 4, cy + 150, paint, 14)
-        if outline == "oval":
-            out += _legs([cx - rx * 0.45, cx + rx * 0.45], cy + ry - 2, cy + 146, _shade(paint, 0.15), 12)
-    outline_d = _top_outline(outline, cx, cy, rx, ry)
-    flat = outline not in ("round", "oval")
-    edge = _shade(GLASS, 0.15) if top == "glass" else _shade(paint, 0.2)
-    if flat:
-        y0 = cy + ry
-        out.append(_path(f"M{cx - rx:.1f},{y0:.1f} L{cx - rx:.1f},{y0 + 14:.1f} L{cx + rx:.1f},{y0 + 14:.1f} L{cx + rx:.1f},{y0:.1f} Z", edge, LW_DETAIL))
-    else:
-        out.append(f'<ellipse cx="{cx}" cy="{cy + 10}" rx="{rx}" ry="{ry}" fill="{edge}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>')
+        inset = 34 if oval else 14
+        out += [_bar(cx + s * (back - inset - 6), y1 - 10, cx + s * (back - inset - 10), 326, 18, 13, _shade(paint, 0.2)) for s in (-1, 1)]
+        out += [_bar(cx + s * (front - inset), y1 - 6, cx + s * (front - inset - 2), 350, 24, 16, paint) for s in (-1, 1)]
+        if not oval and top != "glass":
+            out.append(_path(_quad((cx - front + 10, y1 + t - 4), (cx + front - 10, y1 + t - 4), (cx + front - 10, y1 + t + 26), (cx - front + 10, y1 + t + 26)), _shade(paint, 0.1), LW_DETAIL))
+    outline_d = _top_outline(outline, cx, cy, rx, ry) if oval else _quad((cx - back, y0), (cx + back, y0), (cx + front, y1), (cx - front, y1))
+    out.append(_slab(cx, y0, y1, back, front, t, GLASS if top == "glass" else paint, oval)[0])
+    lit = _slab(cx, y0, y1, back, front, t, paint, oval)[2]
     if top == "glass":
         out += [_path(outline_d, GLASS, LW, ' class="top" fill-opacity=".55"'), _highlight(f"M{cx - rx * 0.55:.1f},{cy + ry * 0.45:.1f} L{cx - rx * 0.3:.1f},{cy - ry * 0.45:.1f}", 4, 0.7)]
     elif top == "marble_effect":
         out += [_path(outline_d, paint, LW, ' class="top"'), *_veins(cx, cy, rx, ry, fill.base)]
     else:
-        out += [_path(outline_d, paint, LW, ' class="top"'), _grain(cx - rx, cy - ry, 2 * rx, 2 * ry, fill.base)]
+        out += [_path(outline_d, paint, LW, ' class="top"'), _grain(cx - back, y0, 2 * back, 2 * ry, fill.base)]
+    out += [lit, _dim(_quad((cx + back * 0.7, y0 + 3), (cx + back - 3, y0 + 3), (cx + front - 4, y1 - 3), (cx + front * 0.5, y1 - 3)), 0.1)] if not oval else [lit, _dim(f"M{cx + rx * 0.45:.1f},{cy + ry * 0.87:.1f} A{rx},{ry:g} 0 0 0 {cx + rx - 3:.1f},{cy:.1f} Q{cx + rx * 0.7:.1f},{cy + ry * 0.35:.1f} {cx + rx * 0.45:.1f},{cy + ry * 0.87:.1f} Z", 0.12)]
     if extending == "yes":
-        out.append(_line(f"M{cx - 22},{cy - ry + 2} L{cx - 26},{cy + ry - 2} M{cx + 22},{cy - ry + 2} L{cx + 26},{cy + ry - 2}", 1.6, ' stroke-dasharray="5 3"'))
-    for side in (-1, 1)[:ends]:
-        x = cx + side * (rx + 22)
-        out += _legs([x - 12, x + 12], cy + 8, cy + 92, _shade(paint, 0.08), 6)
+        out.append(_line(f"M{cx - 22},{y0 + 2} L{cx - 26},{y1 - 2} M{cx + 22},{y0 + 2} L{cx + 26},{y1 - 2}", 1.6, ' stroke-dasharray="5 3"'))
+    for x in xs:  # the chairs in front, tucked in: their backs over the top's near edge
+        out += _table_chair(x - wide / 2, y1 - 10, wide, 82, seat, 356)
     return out
 
 
 def _one_chair(style: str, paint: str, fill: Fill) -> list[str]:
-    """One dining chair facing three-quarters front, its seat and back in the record's fill."""
-    wood = _shade(paint, 0.25) if style == "upholstered" else paint
+    """One dining chair from in front and a little above, its seat and back in the record's fill."""
     if style == "upholstered":
+        wood, dark = "#5a4433", "#4a3a2e"
         return [
-            *_legs([136, 264], 250, 340, "#4a3a2e", 10), *_legs([152, 248], 250, 322, "#4a3a2e", 8),
-            _path("M140,60 Q200,48 260,60 L262,214 L138,214 Z", paint),
-            _line("M152,76 Q200,66 248,76", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
-            _path("M120,206 L280,206 Q292,206 290,222 L286,256 L114,256 L110,222 Q108,206 120,206 Z", paint),
-            _line("M116,236 L284,236", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
+            _ground(200, 358, 128),
+            *[_bar(x, 270, x, 336, 19, 13, dark) for x in (118, 282)],
+            *[_bar(x, 274, x, 358, 27, 18, wood) for x in (94, 306)],
+            _path("M94,44 Q200,20 306,44 Q318,48 316,64 L302,216 L98,216 L84,64 Q82,48 94,44 Z", paint),
+            _lit("M98,52 Q140,38 182,36 L150,206 L106,206 L92,66 Q92,56 98,52 Z", 0.22), _dim("M256,40 Q290,44 304,52 L308,64 L294,208 L252,208 Z", 0.12),
+            _line("M112,64 Q200,44 288,64 L278,206 M112,64 L122,206", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
+            _path("M82,196 Q200,184 318,196 Q332,200 332,216 L332,262 Q330,284 312,284 L88,284 Q70,284 68,262 L68,216 Q68,200 82,196 Z", paint),
+            _lit("M84,202 Q200,190 316,202 Q326,206 326,218 Q200,208 74,218 Q74,206 84,202 Z", 0.3), _dim("M68,246 L332,246 L332,264 Q330,284 312,284 L88,284 Q70,284 68,264 Z", 0.14),
+            _line("M70,246 L330,246", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
         ]
     if style == "spindle":
-        bars = " ".join(f"M{x:.1f},84 L{x:.1f},206" for x in (166, 188, 212, 234))
+        dark = _shade(paint, 0.16)
         return [
-            *_legs([132, 268], 236, 340, wood, 10), *_legs([150, 250], 236, 322, wood, 8),
-            _line("M140,300 L260,300", 5, stroke=INK), _line("M140,300 L260,300", 3, stroke=wood),
-            _line("M146,64 L146,214 M254,64 L254,214", 11, stroke=INK), _line("M146,64 L146,214 M254,64 L254,214", 7, stroke=wood),
-            _line(bars, 7, stroke=INK), _line(bars, 4, stroke=wood),
-            _path("M140,62 Q200,52 260,62 L260,84 Q200,76 140,84 Z", wood),
-            _path("M118,210 L282,210 L286,240 L114,240 Z", paint),
+            _ground(200, 358, 128),
+            *[_bar(x, 262, x0, 336, 22, 16, dark) for x, x0 in ((122, 114), (278, 286))], _bar(116, 316, 284, 316, 15, 15, dark),
+            *[_bar(x, 264, x0, 358, 30, 20, paint) for x, x0 in ((98, 84), (302, 316))], _bar(92, 306, 308, 306, 17, 17, paint),
+            *[_bar(x, 60, x0, 214, 24, 26, paint) for x, x0 in ((92, 102), (308, 298))],
+            *[_bar(200 + 25.5 * k, 72, 200 + 22.5 * k, 212, 17, 17, paint if k % 2 else _shade(paint, 0.06)) for k in range(-3, 4)],
+            _path("M80,40 Q200,18 320,40 L318,86 Q200,66 82,86 Z", paint), _lit("M88,44 Q160,30 220,30 L210,48 Q150,48 88,60 Z", 0.35), _dim("M84,74 Q200,54 316,74 L318,86 Q200,66 82,86 Z", 0.16),
+            _path("M90,202 Q200,190 310,202 L336,254 Q336,274 318,276 L82,276 Q64,274 64,254 Z", paint),
+            _lit("M96,206 Q160,198 212,198 L180,250 L74,250 Z", 0.28), _dim("M64,254 L336,254 Q336,274 318,276 L82,276 Q64,274 64,256 Z", 0.16),
         ]
     if style == "cantilever":
+        chrome, far = "#c9ccd1", "#a9adb4"
         return [
-            _line("M150,214 L150,250 Q150,336 182,336 L292,336 M250,214 L250,250 Q250,320 280,320 L304,320", 9, stroke=INK),
-            _line("M150,214 L150,250 Q150,336 182,336 L292,336 M250,214 L250,250 Q250,320 280,320 L304,320", 5, stroke="#c9ccd1"),
-            _path("M142,62 Q200,50 258,62 L254,206 L146,206 Z", paint),
-            _path("M124,200 L276,200 Q288,202 286,216 L282,236 L118,236 L114,216 Q112,202 124,200 Z", paint),
+            _ground(200, 358, 134),
+            _bar(104, 322, 296, 322, 14, 14, far), *[_bar(x, 320, x0, 350, 15, 15, chrome) for x, x0 in ((104, 78), (296, 322))],
+            *[_bar(x, 262, x, 354, 17, 17, chrome) for x in (78, 322)], *[_bar(x, 180, x, 226, 16, 16, chrome) for x in (110, 290)],
+            _path("M92,42 Q200,22 308,42 Q318,46 316,60 L302,202 L98,202 L84,60 Q82,46 92,42 Z", paint),
+            _lit("M96,50 Q140,38 184,36 L152,194 L106,194 L92,64 Z", 0.24), _dim("M256,38 Q292,44 306,50 L308,62 L294,194 L250,194 Z", 0.14),
+            _path("M86,202 Q200,192 314,202 Q330,206 332,222 L334,262 Q334,284 314,286 L86,286 Q66,284 66,262 L68,222 Q70,206 86,202 Z", paint),
+            _lit("M88,208 Q200,198 312,208 Q324,212 326,226 Q200,214 74,226 Q76,212 88,208 Z", 0.3), _dim("M66,252 L334,252 L334,264 Q334,284 314,286 L86,286 Q66,284 66,264 Z", 0.16),
+            _highlight("M76,290 L76,346", 3, 0.8),
         ]
     if style == "bench":
+        wood, dark = "#8a6a48", "#6b5138"
         return [
-            *_legs([86, 314], 236, 336, "#4a3a2e", 14), *_legs([112, 288], 236, 316, "#3a2d24", 10),
-            _path(BENCH_SEAT, paint),
-            _line("M60,226 L340,226", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
-            _line("M76,204 Q200,192 324,204", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
+            _ground(200, 342, 172),
+            *[_bar(x, 246, x, 316, 22, 16, dark) for x in (74, 326)], _bar(70, 300, 330, 300, 16, 16, dark),
+            *[_bar(x, 254, x, 342, 32, 22, wood) for x in (52, 348)],
+            _rect(44, 246, 312, 30, wood, LW_DETAIL), _dim("M44,246 L356,246 L356,258 L44,258 Z", 0.18),
+            _path("M64,96 Q200,84 336,96 Q352,98 356,116 L370,206 Q372,254 350,256 L50,256 Q28,254 30,206 L44,116 Q48,98 64,96 Z", paint),
+            _lit("M70,102 Q130,96 196,96 L160,206 L40,206 L52,118 Q56,104 70,102 Z", 0.26), _dim("M30,210 L370,210 Q372,254 350,256 L50,256 Q28,254 30,210 Z", 0.14),
+            _line("M34,210 L366,210", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
+            _line("M54,120 Q200,108 346,120", 1.0, ' stroke-dasharray="4 3" stroke-opacity=".6"'),
         ]
     raise ValueError(f"unknown chair style {style!r}; one of {CHAIR_STYLES}")
 
