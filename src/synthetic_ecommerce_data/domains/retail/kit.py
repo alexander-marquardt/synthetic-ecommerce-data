@@ -819,10 +819,7 @@ def _render_styled(
     measured = [product] if full == inner else [full, product]
     if angle:
         turned = hs.turn(full, defs, angle)
-        lifted = [ground_shadow.turned(m, defs, turned, uid) for m in measured]
-        measured = [f'{shadow}<g transform="{turned}">{m}</g>' for shadow, m in lifted]
-        shadow, figure = lifted[-1]
-        product = f'{shadow}<g class="turn" transform="{turned}">{figure}</g>'
+        measured, product = ground_shadow.turned_all(measured, defs, turned, uid)
     # The rows the largest size covers, so every size of the product is placed alike, and the
     # SKU's own, which a turned smaller size can reach past (gen#932).
     rows = hs.drawn_rows(defs, *measured) if style.mark != hs.NO_MARK else None

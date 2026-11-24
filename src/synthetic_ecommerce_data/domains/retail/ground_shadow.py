@@ -52,6 +52,15 @@ def turned(drawing: str, defs: str, transform: str, uid: str) -> tuple[str, str]
     return _flat(figure, defs, transform, uid), figure
 
 
+def turned_all(drawings: list[str], defs: str, transform: str, uid: str) -> tuple[list[str], str]:
+    """(measured, product): each of ``drawings`` turned by ``transform`` with its shadow flat before
+    it, for measuring, and the last of them, the SKU's own, in the group its picture draws."""
+    lifted = [turned(d, defs, transform, uid) for d in drawings]
+    measured = [f'{shadow}<g transform="{transform}">{figure}</g>' for shadow, figure in lifted]
+    shadow, figure = lifted[-1]
+    return measured, f'{shadow}<g class="turn" transform="{transform}">{figure}</g>'
+
+
 @functools.lru_cache(maxsize=256)  # every size rung of one colorway measures the same drawing
 def _flat(figure: str, defs: str, transform: str, uid: str) -> str:
     body = f'<g transform="{transform}">{figure}</g>' if transform else figure
