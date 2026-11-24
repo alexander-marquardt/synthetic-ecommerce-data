@@ -1,10 +1,10 @@
 """Large appliances (gen#334): fridges and freezers, dishwashers and laundry, with their decoys.
 
 Home > Large Appliances holds eight kinds of fridge and freezer, four of dishwasher, five of
-laundry appliance, and (#1116) two of range cooker, two of built-in oven and three of hob, at
-least six products each (a color is a SKU, not a product), and the class-8
-decoys of the words "dishwasher", "washing machine" and "fridge": products whose title holds the
-word and whose structured fields say they are something else.
+laundry appliance, and (#1116) two of range cooker, two of built-in oven, three of hob and two of
+cooker hood, at least six products each (a color is a SKU, not a product), and the class-8 decoys
+of the words "dishwasher", "washing machine" and "fridge": products whose title holds the word and
+whose structured fields say they are something else.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = ["Home", "Large Appliances"]
 LEAVES = {"Fridges & Freezers": 8, "Dishwashers": 4, "Laundry": 5, "Range Cookers": 2,
-          "Built-in Ovens": 2, "Hobs": 3}  # fmt: skip
+          "Built-in Ovens": 2, "Hobs": 3, "Cooker Hoods": 2}  # fmt: skip
 
 
 @pytest.fixture(scope="module")

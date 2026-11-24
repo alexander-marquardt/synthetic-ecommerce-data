@@ -199,6 +199,8 @@ templates', to the hundred from 1,000 up):
 | 33 | Industrial breadth types (storage, workwear, hand tools, vises and the rest) | gen#1216 | `industrial/breadth_shapes` | 95 | 184 | 12% | 2 |
 | 34 | Safety glasses and cut-resistant gloves | gen#1217 | `industrial/cut_resistant_gloves`, `industrial/safety_glasses` | 2 | 120 | 19% | 0 |
 
+Row 31's first slice, the seven `kit_furniture` types, is redrawn ([furniture-fill-1214](furniture-fill-1214.md)); the table is the sweep's, before any redraw.
+
 Tests: `tests/test_picture_fill_1129.py` holds the readers to fixed SVGs:
 
 - an arc circle, `<use>` copies, the paper, the ground and the brand band;
