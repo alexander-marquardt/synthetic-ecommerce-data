@@ -184,3 +184,19 @@ def test_the_bath_and_shave_kit_goes_to_the_beauty_redraw() -> None:
     assert [(r["group"].issue, [t["type"] for t in r["types"]]) for r in rows if r["types"]] == [
         (1207, ["Shave Gel"])
     ]
+
+
+def test_the_baking_types_go_to_their_own_redraws() -> None:
+    """A mix is a grocery pack and a tin is cookware, so the kit is split by shape."""
+    names = ("kit_baking:brownie_mix", "kit_baking:brownie_tin")
+    holders = {k: [g.issue for g in (*ro.NAMED, *ro.GROUPS) if k in g.kits] for k in names}
+    assert holders == {names[0]: [1195], names[1]: [1208]}
+    types = [
+        _row("kit_baking", "Brownie Mix", "brownie_mix"),
+        _row("kit_baking", "Brownie Tin", "brownie_tin"),
+    ]
+    assert {
+        r["group"].issue: [t["type"] for t in r["types"]]
+        for r in ro.order(types, NO_HITS)
+        if r["types"]
+    } == {1195: ["Brownie Mix"], 1208: ["Brownie Tin"]}
