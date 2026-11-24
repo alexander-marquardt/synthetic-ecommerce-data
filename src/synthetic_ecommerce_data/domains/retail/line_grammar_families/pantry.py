@@ -15,7 +15,8 @@ label list (:mod:`food_title_words`, gen#729).
 from __future__ import annotations
 
 KINDS = (
-    "Baby Food", "Battered Fish", "Biscuit", "Biscuits", "Bread", "Butter & Spreads", "Cake",
+    "Baby Food", "Battered Fish", "Biscuit", "Biscuits", "Bread", "Brownie Mix", "Butter & Spreads",
+    "Cake",
     "Cereal", "Cereal Bar", "Cheese", "Chips", "Chocolate Bar", "Chocolate Box",
     "Christmas Pudding", "Chutney", "Cookies", "Crisps", "Doughnut", "Easy Peelers",
     "Festive Bake", "Fish", "Free From Snack", "Flour", "Fresh Fruit", "Fresh Vegetables",
@@ -82,6 +83,10 @@ STYLES = {
     "Bread": (
         "Farmhouse", "Thick Sliced", "Medium Sliced", "Stonebaked", "Bakery Style", "Crusty",
         "Slow Proved", "Hand Shaped", "Oven Bottom",
+    ),
+    "Brownie Mix": (
+        "Bakery Style", "Home Baking", "Bake Day", "Weekend Baking", "Extra Chewy", "Tray Baked",
+        "Family Recipe", "Extra Rich",
     ),
     "Butter & Spreads": (
         "Farmhouse", "Country Style", "Traditional", "Lightly Whipped", "Soft & Creamy",
