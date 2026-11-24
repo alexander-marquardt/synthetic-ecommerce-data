@@ -3,7 +3,8 @@
 The retail-and-industrial demo serves the literal hits of a misspelled search and offers "You may
 also consider searching for <common spelling>" only when the search has **3 or fewer** Best
 results (the Engine's `did_you_mean_head_hit_threshold`, kept at 3) and the common spelling is at
-least 5 times more common. The maintainer asked for a few misspelled products, half of the words
+least 5 times more common, counted in the catalogue's titles (the `title` term suggester's
+document frequency: a description that says the word adds nothing). The maintainer asked for a few misspelled products, half of the words
 on three products or fewer and half on more, so the demo shows both behaviours.
 
 The rows are in `src/synthetic_ecommerce_data/domains/retail/feature_decoys/misspelled_words_944.py`
@@ -49,6 +50,16 @@ Snap Ring Pliars`): misspelled generic titles. gen#1130 removed them (the indust
 word on the retail Pliars card game instead. `tests/test_industrial_misspelled_pliers_944.py`
 now checks that no industrial pliers line and no golden-catalogue row holds `pliars`, and that
 the golden catalogue still has its pliers.
+
+## The pliers the suggestion counts
+
+The industrial catalogue titles only 4 SKUs with `pliers`, against 3 with `pliars`, so the served
+`pliars` search showed no suggestion (gen#1130). `type_specs/pliers.py` sells eight plain pairs of
+pliers (combination, long nose, side cutter, water pump, slip joint and locking) in Home > DIY &
+Tools > Pliers, two handle colors a pair, each drawn as its own jaw by `kit_pliers.py`. The ceiling
+build holds `pliers` in 17 retail SKU titles (these 16 and one decoy) and 4 industrial ones: 21, over
+the 15 the 5x ratio needs.
+`test_the_common_spelling_is_five_times_more_common` counts titles SKU by SKU, as the Engine does.
 
 ## What else moves
 

@@ -227,6 +227,7 @@ GROUPS = (
             "kit_drills",
             "kit_pliers",
             "industrial/figures",
+            "industrial/hammer_figures",
             "industrial/household_tool_sets",
             "industrial/picture_hangers",
         ),
