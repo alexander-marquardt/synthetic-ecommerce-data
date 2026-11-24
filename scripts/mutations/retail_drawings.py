@@ -534,13 +534,13 @@ MUTATIONS: list[Mutation] = [
         root="src/synthetic_ecommerce_data/domains/retail",
     ),
     Mutation(
-        "product-word decoys: the standard's retail catalog test loses the exempt ids",
+        "product-word decoys: the standard's retail domain test loses the exempt ids",
         "scale.py",
         "    | decoy_product_words.TEXT_EXEMPT",
         "",
         "tests/test_merchandising_score_182.py -k retail_every_product_carries_it",
         "A",
-        "the full retail catalog passes the standard with the class-8 detail-color ids exempt",
+        "the full retail domain passes the standard with the class-8 detail-color ids exempt",
         root="src/synthetic_ecommerce_data/domains/retail",
     ),
     # ---- retail: color-word brands beyond clothing (gen#312) ----

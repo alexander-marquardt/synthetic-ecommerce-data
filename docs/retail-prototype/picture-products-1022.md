@@ -7,7 +7,8 @@ description, sizes and price. Step 1 (drawing the pictures from the benchmark's 
 elastic/prism-wands#1 and calls the public `drawings.render` ([slice 2](render-and-finishes-1022.md)).
 The two paths share the renderer and nothing else.
 
-The code is the package `synthetic_ecommerce_data.picture_products`. No generator build uses it
+The code is the package `synthetic_ecommerce_data.picture_products`, over the manifest loader
+`synthetic_ecommerce_data.picture_manifest` that [the drawing run](picture-drawings-1220.md) reads too. No generator build uses it
 yet: slice 5 ships a home type in a build with its own products.
 
 ## The picture manifest
@@ -31,15 +32,20 @@ through it.
 | Field | Required | Value |
 | --- | --- | --- |
 | `image_id` | yes | 12 to 64 lower-case hex digits. A hand-over key only: no product, SKU or file name keeps it. |
-| `type` | yes | A kit shape with a table of params: `kit_home_furniture.PARAMS` and `kit_storage_furniture.PARAMS`. |
+| `type` | yes | A type `drawings.render` draws at proportions (`manifest.TYPES`, the 28 types of `drawings.PROPORTIONS`). |
 | `color` | yes | A generator color word: the six main colors and the furniture tones (`manifest.COLORS`). |
 | `parts` | no | The type's own params. A count (doors, drawers, shelves, tiers, stools) is an integer, and any other part is a word its shape draws. A part left out is drawn at the shape's default. |
 | `proportions` | no | `height_per_width` and `depth_per_width`, each from 0.05 to 20 with at most two decimals. A ratio left out is the type's nominal one. |
 
-`manifest.load(rows)` and `manifest.load_file(path)` return checked `Picture` rows. Any other
+`picture_manifest.load(rows)` and `picture_manifest.load_file(path)` return checked `Picture` and
+`Fallback` rows. (`manifest` on this page is `synthetic_ecommerce_data.picture_manifest`.) Any other
 field, an unknown type, color, part or value, a count that is not an integer, a ratio out of range
 or with more decimals, a missing field or a repeated image id raises a `ValueError` that names the
 row and the fault.
+
+A row whose product is of no drawn type is a fallback row: `image_id` and `department` (a word of
+`manifest.DEPARTMENTS`), and no other field. It is drawn as its department's own picture and makes
+no product. A row of a type the book does not describe (`book.TYPES`) makes none either.
 
 ## The product written around a picture
 
@@ -72,7 +78,8 @@ row and the fault.
 uv run python -m synthetic_ecommerce_data.picture_products MANIFEST OUT_DIR
 ```
 
-It writes `OUT_DIR/products.jsonl` and `OUT_DIR/images/<product id>.svg`, one per picture.
+It writes `OUT_DIR/products.jsonl` and `OUT_DIR/images/<product id>.svg`, one per picture of a
+type the book describes.
 
 ## The separation
 

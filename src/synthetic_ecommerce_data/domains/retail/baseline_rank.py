@@ -1,4 +1,4 @@
-"""The no-policy baseline of the retail demo, ranked in plain Python (gen#125).
+"""The no-policy baseline of the R&I demo's retail domain, ranked in plain Python (gen#125).
 
 What the retailer's live search does without PRISM's interpretation: BM25 over the
 title (x2) and the description, the best field plus 0.3 of the other (the

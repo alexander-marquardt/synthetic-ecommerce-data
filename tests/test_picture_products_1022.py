@@ -21,9 +21,10 @@ from pathlib import Path
 import pytest
 
 from synthetic_ecommerce_data import drawings
+from synthetic_ecommerce_data import picture_manifest as manifest
 from synthetic_ecommerce_data.domains.retail import real_brands
 from synthetic_ecommerce_data.picture_products import __main__ as cli
-from synthetic_ecommerce_data.picture_products import book, load, load_file, manifest, write
+from synthetic_ecommerce_data.picture_products import book, load, load_file, write
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests" / "fixtures" / "picture_products_1022" / "manifest.json"

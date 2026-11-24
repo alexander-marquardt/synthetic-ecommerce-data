@@ -87,8 +87,13 @@ def records() -> list[dict[str, Any]]:
 #: The model number after the lead word ("Bloom 5 Olive Tree"): not a cut.
 MODEL_NUMBER = re.compile(r"(?<=[A-Za-z]) \d+ (?=[A-Z])")
 
+#: A strength the title leads with ("5.5% Hazy Wheat Beer", gen#1127): not a cut either, or the
+#: title would have no noun and every label on it would read as a fragment.
+LEADING_STRENGTH = re.compile(r"^\d+(?:\.\d+)?% ")
+
 
 def _noun(title: str) -> str:
+    title = LEADING_STRENGTH.sub("", title)
     head = CUT.split(MODEL_NUMBER.sub(" ", title, count=1))[0].split()
     return head[-1].lower().rstrip("s") if head else ""
 
@@ -177,6 +182,13 @@ def test_a_drinking_vessel_is_drawn_as_a_mug(records):
         and r["drawing"]["shape"] not in MUG_SHAPES
     ]
     assert wrong == []
+
+
+def test_a_title_that_leads_with_its_strength_is_read_by_its_noun():
+    assert _noun("5.5% Hazy Wheat Beer") == "beer"
+    assert _noun("Crown Wheat Beer 5.5%") == "beer"
+    wrong = {"product_type": "Beer", "title": "5.5% Hazy Wheat Beer", "drawing": {"label": "Wheat"}}
+    assert _label_pairs([wrong]) == {("Beer", "Wheat")}
 
 
 def test_a_label_is_the_titles_product_noun_not_a_category_fragment(records):

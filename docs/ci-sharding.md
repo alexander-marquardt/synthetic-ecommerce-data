@@ -67,6 +67,21 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   every module of a package a registry walks by dotted name), or when a changed data file is
   named in the text of its closure or is a data file of a package one of its modules belongs to.
   It over-selects on purpose: a missed test is a correctness bug, an extra test is minutes.
+- A test that scans the tree (a glob, a walk, `ls-files`, in itself or a `tests/` helper it imports)
+  is selected by a change its scan can read: a literal pattern (`rglob("*.py")`) reads the paths
+  one of whose parts it matches, and `SCAN_SCOPES` says what any other scan reads, by its source
+  line (`()` is none of the repository: it lists what the run wrote). A scan with neither, and a
+  test of `READS_WHOLE_TREE`, is selected by any change, so a new or edited scan is never dropped.
+  Add a row when a slow test is selected with `its scan reads ...` for a change it does not read.
+- Two edges are not followed because nothing runs them (#1035): `import pickle` means the standard
+  library, not the product module `type_specs/pickle.py`, and an import inside a subcommand's
+  branch of a command line (`if argv[0] == "compose":`) counts only for a test whose closure under
+  `tests/` or `scripts/` names the subcommand. A picture under `docs/` is a document: only a test
+  or script that names it reads it.
+- Measured over the 20 PRs merged up to #1173 (seconds of `ci_shard_weights.json`): the table is on
+  #1035. A documentation change went from 33% of the suite to 2%, and a retail change from 80% to
+  55%. What a retail change still selects is the retail tests, which import `retail/scale.py` or
+  `retail/kit.py` and so all of the retail domain.
 - `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
   `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector and sharding
   scripts themselves. An unreadable diff selects every test. `SMOKE` lists the guards of the

@@ -1,4 +1,4 @@
-"""Cabinet hinges: home hardware for the general-retail catalogue (#958, slice 2).
+"""Cabinet hinges: home hardware for the R&I catalogue (#958, slice 2).
 
 A cabinet hinge is the pivot a kitchen cabinet, cupboard or wardrobe door swings on. A
 hardware listing sells it by its length and names its style, its metal and its color.
