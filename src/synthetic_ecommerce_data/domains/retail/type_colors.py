@@ -64,6 +64,9 @@ RESTRICTED: dict[tuple[str, ...], tuple[tuple[str, ...], str]] = {
     ("Home", "Large Appliances", "Hobs"): (
         ("White", "Black", "Silver"),
         "a hob is black glass, stainless steel or white enamel (#1116)"),
+    ("Home", "Large Appliances", "Cooker Hoods"): (
+        ("White", "Black", "Silver"),
+        "a cooker hood is stainless steel, black or white (#1116)"),
 }  # fmt: skip
 
 _MATERIAL_WORDS = ("leather", "suede", "patent")

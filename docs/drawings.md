@@ -188,7 +188,10 @@ scale, and the worst angle, near 45 degrees, takes a squat one to 0.65. The scal
 area, so a turned part and its dimension lines stay inside it (a product at
 0 degrees keeps the type's scale). The magnifier's too-small rule reads the
 part's upright size, and its layout the box the turned part covers. A caller
-that names no product id draws upright.
+that names no product id draws upright. One type takes its scale another way: a figure with
+`Figure.fit_turned` set (the pair of cut-resistant gloves, #1217) is drawn as large as its own
+outline, turned, fits the figure area, and centred by that outline (`sheet.outline_scale`), so a
+size of it is not drawn smaller than another; the size shows in the pair's proportions.
 
 **A pack card fans its items.** For a type in `pack.AXES`, `_draw` passes a figure through
 `fan()` (`core/drawing/model.py`) when the record's `Units per Pack` is above 1: the part stays
@@ -398,7 +401,8 @@ gage (toothed leaves fanned out of their case) and a T-slot nut (the T of its ne
 with a tapped hole). Safety glasses also drew the block, but they are now a deep type with a
 figure of their own (#863), so they have no breadth shape. Square bar stock is a block and
 keeps it. The cut-resistant glove, a deep type with its own figure, is
-drawn as one curved outline, with rounded fingertips and thumb and a palm that narrows to a
+drawn as the pair it is sold as (#1217), the back of one glove behind the coated palm of the
+other, each one curved outline, with rounded fingertips and thumb and a palm that narrows to a
 ribbed cuff, still hatched in its shell's knit. `tests/test_breadth_figures_873.py` checks each
 shape's parts and checks the glove. Every SKU of a product shares its angle and look on the white
 paper (#849). Before and after, the first product of each type and three of its SKUs:

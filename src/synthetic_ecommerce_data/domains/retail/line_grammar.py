@@ -72,6 +72,7 @@ _CORE = {
     "Range Cooker": "appliance",
     "Built-in Oven": "appliance",
     "Hob": "appliance",
+    "Cooker Hood": "appliance",
 }
 #: The numbered families: a module of ``line_grammar_families/`` each, by name.
 _NUMBERED = line_grammar_families.families(core_kinds=_CORE, reserved=NAME_WORDS)

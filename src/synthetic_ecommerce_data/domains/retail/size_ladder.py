@@ -8,9 +8,8 @@ true to dimension, so S is visibly smaller than M, and a 50 cm frame than a 58 c
   SKUs, smallest first), stepped evenly from :data:`BOTTOM` (the smallest) to :data:`TOP` (the
   largest), the scale the full-size drawing stands for (the largest keeps the style's size, the
   smallest draws at ``BOTTOM / TOP`` of it; a shape in :data:`BOTTOMS` has a narrower ladder of
-  its own, a bicycle's so its smallest frame still fills the figure area, #1049). A product with
-  one size has no ladder
-  and is not scaled (:func:`size_scale` is ``None``).
+  its own, so its smallest size still fills the figure area, #1049 #1214). A product with one
+  size has no ladder and is not scaled (:func:`size_scale` is ``None``).
 - THE PRIMARY SIZE is the one dimension that is bigger or smaller (:func:`primary`): the first key
   of the type's declared axis (:data:`size_axes.AXES`) that varies within the product. That is a
   footwear chart row (its UK, EU and US sizes are one rung), a letter size, a kids' age size, a
@@ -47,8 +46,12 @@ __all__ = [
 
 #: A drawing shape's own smallest rung, narrower than the shared :data:`BOTTOM` (#1049). A bicycle
 #: fills the figure area at full size, and its smallest frame draws at 0.74 / 0.90 = 0.82 of that
-#: (the shared ladder: 0.61), so every frame size still spans most of the figure area.
-BOTTOMS: dict[str, float] = {"bicycle": 0.74}
+#: (the shared ladder: 0.61), so every frame size still spans most of the figure area. A dining
+#: table's, a bookcase's and a mirror's smallest size draws at 0.84 / 0.90 = 0.93 of its largest,
+#: so it too holds half of the product area (#1214).
+BOTTOMS: dict[str, float] = {
+    "bicycle": 0.74, "bookcase": 0.84, "dining_table": 0.84, "mirror": 0.84,
+}  # fmt: skip
 
 
 def bottom(rec: dict) -> float:
