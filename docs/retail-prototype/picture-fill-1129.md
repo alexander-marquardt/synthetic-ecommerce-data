@@ -154,17 +154,18 @@ dropped. The tiers:
 
 The top-12 slots are in `tests/data/seed_top12_1129.json`: the top 12 of each of the 60 seed
 queries of the R&I demo (`src/prism_retail_and_industrial/data/seed_queries.json`), read once from
-a read-only Engine on 2026-11-23. Of its 720 slots, 336 are types in the order, 344 are industrial
-types drawn to scale, and 40 are types that already fill 50%.
+a read-only Engine on 2026-11-23. Of its 720 slots, 335 are types in the order, 344 are industrial
+types drawn to scale, and 41 are types that already fill 50%.
 
-The order at f30d5748 (the SKUs are the templates', to the hundred from 1,000 up):
+The order at f806da5b, with `kit_bath_shave` in its group (the SKUs are the templates', to the
+hundred from 1,000 up):
 
 | # | redraw | issue | kits | types under 50% | SKUs | median area % | top-12 slots |
 |---|---|---|---|---|---|---|---|
 | 1 | Loose fruit and vegetables | gen#1111 | `kit_produce` | 0 | 0 | - | 0 |
 | 2 | Chocolate | gen#1125 | `kit_chocolate` | 0 | 0 | - | 0 |
 | 3 | Bread | gen#1126 | `kit_bread` | 0 | 0 | - | 0 |
-| 4 | Wine, beer and soft drinks | gen#1127 | `kit`, `kit_beer`, `kit_drinks`, `kit_packs` | 12 | 1,000 | 20% | 12 |
+| 4 | Wine, beer and soft drinks | gen#1127 | `kit`, `kit_beer`, `kit_drinks`, `kit_packs`, `kit_soft_drinks` | 11 | 1,000 | 22% | 11 |
 | 5 | Milk and yoghurt | gen#1128 | `kit_dairy` | 0 | 0 | - | 0 |
 | 6 | Dresses, tops, jeans and trousers | gen#1189 | `kit`, `kit_garments`, `kit_lowerbody`, `mens_pants` | 24 | 37,100 | 15% | 99 |
 | 7 | Shoes and boots | gen#1190 | `kit_footwear` | 27 | 18,000 | 8% | 48 |
@@ -175,7 +176,7 @@ The order at f30d5748 (the SKUs are the templates', to the hundred from 1,000 up
 | 12 | Grocery packs, cakes and trays | gen#1195 | `kit`, `kit_biscuits`, `kit_grocery`, `kit_punnet` | 38 | 5,000 | 40% | 13 |
 | 13 | Bottles and jars (the shared packs) | gen#1196 | `kit_packs` | 51 | 3,100 | 27% | 12 |
 | 14 | Picture motifs | gen#1197 | `kit_motifs` | 31 | 220 | 25% | 7 |
-| 15 | Accessories, jewellery and luggage | gen#1198 | `belt`, `gloves`, `hat_cap`, `kit_accessories`, `kit_jewellery`, `kit_luggage`, `scarf`, `sunglasses`, `wallet` | 25 | 1,500 | 11% | 5 |
+| 15 | Accessories, jewellery and luggage | gen#1198 | `belt`, `gloves`, `hat_cap`, `kit_accessories`, `kit_jewellery`, `kit_luggage`, `scarf`, `sunglasses`, `wallet` | 28 | 1,600 | 11% | 5 |
 | 16 | Pets | gen#1199 | `kit_pet_care`, `kit_pet_gear`, `kit_pets` | 8 | 671 | 18% | 3 |
 | 17 | Underwear and swimwear | gen#1200 | `kit`, `kit_swimwear`, `kit_underwear` | 18 | 28,800 | 9% | 0 |
 | 18 | Garden and patio | gen#1201 | `kit_garden`, `kit_garden_care`, `kit_garden_yard`, `kit_outdoor`, `kit_patio` | 18 | 1,200 | 12% | 0 |
@@ -184,7 +185,7 @@ The order at f30d5748 (the SKUs are the templates', to the hundred from 1,000 up
 | 21 | Coats, suits and school uniform | gen#1204 | `kit`, `kit_coats`, `kit_outerwear`, `kit_school`, `kit_suit_sets`, `kit_suits` | 31 | 11,500 | 19% | 0 |
 | 22 | Lighting and decor | gen#1205 | `kit_decor`, `kit_lighting` | 12 | 459 | 21% | 0 |
 | 23 | Car care and car accessories | gen#1206 | `kit_automotive`, `kit_automotive_electrics`, `kit_automotive_interior` | 13 | 1,500 | 22% | 0 |
-| 24 | Beauty, hair, grooming and health | gen#1207 | `kit_beauty`, `kit_beauty_cotton`, `kit_grooming`, `kit_hair`, `kit_health`, `kit_health_care`, `kit_health_feminine`, `kit_skin` | 32 | 1,100 | 24% | 0 |
+| 24 | Beauty, hair, grooming and health | gen#1207 | `kit_bath_shave`, `kit_beauty`, `kit_beauty_cotton`, `kit_grooming`, `kit_hair`, `kit_health`, `kit_health_care`, `kit_health_feminine`, `kit_skin` | 35 | 1,200 | 24% | 0 |
 | 25 | Tableware and kitchenware | gen#1208 | `kit_cups`, `kit_household`, `kit_tableware` | 27 | 644 | 25% | 0 |
 | 26 | Toys | gen#1209 | `kit_toy_word_decoys`, `kit_toys`, `kit_toys_craft`, `kit_toys_learning`, `kit_toys_play` | 11 | 356 | 26% | 0 |
 | 27 | Electronics and office | gen#1210 | `kit_audio`, `kit_electronics`, `kit_gadgets`, `kit_gaming`, `kit_office`, `kit_printers`, `kit_smart_home` | 37 | 3,400 | 29% | 0 |
@@ -211,4 +212,4 @@ Tests: `tests/test_picture_fill_1129.py` holds the readers to fixed SVGs:
 
 `tests/test_redraw_order_1129.py` holds the order to fixed rows: the tiers, the slots before the
 area, the floor, a drawn-to-scale type left out, an ungrouped row refused, a kit split by shape,
-the recorded 720 slots, and one filed issue per group.
+the recorded 720 slots, one filed issue per group, and the bath and shave kit in its group.
