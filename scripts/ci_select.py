@@ -83,6 +83,7 @@ FULL_RUN: tuple[str, ...] = (
     "uv.lock",
     "vendor/",
     "tests/conftest.py",
+    "tests/templates_memo.py",
     "tests/ci_shard_split.py",
     "tests/xdist_groups.py",
     "scripts/ci_select.py",
