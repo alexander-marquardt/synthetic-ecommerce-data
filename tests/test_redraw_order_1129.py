@@ -15,6 +15,8 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data.domains.retail import kit
+
 REPO = Path(__file__).resolve().parents[1]
 _spec = importlib.util.spec_from_file_location(
     "redraw_order_1129", REPO / "scripts" / "redraw_order_1129.py"
@@ -200,3 +202,19 @@ def test_the_baking_types_go_to_their_own_redraws() -> None:
         for r in ro.order(types, NO_HITS)
         if r["types"]
     } == {1195: ["Brownie Mix"], 1208: ["Brownie Tin"]}
+
+
+def test_every_retail_shape_is_in_a_redraw_group_or_says_why_not() -> None:
+    """A kit that merges after a sweep used to stop the order script (gen#1129)."""
+    shapes = {
+        name: getattr(fn, "func", fn).__module__.rsplit(".", 1)[-1]
+        for name, fn in kit.shapes().items()
+    }
+    assert ro.ungrouped(shapes) == [], "add each to a Group, or to NO_REDRAW with its reason"
+    real = {k for s, m in shapes.items() for k in (m, f"{m}:{s}")}
+    assert ro.NO_REDRAW.keys() <= real, "NO_REDRAW names a kit or shape that is gone"
+
+
+def test_an_ungrouped_shape_is_named_and_a_held_one_is_not() -> None:
+    shapes = {"widget": "kit_unknown", "shoe": "kit_footwear", "tin": "kit", "brownie_mix": "kit"}
+    assert ro.ungrouped(shapes) == ["kit:brownie_mix", "kit_unknown:widget"]
