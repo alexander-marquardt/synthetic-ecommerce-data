@@ -617,6 +617,7 @@ def test_a_row_that_gets_no_verdict_in_time_is_a_failure(repo: Path, tmp_path: P
 def test_the_default_scan_set_holds_every_test_that_reads_every_tracked_file() -> None:
     assert set(_prepush().SCAN_TESTS) == {
         "tests/test_us_spelling.py",
+        "tests/test_one_demo_catalog_1186.py",
         "tests/test_ignore_hides_only_data_10032.py",
         "tests/test_vendored_core_pin_11683.py",
     }
