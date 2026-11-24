@@ -21,8 +21,12 @@ Point = tuple[float, float]
 #: line work only (flutes, thread crests). ``handle`` and ``grip`` take their
 #: color from the shape itself. ``break`` is a drafting break's zigzag, line work
 #: stroked at the outline's weight, solid; ``gap`` is the paper between a break's
-#: two zigzags, unoutlined, so a shank's cut end follows its zigzag (#822).
-ROLES = ("part", "plain", "hole", "dark", "line", "handle", "grip", "break", "gap")
+#: two zigzags, unoutlined, so a shank's cut end follows its zigzag (#822). ``gloss``
+#: and ``shade`` are light on the product: a translucent white or black overlay with
+#: no outline, laid over the shapes drawn before it (#1217).
+ROLES = (
+    "part", "plain", "hole", "dark", "line", "handle", "grip", "break", "gap", "gloss", "shade",
+)  # fmt: skip
 
 
 @dataclass(frozen=True)
