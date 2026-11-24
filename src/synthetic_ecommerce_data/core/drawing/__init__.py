@@ -204,6 +204,9 @@ def product_scale_for(
     """
     del records
     _, extent = _figure(product_type)
+    outline = product_look.OUTLINES.get(product_type)
+    if outline is not None and angle:
+        return type_scale(product_look.turned_outline(outline, angle))
     return type_scale(product_look.turned(*extent, angle))
 
 

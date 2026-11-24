@@ -180,7 +180,8 @@ type's, from `domains/industrial/orientation.py` (through
 nut, a glove) to one of the 24 clock positions, `upright` turns the rest within
 -36 to 36 degrees in steps of 12, `slight` (clothing) within -15 to 15 in
 steps of 5, `diagonal` (safety glasses) 54 to 66 degrees to either side in steps of 6 (#1217),
-and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
+`steady` (a product drawn to fill the figure area, #1216) within -6 to 6 in
+steps of 3, and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
 drawn level whatever its type's orientation (`product_angle`), so a fan of
 end mills is not tilted as a whole. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright
 scale, and the worst angle, near 45 degrees, takes a squat one to 0.65. The scale is the type's extent turned by that angle over the figure
@@ -332,6 +333,24 @@ all of it (the largest). The rank says bigger or smaller and no dimension. A row
 attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a type, a piece count, a
 rating) keeps one picture, and so does a figure drawn from its own dimensions: a longer bolt is
 already a longer drawing, and a rank on top would shrink it twice.
+
+### A breadth type drawn as its own product (#1216)
+
+A type named in `BREADTH_PRODUCTS` (`domains/industrial/drawing/breadth_products.py`) draws the
+product it is sold as, in place of its row's `shape`: a jaw puller, a grease tub, an eye bolt.
+The geometry is still fixed and reads nothing from the record, but it has the product's own parts
+and colors, a highlight and a shadow (the `gloss` and `shade` roles: translucent, unoutlined), and
+it is laid out to fill the figure area. Three things keep it large:
+
+* it is `steady`, turned by 6 degrees at most (a kit is `level`);
+* its scale is fitted to its own turned outline (`product_look.OUTLINES`), not to its turned box;
+* its size ladder starts at 0.93 of the full drawing (`breadth_rungs.PRODUCT_BOTTOM`).
+
+`tests/test_fill_breadth_1216.py` draws every size at every angle and holds each to 50% of the
+figure area, measured as [the picture sweep](retail-prototype/picture-fill-1129.md) does, or to
+the type's own floor where its true outline cannot reach that (`FLOORS`: a rod, an open clamp).
+Before and after: [the sheet](images/breadth-fill-1216.png). The other breadth types under 50%
+follow in later slices of #1216.
 
 ### Every drawing is drawn by code (#803)
 
