@@ -71,7 +71,7 @@ every other drawing -- only the GEOMETRY is fixed.
   (`core/drawing/product_look.py`, #849). Every SKU of a product shares it, so
   a product's variants still read as one product, and two products of one type
   from two brands no longer draw the same picture. Every type names one of
-  four orientations (`domains/industrial/orientation.py` by type,
+  five orientations (`domains/industrial/orientation.py` by type,
   `domains/retail/orientation.py` by drawn shape; a test refuses a type that
   names none). A retail shape's orientation sits in
   `domains/retail/orientations/<owner>.py`, named after the module that
@@ -89,6 +89,7 @@ every other drawing -- only the GEOMETRY is fixed.
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a bottle, a vise, a light bulb); in retail only a small thing held, carried or worn (#1101) |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
+  | `diagonal` | 54 to 66 to either side in steps of 6 | a wide, low industrial product the portrait sheet would draw small: safety glasses (#1217) |
   | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), every furniture item, lamp, light fitting, garden furniture piece and crib (#1095), and every product the guard below holds level: a large appliance, a bike, a scooter, or anything over 60 cm (#1101) |
 
   ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
