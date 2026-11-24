@@ -11,8 +11,9 @@ A measured axis (``capacity_l``, ``canopy_cm``, ``length_cm``) is on the SKUs al
 export states with its unit (``export.OPTIONS``). A jewelry SKU's metal is its color's metal
 (:class:`ARow`): one gold plated style sells gold, silver and rose gold SKUs, each a metal
 entry, and each drawn in its metal. A count the row states (pockets, card slots, ribs, layers,
-charms, stacked bands) is the count its drawing shows. These styles are templates only:
-:func:`scale.derivable` leaves them out, as it does the shirts and the household rows.
+charms, stacked bands) is the count its drawing shows. The necklaces, bracelets and rings are
+derivable (gen#1113); the other styles are templates only: :func:`scale.derivable` leaves them
+out, as it does the shirts and the household rows.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).

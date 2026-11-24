@@ -375,10 +375,11 @@ def watch_strap(paint: str, fill: Fill, label: str | None, material: str = "leat
         out += [_line(f"M{76 + k * 0.4:.1f},{84 + 10 * k} H{164 - k * 0.4:.1f}", 1, ' stroke-opacity=".35"') for k in range(20)]
         out += [_line(f"M{236 + k * 0.4:.1f},{46 + 10 * k} H{324 - k * 0.4:.1f}", 1, ' stroke-opacity=".35"') for k in range(29)]
     else:
-        for k in range(22):
-            out.append(_line(f"M{74 + k * 0.4:.1f},{80 + 10 * k} l8,-5 " + "l8,5 l8,-5 " * 5, 1.2, ' stroke-opacity=".5"'))
-        for k in range(30):
-            out.append(_line(f"M{238 + k * 0.35:.1f},{48 + 10 * k} l8,-5 " + "l8,5 l8,-5 " * 4, 1.2, ' stroke-opacity=".5"'))
+        for x, x1, y, rows, taper in ((76, 164, 80, 22, 0.35), (238, 322, 48, 30, 0.3)):
+            for k in range(rows):  # each wave is as wide as the part is there
+                step = (x1 - x - 2 * taper * k) / 10
+                wave = f"l{step:.2f},-5 l{step:.2f},5 " * 5
+                out.append(_line(f"M{x + taper * k:.1f},{y + 10 * k} {wave.strip()}", 1.2, ' stroke-opacity=".5"'))
     if material == "mesh":
         out.append(f'<rect x="62" y="38" width="116" height="44" rx="8" fill="{STEEL}" stroke="{INK}" stroke-width="{LW}"/>')
     else:  # a pin buckle, and the holes of the long part
