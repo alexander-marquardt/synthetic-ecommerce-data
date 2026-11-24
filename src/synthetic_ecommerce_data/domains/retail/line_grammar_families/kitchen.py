@@ -12,6 +12,7 @@ KINDS = (
     "Kitchen Utensil", "Kitchen Knife", "Chopping Board", "Colander", "Saucepan", "Frying Pan",
     "Kettle", "Toaster", "Kitchen Scales", "Kitchen Bin", "Kitchen Roll", "Cupcake Cases",
     "Coffee Maker", "Air Fryer", "Blender", "Brownie Tin",
+    "Steam Iron", "Vacuum Cleaner", "Microwave",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
