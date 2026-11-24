@@ -111,6 +111,12 @@ def test_the_gate_runs_on_every_pull_request_on_its_labels_and_on_every_push_to_
     assert doc["permissions"] == {"contents": "read"}
 
 
+def test_a_merge_needs_the_gate_green_by_its_check_name() -> None:
+    required = json.loads((ROOT / ".github" / "required-checks.json").read_text(encoding="utf-8"))
+    name = _job()["name"]
+    assert name in required["required"], f"{name} is not a check a merge needs"
+
+
 def test_merge_pr_local_ci_skips_the_gate() -> None:
     sys.path.insert(0, str(ROOT / "scripts"))
     import local_ci_jobs
