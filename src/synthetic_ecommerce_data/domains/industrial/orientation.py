@@ -8,7 +8,7 @@ drawn type missing from this table, so a new type cannot forget it. The sets are
   nails, pins, rivets, bar and ball stock, discs and wheels, collets and cutters, chain, belts,
   springs, small fittings, and gloves, which read at any angle (the maintainer's ruling on #860).
 * ``upright`` (+-36 degrees): a product with a natural up, or one nobody was sure of. Tools with
-  a working end and a handle (hammers, pliers, wrenches, files, punches), vises and clamps,
+  a working end and a handle (pliers, wrenches, files, punches), vises and clamps,
   racks, cases and kits, containers of grease or fluid, casters, pulleys and bearings on a
   base, guards and padlocks.
 * ``slight`` (+-15 degrees): clothing. No industrial type wears it; gloves are ``any``.
@@ -59,8 +59,7 @@ UPRIGHT: tuple[str, ...] = (
     "combination_wrenches", "cutter_sharpening_fixtures",
     "cutter_storage_cases", "cutter_storage_racks", "drawer_slides",
     "grooving_cutters",
-    "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow", "hammer_framing",
-    "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
+    "hand_files", "induction_heaters", "keyed_padlocks",
     "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "picture_hangers",
     "pillow_block_bearings", "pneumatic_cut_off_tools", "rigging_pulleys",
     "rigid_casters", "shelf_brackets",
@@ -73,12 +72,14 @@ UPRIGHT: tuple[str, ...] = (
 #: Clothing: within +-15 degrees. No industrial type is clothing.
 SLIGHT: tuple[str, ...] = ()
 
-#: Products drawn to fill the figure area (#1216): within +-6 degrees.
+#: Products drawn to fill the figure area (#1215, #1216): a wider turn would shrink them.
 STEADY: tuple[str, ...] = (
     "anaerobic_threadlockers", "anti_seize_compounds", "bearing_greases", "bearing_pullers",
     "c_clamps", "chain_breakers", "chain_lubricants", "chain_tensioners", "compound_cutters",
     "conduit_pliers", "drill_stop_collars", "drive_guards", "eye_bolts", "fastener_dispensers",
-    "gear_pullers", "grinder_guards", "magnetic_bit_holders", "orb_hydraulic_fittings",
+    "gear_pullers", "grinder_guards", "hammer_ball_pein", "hammer_claw", "hammer_club",
+    "hammer_dead_blow", "hammer_framing", "hammer_rubber_mallet", "hammer_sledge",
+    "magnetic_bit_holders", "orb_hydraulic_fittings",
     "pin_pullers", "replacement_pins", "sds_drill_bits", "shaft_alignment_lasers",
     "silicone_greases", "sleeve_anchors", "tap_extractors", "tapping_fluids", "thread_chasers",
     "thread_plug_gages", "zerk_grease_fittings",
