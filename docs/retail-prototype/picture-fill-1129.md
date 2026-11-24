@@ -195,7 +195,7 @@ templates', to the hundred from 1,000 up):
 | 29 | Household goods and sewing | gen#1212 | `kit_goods`, `kit_plain_goods`, `kit_sewing` | 17 | 186 | 35% | 0 |
 | 30 | Cleaning and paper goods | gen#1213 | `kit_bags_wrap`, `kit_cleaning`, `kit_cleaning_care`, `kit_paper` | 14 | 622 | 35% | 0 |
 | 31 | Furniture and sofas | gen#1214 | `kit_furniture`, `kit_seating`, `kit_storage_furniture` | 18 | 410 | 36% | 0 |
-| 32 | Drills, hammers, tool sets and ladders | gen#1215 | `industrial/case_figures`, `industrial/figures`, `industrial/household_tool_sets`, `industrial/picture_hangers`, `kit_drills` | 19 | 627 | 14% | 12 |
+| 32 | Drills, hammers, tool sets and ladders | gen#1215 | `industrial/case_figures`, `industrial/figures`, `industrial/hammer_figures`, `industrial/household_tool_sets`, `industrial/picture_hangers`, `kit_drills` | 19 | 627 | 14% | 12 |
 | 33 | Industrial breadth types (storage, workwear, hand tools, vises and the rest) | gen#1216 | `industrial/breadth_shapes` | 95 | 184 | 12% | 2 |
 | 34 | Safety glasses and cut-resistant gloves | gen#1217 | `industrial/cut_resistant_gloves`, `industrial/safety_glasses` | 2 | 120 | 19% | 0 |
 

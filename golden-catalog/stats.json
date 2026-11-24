@@ -4763,11 +4763,11 @@
   },
   "drawings": {
    "count": 15281,
-   "bytes": 40032528,
+   "bytes": 40843515,
    "geometry": {
     "nominal": 187,
-    "partial": 2982,
-    "record": 12112
+    "partial": 2764,
+    "record": 12330
    },
    "largest_bytes": 7650,
    "largest_product_type": "bearing_pullers"

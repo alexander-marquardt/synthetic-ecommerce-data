@@ -545,49 +545,6 @@ def flap_disc(record: Record) -> Drawn:
     return Drawn(fig, source)
 
 
-# --- hand tools --------------------------------------------------------------
-
-HANDLE_FILL = {"Hickory": "#c89a5b", "Ash": "#dcc08e", "Fiberglass": "#e2c64a", "Steel": "#9aa3aa"}
-GRIP_FILL = {"Rubber": "#3d3d3d", "Vinyl": "#51638a"}
-
-
-def hammer(record: Record) -> Drawn:
-    """No geometry function exists for a hammer, and the reason is kept.
-
-    A head WEIGHT is not a shape: drawing the head from it would mean assuming
-    a density and a form. So the head is drawn from the published face
-    diameter at a nominal pein proportion, and the handle from the published
-    handle (or overall) length. Weight is not drawn.
-    """
-    source = "record"
-
-    def length(name, fallback):
-        nonlocal source
-        try:
-            return parse_length(record[name]).inches
-        except (KeyError, DimensionParseError):
-            source = "partial"
-            return fallback
-
-    face = length("Face Dia.", 1.0)
-    oal = length("Overall Length", 13.0)
-    handle = length("Handle Length", 0.88 * oal)
-    if handle >= oal:
-        handle, source = 0.88 * oal, "partial"
-    fig = Figure(size_in=oal)
-    head_len = 3.6 * face
-    head_top = 0.0
-    fig.rect(-head_len / 2, head_top, head_len / 2 - 0.45 * face, head_top + face)
-    fig.disc((head_len / 2 - 0.45 * face, head_top + face / 2), 0.45 * face)
-    width = 0.55 * face
-    handle_fill = HANDLE_FILL.get(str(record.get("Handle Material", "")), "#c89a5b")
-    fig.rect(-width / 2, head_top + face, width / 2, oal, "handle", handle_fill)
-    grip = GRIP_FILL.get(str(record.get("Handle Grip Material", "")))
-    if grip:
-        fig.rect(-width / 2 - 0.05, oal - 0.35 * handle, width / 2 + 0.05, oal, "grip", grip)
-    return Drawn(fig, source)
-
-
 #: Which figure each product type is drawn with, and the type's largest DRAWN
 #: extent in inches, ``(width, height)`` of any product's bounding box, with a
 #: little headroom. The sheet's scale for the type is derived from it and is

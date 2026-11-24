@@ -228,6 +228,7 @@ GROUPS = (
             "kit_pliers",
             "industrial/case_figures",
             "industrial/figures",
+            "industrial/hammer_figures",
             "industrial/household_tool_sets",
             "industrial/picture_hangers",
         ),
