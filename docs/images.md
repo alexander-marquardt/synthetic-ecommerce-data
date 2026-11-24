@@ -19,7 +19,9 @@ published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a
 figure meant to survive a close look (maintainer, 2026-09-30). They still go
 through the same text allow-list, brand plate, house style and material/finish fill as
-every other drawing -- only the GEOMETRY is fixed.
+every other drawing -- only the GEOMETRY is fixed. A breadth type with a drawing of its own
+(30 so far, `drawing/breadth_products.py`, #1216) is drawn as the product it is sold as, lit and
+filling at least half of the figure area ([drawings](drawings.md#breadth-types-fixed-shapes)).
 
 * **One image per SKU**, so two lengths of one screw look different, and a
   grouped view can switch the picture when a variant is selected.
@@ -90,6 +92,7 @@ every other drawing -- only the GEOMETRY is fixed.
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a bottle, a vise, a light bulb); in retail only a small thing held, carried or worn (#1101) |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
   | `diagonal` | 54 to 66 to either side in steps of 6 | a wide, low industrial product the portrait sheet would draw small: safety glasses (#1217) |
+  | `steady` | -6 to 6 in steps of 3 | a product drawn to fill the figure area, which a wider turn would shrink under half of it (#1216) |
   | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), every furniture item, lamp, light fitting, garden furniture piece and crib (#1095), and every product the guard below holds level: a large appliance, a bike, a scooter, or anything over 60 cm (#1101) |
 
   ![An espresso cup set in 2, 4 and 8 packs, turned before #884 and level after; a single tea cup and a peanut butter jar keep their tilt](images/level-packs-884.svg)
