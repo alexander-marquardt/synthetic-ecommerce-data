@@ -25,10 +25,12 @@ from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import 
 from synthetic_ecommerce_data.domains.industrial.product_types.hand_tools import (  # noqa: E402
     household_tool_sets as sets,
 )
+from test_sku_drawings import MAX_DRAWING_BYTES  # noqa: E402
 
 FLOOR = 0.50
 #: The named exceptions: a true outline that cannot reach the floor, at its own measured one.
-FLOORS: dict[tuple[str, str], float] = {}
+#: A sawtooth hanger is a strip over twice as long as it is deep, which fits the area's width only.
+FLOORS: dict[tuple[str, str], float] = {("picture_hangers", "Sawtooth Hanger"): 0.26}
 
 
 def _set_records():
@@ -67,14 +69,14 @@ RECORDS = {
 
 @functools.cache
 def _areas(key):
-    """Every (shape name, record, angle, area measure) of a type."""
+    """Every (shape name, record, angle, area measure, bytes) of a type."""
     out = []
     for angle in product_look.ORIENTATIONS[domain.orientation(key)]:
         scale = drawing.product_scale_for(key, [], angle)
         for name, record in RECORDS[key]():
             svg, source = drawing._draw(key, brands.BRANDS[0], record, scale, angle)
             assert source == "record" and drawing.svg_problems(svg) == [], record
-            out.append((name, record, angle, pf.sheet_measures(svg)[1]))
+            out.append((name, record, angle, pf.sheet_measures(svg)[1], len(svg)))
     return out
 
 
@@ -82,7 +84,7 @@ def _areas(key):
 def test_every_record_and_angle_fills_the_floor_with_a_highlight_and_a_shadow(key):
     bad = [
         (name, record, angle, area)
-        for name, record, angle, area in _areas(key)
+        for name, record, angle, area, _ in _areas(key)
         if area.cover < FLOORS.get((key, name), FLOOR)
         or not (area.highlight and area.shadow)
         or area.flat
@@ -90,8 +92,21 @@ def test_every_record_and_angle_fills_the_floor_with_a_highlight_and_a_shadow(ke
     assert not bad, (len(bad), len(_areas(key)), min(bad, key=lambda b: b[3].cover))
 
 
+@pytest.mark.parametrize("key", sorted(RECORDS))
+def test_the_longest_drawing_is_under_the_byte_budget_in_every_brand(key):
+    """The longest drawing of each container and style, in every house style."""
+    longest = {}
+    for name, record, angle, _, size in _areas(key):
+        shape = name, record.get("Type")
+        longest[shape] = max(longest.get(shape, (0,)), (size, angle, sorted(record.items())))
+    for brand, (_, angle, items) in product(brands.BRANDS, longest.values()):
+        scale = drawing.product_scale_for(key, [], angle)
+        size = len(drawing._draw(key, brand, dict(items), scale, angle)[0])
+        assert size < MAX_DRAWING_BYTES, (brand, items, size)
+
+
 def test_every_named_exception_is_under_the_floor():
     """An exception that reaches the floor is an exception no longer."""
     for (key, shape), floor in FLOORS.items():
-        least = min(area.cover for name, _, _, area in _areas(key) if name == shape)
+        least = min(area.cover for name, _, _, area, _ in _areas(key) if name == shape)
         assert floor <= least < FLOOR, (key, shape, least)

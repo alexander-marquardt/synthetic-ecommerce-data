@@ -52,7 +52,7 @@ def block(x0: float, y0: float, x1: float, y1: float, cut: float) -> list[Point]
         (x1 - cut, y0 + cut, -90), (x1 - cut, y1 - cut, 0),
         (x0 + cut, y1 - cut, 90), (x0 + cut, y0 + cut, 180),
     ):  # fmt: skip
-        out += arc((cx, cy), cut, start, start + 90, 3)
+        out += arc((cx, cy), cut, start, start + 90, 2)
     return out
 
 
@@ -62,21 +62,22 @@ def box(x0: float, y0: float, x1: float, y1: float) -> list[Point]:
 
 def inches(fig: Figure, scale: float = 1.0) -> Figure:
     """``fig``, laid out in hundredths, in inches and times ``scale``; its size is its width."""
-    k = scale / 100
+
+    def at(*values: float) -> tuple[float, ...]:
+        return tuple(v * scale / 100 for v in values)
+
     shapes = []
     for s in fig.shapes:
         if isinstance(s, Poly):
-            s = replace(s, points=tuple((x * k, y * k) for x, y in s.points))
+            s = replace(s, points=tuple(at(*p) for p in s.points))
         elif isinstance(s, Disc):
-            s = replace(s, centre=(s.centre[0] * k, s.centre[1] * k), radius=s.radius * k)
+            s = replace(s, centre=at(*s.centre), radius=at(s.radius)[0])
         elif isinstance(s, Discs):
-            s = replace(s, centres=tuple((x * k, y * k) for x, y in s.centres), radius=s.radius * k)
+            s = replace(s, centres=tuple(at(*c) for c in s.centres), radius=at(s.radius)[0])
         elif isinstance(s, Lines):
-            s = replace(
-                s, segments=tuple(((a * k, b * k), (c * k, d * k)) for (a, b), (c, d) in s.segments)
-            )
+            s = replace(s, segments=tuple((at(*a), at(*b)) for a, b in s.segments))
         elif isinstance(s, Bars):
-            s = replace(s, rects=tuple(tuple(v * k for v in r) for r in s.rects))
+            s = replace(s, rects=tuple(at(*r) for r in s.rects))
         else:
             raise TypeError(f"{type(s).__name__} is not laid out in hundredths")
         shapes.append(s)

@@ -43,7 +43,8 @@ SHELL = {
 def _driver(fig: Figure, x: float, y0: float, y1: float, grip: str, steel: str) -> None:
     mid = y0 + 0.45 * (y1 - y0)
     fig.poly(box(x - 1.8, mid, x + 1.8, y1), "handle", steel)
-    lit(fig, block(x - 6, y0, x + 6, mid, 4), grip)
+    fig.poly(block(x - 6, y0, x + 6, mid, 4), "handle", grip)
+    fig.poly(box(x - 4, y0 + 2, x - 1, mid - 2), "gloss")
 
 
 def _hammer(fig: Figure, x: float, y0: float, y1: float, grip: str, steel: str) -> None:
@@ -86,23 +87,18 @@ def _tools(fig, x0: float, x1: float, y0: float, y1: float, grip, steel, tools=T
 
 
 def _bits(fig: Figure, pieces: int, x0: float, y0: float, x1: float, y1: float) -> None:
-    """A tray of one bit for each piece, in rows."""
+    """A tray of one bit for each piece, in rows. A crowded tray is laid out in whole hundredths:
+    the drawing writes those short, and the fullest set has a byte budget to keep."""
     fig.poly(box(x0, y0, x1, y1), "handle", TRAY)
     wide, high = x1 - x0 - 6, y1 - y0 - 6
     cols = max(1, math.ceil(math.sqrt(pieces * wide / high)))
     rows = math.ceil(pieces / cols)
-    dx, dy = wide / cols, high / rows
-    half = min(0.32 * min(dx, dy), 6.0)
-    fig.bars(
-        [
-            (cx - half, cy - half, cx + half, cy + half)
-            for cx, cy in (
-                (x0 + 3 + dx * (k % cols + 0.5), y0 + 3 + dy * (k // cols + 0.5))
-                for k in range(pieces)
-            )
-        ],
-        "dark",
-    )
+    dx, dy = math.floor(wide / cols), math.floor(high / rows)
+    side = max(2, min(round(0.64 * min(dx, dy)), 12))
+    left = round((x0 + x1 - dx * cols + dx - side) / 2)
+    top = round((y0 + y1 - dy * rows + dy - side) / 2)
+    corners = [(left + dx * (k % cols), top + dy * (k // cols)) for k in range(pieces)]
+    fig.bars([(x, y, x + side, y + side) for x, y in corners], "dark")
 
 
 # --- the household set's containers --------------------------------------------------------------
@@ -216,21 +212,23 @@ def _keys(fig: Figure, count: int, x0, y0, x1, y1) -> None:
         thick = wide * (0.3 + 0.3 * (k + 1) / count)
         bars.append((x - thick / 2, top, x + thick / 2, y1))
         bars.append((x - thick / 2, top, x + wide / 2 + thick / 2, top + thick))
-        shades.append((x + thick / 6, top + thick, x + thick / 2, y1))
-    _bars(fig, bars, shades)
+        shades.append((x + thick / 6, top + thick, x + thick / 2))
+    fig.bars(bars)
+    _shade(fig, shades, y1)
 
 
 def _drills(fig: Figure, count: int, x0, y0, x1, y1) -> None:
     """Drills: a fluted body, point up, stepped by size."""
-    bars, shades, flutes = [], [], []
+    outline, shades, flutes = [], [], []
     for k, (x, wide) in enumerate(_rows(count, x0, x1)):
         top = y1 - (y1 - y0) * (0.5 + 0.5 * (k + 1) / count)
         half = wide * (0.3 + 0.7 * (k + 1) / count) / 2
-        bars.append((x - half, top + half, x + half, y1))
-        fig.poly([(x - half, top + half), (x, top), (x + half, top + half)], "part")
-        shades.append((x + half / 3, top + half, x + half, y1))
-        flutes += [((x - half, y), (x + half, y - 5)) for y in (top + 24, top + 40, top + 56)]
-    _bars(fig, bars, shades)
+        outline += [(x - half, y1), (x - half, top + half), (x, top)]
+        outline += [(x + half, top + half), (x + half, y1)]
+        shades.append((x + half / 3, top + half, x + half))
+        flutes += [((x - half, y), (x + half, y - 5)) for y in (top + 24, top + 48)]
+    fig.poly(outline)
+    _shade(fig, shades, y1)
     fig.lines(flutes)
 
 
@@ -242,9 +240,10 @@ def _taps(fig: Figure, count: int, x0, y0, x1, y1) -> None:
         half = wide * (0.5 + 0.5 * (k + 1) / count) / 2
         mid = top + 0.5 * (y1 - top)
         bars += [(x - half, top, x + half, mid), (x - half * 0.6, mid, x + half * 0.6, y1)]
-        shades.append((x + half / 3, top, x + half, mid))
+        shades.append((x + half * 0.2, top, x + half * 0.6))
         threads += [((x - half, y), (x + half, y - 2)) for y in range(int(top) + 6, int(mid), 6)]
-    _bars(fig, bars, shades)
+    fig.bars(bars)
+    _shade(fig, shades, y1)
     fig.lines(threads)
 
 
@@ -252,25 +251,36 @@ def _screws(fig: Figure, count: int, x0, y0, x1, y1) -> None:
     """Socket head screws: a compartment for each size, the heads in it growing with the size."""
     cols = min(count, 3 if count <= 9 else 5)
     rows = math.ceil(count / cols)
-    dx, dy = (x1 - x0) / cols, (y1 - y0) / rows
-    for k in range(count):
-        left, top = x0 + dx * (k % cols), y0 + dy * (k // cols)
-        fig.poly(box(left + 1, top + 1, left + dx - 1, top + dy - 1), "handle", TRAY)
-        radius = min(dx, dy) * (0.1 + 0.07 * (k + 1) / count)
-        centres = [
-            (left + dx * fx, top + dy * fy) for fx, fy in ((0.28, 0.3), (0.7, 0.34), (0.48, 0.72))
-        ]
-        fig.discs(centres, radius)
-        fig.discs(centres, 0.45 * radius, "dark")
+    high = (y1 - y0) / rows
+    walls, places = [], ((0.28, 0.36), (0.7, 0.4), (0.48, 0.76))
+    for row in range(rows):
+        top = y0 + high * row
+        fig.poly(box(x0, top, x1, top + high), "handle", TRAY)
+        fig.poly(box(x0, top, x1, top + 0.18 * high), "shade")
+        fig.poly(box(x0, top + 0.84 * high, x1, top + high), "gloss")
+        cells = min(cols, count - cols * row)
+        wide = (x1 - x0) / cells
+        for cell in range(cells):
+            left, k = x0 + wide * cell, cols * row + cell
+            if cell:
+                walls.append(((left, top), (left, top + high)))
+            radius = min((x1 - x0) / cols, high) * (0.1 + 0.07 * (k + 1) / count)
+            centres = [(left + wide * fx, top + high * fy) for fx, fy in places]
+            fig.discs(centres if count <= 9 else centres[::2], radius)
+            fig.discs(centres if count <= 9 else centres[::2], 0.45 * radius, "dark")
+    fig.lines(walls)
 
 
 ITEMS = {"Hex Key Set": _keys, "Jobber Drill Set": _drills, "Tap Set": _taps}
 
 
-def _bars(fig: Figure, bars, shades) -> None:
-    fig.bars(bars)
-    for rect in shades:
-        fig.poly(box(*rect), "shade")
+def _shade(fig: Figure, sides, foot: float) -> None:
+    """Every item's shadow as one shape, joined along ``foot`` by runs of no height; each side is
+    ``(left, top, right)``."""
+    out = []
+    for left, top, right in sides:
+        out += [(left, foot), (left, top), (right, top), (right, foot)]
+    fig.poly(out, "shade")
 
 
 def _plastic(fig: Figure, fill: str, items, count: int) -> None:

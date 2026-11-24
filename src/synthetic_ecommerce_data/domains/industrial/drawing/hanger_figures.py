@@ -78,8 +78,9 @@ def _hanging_kit(fig: Figure, fill: str, pounds: float) -> None:
     wide = min(step - 6, 56)
     for k in range(hooks):
         x = 10 + step * (k + 0.5)
-        lit(fig, block(x - wide / 2, 14, x + wide / 2, 84, 6), fill)
-        lit(fig, block(x - wide / 2 - 2, 56, x + wide / 2 + 2, 88, 6), fill)
+        for side, top, foot in ((x - wide / 2, 14, 84), (x - wide / 2 - 2, 56, 88)):
+            fig.poly(block(side, top, 2 * x - side, foot, 6), "handle", fill)
+            fig.poly(box(side + 4, top + 4, side + 10, foot - 4), "gloss")
         fig.disc((x, 28), 5, "handle", STEEL)
     for radius in (36, 31, 26):
         fig.disc((48, 145), radius, "handle", WIRE)
