@@ -35,7 +35,7 @@ _LAUNDRY_KINDS = (
      ((8, 1200, 299), (9, 1400, 359), (10, 1400, 449), (11, 1400, 549), (11, 1600, 579), (12, 1600, 629))),
     ("LWK", "washing_machine", "", "Compact Washer", "Washing Machine", "A compact washer for a small home",
      ((5, 1000, 219), (6, 1000, 239), (6, 1200, 259), (7, 1200, 269), (7, 1400, 299), (8, 1400, 319))),
-    ("LWX", "washer_dryer", "", "Washer Dryer Combo", "Washer Dryer", "A washer dryer combo. One drum washes and dries",
+    ("LWX", "washer_dryer", "", "Washer Dryer Combo", "Washer Dryer", "A washer dryer combo. A single drum both washes and dries",
      ((8, 1200, 429), (9, 1200, 459), (9, 1400, 519), (10, 1400, 579), (11, 1400, 649), (12, 1600, 749))),
     ("LTP", "tumble_dryer", "heat_pump", "Heat Pump Dryer", "Tumble Dryer (Heat Pump)", "A heat pump dryer for laundry",
      ((7, 0, 399), (8, 0, 449), (9, 0, 549), (9, 0, 619), (10, 0, 719), (11, 0, 799))),
