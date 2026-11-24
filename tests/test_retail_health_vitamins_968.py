@@ -1,6 +1,6 @@
 """The Health department and its first two types, vitamins and minerals (gen#968, slice 1).
 
-The retail catalogue had no Health department: a ``terms`` count on the top level of
+The retail domain had no Health department: a ``terms`` count on the top level of
 ``category_path`` found none, where the 500K mix plans 5,000 (``docs/catalogue-mix-837.md``).
 This slice puts ``Health`` on the closed department list and adds the first two types under
 ``Health > Vitamins & Supplements``: bottles of tablets and capsules sold by count, over the counter

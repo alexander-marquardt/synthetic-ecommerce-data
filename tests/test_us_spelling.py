@@ -44,7 +44,7 @@ def test_no_tracked_file_spells_color_the_british_way() -> None:
     assert hits == []
 
 
-#: The retail catalogue's source: every module whose strings become a title, a description or a
+#: The retail domain's source: every module whose strings become a title, a description or a
 #: drawing label, and whose docstrings and comments the same maintainers read. One spelling,
 #: "center", in all of it (gen#291). The industrial engine's drawing code uses the engineering
 #: "centre" for a bolt circle or a shaft axis and writes no catalogue text, so it is outside
