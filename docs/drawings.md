@@ -44,12 +44,12 @@ Step by step:
    `geometry_from_record()` of the matching module in `domains/industrial/geometry/` (`endmill`,
    `drill`, `tap`, `fastener`, `washer` and `flapdisc`). That package parses
    and checks a record and draws nothing; `drawing/` is the only renderer.
-   The hammer, the five types added under #103 (`hex_nut`, `bearing`,
+   The hammers, the five types added under #103 (`hex_nut`, `bearing`,
    `depressed_wheel`, `hex_key`, `kit`) and the breadth shapes have no
    `domains/industrial/geometry/` module. The nut, bearing, wheel and hex key read their lengths
    inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
-   wrapper). The hammer parses its face and handle lengths with its own
-   helper, the kit draws one slot per size it counts, and the breadth shapes
+   wrapper). A hammer reads its overall length
+   ([Hammers](#hammers-the-real-kind-large-and-lit-1215)), the kit draws one slot per size it counts, and the breadth shapes
    read nothing (see [Breadth types](#breadth-types-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
@@ -304,8 +304,8 @@ and `DimensionParseError`.
 The figures without `domains/industrial/geometry/` geometry decide per attribute. `_length_or()`
 returns the parsed value or a proportional fallback. The result is `record` if
 every drawn value parsed, `partial` if the primary parsed, and `nominal` if it
-did not. The hammer is never `nominal`: a missing face or length makes it
-`partial`. Its head weight is not drawn (`hammer()`'s docstring explains why).
+did not. A hammer is never `nominal`: a missing overall length makes it
+`partial`. Its head weight is not drawn (`hammer_figures.py`'s docstring explains why).
 A kit is `record` when it publishes `Sizes Included`, `partial` otherwise. The
 breadth shapes are always `nominal`.
 
@@ -313,6 +313,25 @@ How many of the committed catalog's drawings take each rung is
 `figures.drawings.geometry` in `golden-catalog/stats.json`, which the build
 measures on `images.jsonl` (#103). Every `nominal` row is a breadth SKU; no
 depth SKU falls back to nominal geometry.
+
+## Hammers: the real kind, large and lit (#1215)
+
+The seven hammers (`domains/industrial/drawing/hammer_figures.py`) are seen from the head end: the
+head lies across the sheet and the handle comes toward the viewer, so it is short and stout. The
+side view it replaced, true to its length, filled 2 to 21% of the figure area. Each kind has
+its own head (a ball, a curved or a straight claw, a chamfered block, a rubber barrel, a molded
+dead blow head), a highlight and a shadow (the `gloss` and `shade` roles). The record says the
+rest: a milled `Face Type` is checkered, `Handle Material` gives the color and a wood one its
+grain, `Handle Grip Material` adds a ribbed grip.
+
+The whole drawing is scaled by the published `Overall Length`, from 0.95 of full size at the kind's
+shortest to 1 at its longest (`SMALLEST`), so siblings draw apart and the shortest keeps 90% of the
+area. A record without one is placed by its `Handle Length`, else its `Face Dia.`, and is `partial`.
+A hammer is `steady`, and its scale is fitted to its turned outline
+(`product_look.OUTLINES`). `tests/test_fill_hammers_1215.py` draws every size of every kind, in
+every handle, grip and face, at every angle, and holds each to 50% of the figure area, or to the
+kind's own floor where its true outline cannot reach that (`FLOORS`: the ball pein, the claw and
+the framing hammer). Before and after: [the sheet](images/hammers-fill-1215.png).
 
 ## Breadth types: fixed shapes
 

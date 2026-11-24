@@ -129,7 +129,7 @@ def test_the_angles_spread_over_each_set_and_most_products_are_turned(name):
         if domain.orientation(p["product_type"]) == name
     )
     total = sum(counts.values())
-    assert total > 50 * len(angles)
+    assert total > 40 * len(angles)
     assert set(counts) == set(angles)
     assert max(counts.values()) / total < 2 / len(angles), counts
 
