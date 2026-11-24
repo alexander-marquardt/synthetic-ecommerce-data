@@ -27,6 +27,8 @@ OIL = "#c99a2e"
 SAFETY = "#e0a526"
 
 _BOX = (1.64, 2.0)
+#: The turn, in degrees, at which a rod's smallest fill over its angles is largest.
+LAID = 34
 
 
 # --- light: every body is drawn with a highlight on its left and a shadow on its right ----------
@@ -107,6 +109,8 @@ def _band(fig: Figure, x0, y0, x1, y1, ry, fill) -> None:
     fig.poly(
         [*_ell((cx, y0), rx, ry, 180, 0, 12), *_ell((cx, y1), rx, ry, 0, 180, 12)], "handle", fill
     )
+    sides = [_ell((cx, y), rx, ry, 0, 66, 6) for y in (y0, y1)]
+    fig.poly([*sides[0], *sides[1][::-1]], "shade")
 
 
 def _thread(fig: Figure, x0, y0, x1, y1, pitch=0.1) -> None:
@@ -190,15 +194,18 @@ def _puller(jaws: int) -> Figure:
     """A jaw puller: the yoke, the forcing screw with its hex, and hooked jaws."""
     fig = _new()
     _hexes(fig, 0.6, 0.0, 1.04, 0.22, "plain")
-    _thread(fig, 0.68, 0.22, 0.96, 1.6)
-    _slab(fig, [(0.82, 1.82), (0.68, 1.6), (0.96, 1.6)], "plain")
-    left = [(0.0, 0.62), (0.4, 0.5), (0.44, 1.5), (0.62, 1.66), (0.62, 1.84), (0.2, 2.0),
+    if jaws > 2:  # noqa: PLR2004 (the middle jaw hides the rest of the screw)
+        _thread(fig, 0.68, 0.22, 0.96, 0.74)
+    else:
+        _thread(fig, 0.68, 0.22, 0.96, 1.6)
+        _slab(fig, [(0.82, 1.82), (0.68, 1.6), (0.96, 1.6)], "plain", t=0.09)
+    left = [(0.0, 0.62), (0.4, 0.5), (0.48, 1.44), (0.64, 1.6), (0.64, 1.84), (0.2, 2.0),
             (0.0, 1.8)]  # fmt: skip
     _slab(fig, left)
     _slab(fig, _mirror(left))
     if jaws > 2:  # noqa: PLR2004
         _slab(fig, [(0.6, 0.7), (1.04, 0.7), (1.02, 1.58), (1.1, 1.72), (0.82, 1.94),
-                    (0.54, 1.72), (0.62, 1.58)])  # fmt: skip
+                    (0.54, 1.72), (0.62, 1.58)], t=0.09)  # fmt: skip
     _slab(fig, [(0.0, 0.44), (0.3, 0.34), (1.34, 0.34), (1.64, 0.44), (1.64, 0.84), (1.3, 0.92),
                 (0.34, 0.92), (0.0, 0.84)])  # fmt: skip
     for x in (0.2, 1.44):
@@ -234,15 +241,15 @@ def pin_puller(record: Record) -> Drawn:
     _col(fig, 0.06, 1.5, 0.56, 1.95)
     _slab(fig, [(0.06, 1.95), (0.56, 1.95), (0.42, 2.25), (0.2, 2.25)], "plain")
     _col(fig, 0.25, 2.25, 0.37, 2.4, "plain")
-    return _done(_laid(fig, 38))
+    return _done(_laid(fig, LAID))
 
 
 def chain_tensioner(record: Record) -> Drawn:
     """A chain tensioner: a slotted zinc arm and the idler sprocket it presses on the chain."""
     del record
     fig = _new()
-    _slab(fig, [(0.42, 0.85), (1.22, 0.85), (1.22, 1.5), (1.64, 1.56), (1.64, 2.0), (0.0, 2.0),
-                (0.0, 1.56), (0.42, 1.5)])  # fmt: skip
+    _slab(fig, [(0.22, 0.85), (1.42, 0.85), (1.42, 1.36), (1.64, 1.46), (1.64, 2.0), (0.0, 2.0),
+                (0.0, 1.46), (0.22, 1.36)])  # fmt: skip
     for x in (0.25, 1.39):
         fig.disc((x, 1.78), 0.09, "hole")
     fig.rect(0.74, 1.35, 0.9, 1.72, "dark")
@@ -323,8 +330,8 @@ def lock_nut_pliers(record: Record) -> Drawn:
     """Lock nut pliers: curved jaws round a lock nut, a riveted pivot and dipped grips."""
     del record
     fig = _new()
-    grip = [(0.3, 0.98), (0.72, 1.0), (0.62, 1.4), (0.5, 2.0), (0.06, 2.0), (0.0, 1.5)]
-    jaw = [(0.8, 0.0), (0.52, 0.02), (0.22, 0.26), (0.2, 0.7), (0.5, 1.02), (0.82, 1.0),
+    grip = [(0.26, 0.98), (0.78, 1.0), (0.74, 1.4), (0.64, 2.0), (0.06, 2.0), (0.0, 1.5)]
+    jaw = [(0.8, 0.0), (0.46, 0.0), (0.08, 0.24), (0.06, 0.72), (0.4, 1.02), (0.82, 1.0),
            (0.82, 0.62), (0.6, 0.5), (0.6, 0.34), (0.78, 0.24)]  # fmt: skip
     for flip in (list, _mirror):
         _slab(fig, flip(grip), "handle", GRIP_BLUE)
@@ -381,20 +388,20 @@ def sds_drill_bit(record: Record) -> Drawn:
     _col(fig, 0.05, 1.7, w - 0.05, 2.5, "plain")
     for x in (0.1, 0.26):
         fig.rect(x, 1.95, x + 0.07, 2.35, "dark")
-    return _done(_laid(fig, 38))
+    return _done(_laid(fig, LAID))
 
 
 def sleeve_anchor(record: Record) -> Drawn:
     """A hex-head sleeve anchor: the bolt head, its washer, the split sleeve and the cone."""
     del record
     fig = _new()
-    _hexes(fig, 0.2, 0.0, 1.44, 0.36)
-    _bar(fig, 0.06, 0.36, 1.58, 0.48, "plain")
-    _col(fig, 0.34, 0.48, 1.3, 1.64)
+    _hexes(fig, 0.14, 0.0, 1.5, 0.38)
+    _bar(fig, 0.0, 0.38, 1.64, 0.5, "plain")
+    _col(fig, 0.3, 0.5, 1.34, 1.64)
     fig.lines(((x, 0.7), (x, 1.64)) for x in (0.62, 1.02))
     for y in (0.78, 1.3):
         fig.rect(0.5, y, 0.6, y + 0.2, "dark")
-    _slab(fig, [(0.34, 1.64), (1.3, 1.64), (1.38, 2.0), (0.26, 2.0)], "plain")
+    _slab(fig, [(0.3, 1.64), (1.34, 1.64), (1.42, 2.0), (0.22, 2.0)], "plain")
     return _done(fig)
 
 
@@ -411,7 +418,7 @@ def tap_extractor(record: Record) -> Drawn:
     for k in range(4):
         x = 0.06 + 0.125 * k
         _col(fig, x, 1.5, x + 0.1, 2.2)
-    return _done(_laid(fig, 38))
+    return _done(_laid(fig, LAID))
 
 
 def thread_chaser(record: Record) -> Drawn:
@@ -442,7 +449,7 @@ def thread_plug_gage(record: Record) -> Drawn:
     _hexes(fig, 0.0, 0.7, 0.6, 1.66)
     _bar(fig, 0.0, 1.66, 0.6, 1.76, "handle", GRIP_RED)
     _thread(fig, 0.09, 1.76, 0.51, 2.1, 0.07)
-    return _done(_laid(fig, 38))
+    return _done(_laid(fig, LAID))
 
 
 def eye_bolt(record: Record) -> Drawn:
@@ -466,7 +473,7 @@ def magnetic_bit_holder(record: Record) -> Drawn:
     _col(fig, 0.0, 0.9, 0.6, 2.2)
     _bar(fig, 0.0, 1.1, 0.6, 1.24, "handle", GRIP_BLUE)
     _hexes(fig, 0.17, 2.2, 0.43, 2.36, "plain")
-    return _done(_laid(fig, 38))
+    return _done(_laid(fig, LAID))
 
 
 def orb_fitting(record: Record) -> Drawn:
@@ -502,10 +509,10 @@ def zerk_fitting(record: Record) -> Drawn:
     fig = _new()
     _disc(fig, (0.82, 0.28), 0.28, "plain")
     fig.disc((0.82, 0.16), 0.07, "dark")
-    _slab(fig, [(0.64, 0.5), (1.0, 0.5), (1.22, 0.72), (0.42, 0.72)])
+    _slab(fig, [(0.6, 0.5), (1.04, 0.5), (1.3, 0.72), (0.34, 0.72)])
     _hexes(fig, 0.0, 0.72, 1.64, 1.22)
-    _thread(fig, 0.26, 1.22, 1.38, 1.96)
-    _slab(fig, [(0.26, 1.96), (1.38, 1.96), (1.3, 2.0), (0.34, 2.0)], "plain")
+    _thread(fig, 0.2, 1.22, 1.44, 1.96)
+    _slab(fig, [(0.2, 1.96), (1.44, 1.96), (1.3, 2.0), (0.34, 2.0)], "plain")
     return _done(fig)
 
 
@@ -534,7 +541,6 @@ def grease_tub(record: Record) -> Drawn:
     fig = _new()
     _drum(fig, 0.06, 0.28, 1.58, 2.0, 0.26, "handle", GRIP_BLUE)
     _band(fig, 0.06, 0.94, 1.58, 1.5, 0.26, PAPER_LABEL)
-    fig.rect(1.12, 0.9, 1.58, 1.5, "shade")
     _drum(fig, 0.0, 0.0, 1.64, 0.74, 0.26, "handle", RUBBER)
     fig.poly(_ell((0.82, 0.26), 0.66, 0.18), "gloss")
     fig.disc((0.82, 1.45), 0.2, "handle", OIL)
@@ -565,7 +571,6 @@ def anti_seize_can(record: Record) -> Drawn:
     fig = _new()
     _drum(fig, 0.04, 0.42, 1.6, 2.0, 0.24)
     _band(fig, 0.04, 0.96, 1.6, 1.56, 0.24, SAFETY)
-    fig.rect(1.13, 0.9, 1.6, 1.56, "shade")
     _drum(fig, 0.32, 0.0, 1.32, 0.7, 0.16, "handle", RUBBER)
     fig.lines(((x, 0.22), (x, 0.56)) for x in (0.5, 0.66, 0.82, 0.98, 1.14))
     return _done(fig)
@@ -577,7 +582,6 @@ def aerosol_can(record: Record) -> Drawn:
     fig = _new()
     _drum(fig, 0.0, 0.5, 0.9, 2.0, 0.1, "handle", GRIP_BLUE)
     _band(fig, 0.0, 0.98, 0.9, 1.5, 0.1, PAPER_LABEL)
-    fig.rect(0.63, 0.98, 0.9, 1.5, "shade")
     _slab(fig, [(0.14, 0.38), (0.76, 0.38), (0.9, 0.58), (0.0, 0.58)], "plain")
     _col(fig, 0.16, 0.02, 0.74, 0.4, "handle", GRIP_RED)
     fig.rect(0.14, 1.12, 0.76, 1.2, "handle", OIL)
