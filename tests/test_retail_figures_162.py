@@ -67,9 +67,15 @@ INDUSTRIAL_SECTIONS = {"README.md": ("### The 100K catalog",)}
 
 #: Phrases of a quoting file that state a figure of the reference CORPUS, not of the build. The
 #: build's rates move with every catalogue slice and may round to the same percentage by chance
-#: (the grid-clone rate reached 10.89%, #956), so each phrase is blanked; a retail PR must never
-#: bend its data or the corpus's measured figure to dodge such a collision. Keyed by file.
-CORPUS_FIGURES = {"README.md": ("The corpus measures 10.89% of records",)}
+#: (the grid-clone rate reached 10.89%, #956; the non-grocery near-duplicate rate 0.43%, #1170),
+#: so each phrase is blanked; a retail PR must never bend its data or the corpus's measured
+#: figure to dodge such a collision. Keyed by file.
+CORPUS_FIGURES = {
+    "README.md": (
+        "The corpus measures 10.89% of records",
+        "parents (about 0.43%) matches the 87 in 20,000 documents",
+    )
+}
 
 
 def _scoped(path: str, text: str) -> str:
@@ -246,7 +252,7 @@ def test_the_guard_catches_a_restated_total(stats: dict) -> None:
 def test_an_industrial_section_is_not_read_but_a_retail_figure_still_is(stats: dict) -> None:
     """An industrial figure equal to a retail total is let through; a stale retail one is not."""
     total = f"{stats['ceiling']['skus']:,}"
-    corpus = CORPUS_FIGURES["README.md"][0]  # the file's corpus phrase must be there too
+    corpus = ". ".join(CORPUS_FIGURES["README.md"])  # the file's corpus phrases must be there too
     doc = f"# R\n\n{corpus}.\n\n### The 100K catalog\n\n{total} bearings\n\n## Brands\n\n"
     patterns = _quotations(stats)
 
@@ -268,10 +274,11 @@ def test_an_astm_standard_number_is_not_a_quoted_total(stats: dict) -> None:
     assert re.search(pattern, f"the ceiling is {number} styles", re.MULTILINE)
 
 
-def test_a_corpus_figure_is_not_read_but_the_same_rate_elsewhere_still_is() -> None:
-    """The README's corpus sentence is let through when a build rate rounds to its figure (#956);
-    the same percentage typed anywhere else in the file is still refused."""
-    (phrase,) = CORPUS_FIGURES["README.md"]
+@pytest.mark.parametrize("phrase", CORPUS_FIGURES["README.md"])
+def test_a_corpus_figure_is_not_read_but_the_same_rate_elsewhere_still_is(phrase: str) -> None:
+    """The README's corpus sentence is let through when a build rate rounds to its figure (#956,
+    #1170); the same percentage typed anywhere else in the file is still refused."""
+    others = ". ".join(p for p in CORPUS_FIGURES["README.md"] if p != phrase)
     figure = re.search(r"\d+\.\d+(?=%)", phrase).group(0)  # type: ignore[union-attr]
     patterns = _quotations({"near_duplicates": {"rate": float(figure) / 100}})
 
@@ -279,11 +286,11 @@ def test_a_corpus_figure_is_not_read_but_the_same_rate_elsewhere_still_is() -> N
         return [k for k, p in patterns.items() if re.search(p, text, re.MULTILINE)]
 
     industrial = INDUSTRIAL_SECTIONS["README.md"][0]  # the file's section heading must be there
-    doc = f"# R\n\n{phrase} carrying no parseable image reference.\n\n{industrial}\n\n## Brands\n"
+    doc = f"# R\n\n{phrase} carrying no image.\n\n{others}.\n\n{industrial}\n\n## Brands\n"
     scoped = _scoped("README.md", doc)
     assert hits(doc) and hits(scoped) == []
     assert scoped.count("\n") == doc.count("\n")
     assert scoped.index("carrying") == doc.index("carrying")  # blanked in place, same columns
     assert hits(_scoped("README.md", doc + f"The build measures {figure}% grid clones.\n")) != []
     with pytest.raises(AssertionError, match="corpus phrase"):
-        _scoped("README.md", f"# R\n\nThe corpus measured something else.\n\n{industrial}\n")
+        _scoped("README.md", f"# R\n\nReworded.\n\n{others}.\n\n{industrial}\n")

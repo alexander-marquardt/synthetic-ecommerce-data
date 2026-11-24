@@ -239,14 +239,10 @@ def build(gen: Any, type_key: str, category: tuple[str, ...]) -> LineDraft:
 
 
 #: Nominal proportions of the drawn pair, in inches, for what no source gives:
-#: a frame's front 5.9" across, a lens 1.9" high, the bridge between the lenses
-#: 0.7" wide, a rim or brow bar 0.12" thick.
+#: a frame's front 5.9" across, a lens 1.9" high, a rim or brow bar 0.16" thick.
 FRONT = 5.9
 LENS = 1.9
-BRIDGE = 0.7
-RIM = 0.12
-#: How far the lens's lower edge sweeps up toward the nose, of the lens's height.
-SWEEP = 0.3
+RIM = 0.16
 STYLES = ("Frameless", "Half-Frame", "Full-Frame")
 #: Each lens color's fill: the lens is drawn in its tint, so two lenses of one
 #: model draw apart. Nominal sRGB colors, no source.
@@ -258,52 +254,156 @@ LENS_FILL = {
     SILVER: "#d2d5d7",
     BLUE: "#4e7db5",
 }
+#: Each frame color word's fill, read from a published color's words: the frame
+#: takes the first word, its end pieces and nose pads the last (a two-color
+#: ``Black/Lime`` has lime ends). Nominal sRGB colors, no source.
+FRAME_FILL = {
+    "Black": "#34373a",
+    "Matte Black": "#3d4043",
+    "Gray": "#8b9094",
+    "Slate Gray": "#6c757d",
+    "Crystal Gray": "#c3c9ce",
+    "Gun Metal": "#5b6167",
+    "Silver": "#bfc4c8",
+    "White": "#f4f5f5",
+    "Red": "#b8322f",
+    "Blue": "#2f5fa8",
+    "Metallic Blue": "#3f6f9f",
+    "Lime": "#9ccb3b",
+    "Hi-Vis Green": "#8fd14a",
+    "Hi-Vis Yellow": "#e2e64a",
+    "OD Green": "#5c6440",
+    "Camo": "#75704f",
+    "Tan": "#c2a878",
+}
+#: A frameless pair's end pieces and nose pads: clear plastic.
+FRAMELESS_FILL = "#cfd8dc"
+#: One side of the front, from the brow's middle out to the temple, round under the
+#: lens and up to the nose, as shares of half the front's width and of the lens height:
+#: wrap-around spectacles, which bow back at the temple and cut up at the nose. Each
+#: step is a curve's control point and its end.
+SIDE = (
+    ((0.45, 0.005), (0.80, 0.02)),
+    ((1.00, 0.06), (1.00, 0.26)),
+    ((1.00, 0.72), (0.92, 0.86)),
+    ((0.84, 1.00), (0.56, 1.00)),
+    ((0.26, 1.00), (0.19, 0.78)),
+    ((0.14, 0.58), (0.00, 0.56)),
+)
+
+Points = list[tuple[float, float]]
 
 
-def _lens(x_out: float, x_in: float, top: float, bottom: float) -> list[tuple[float, float]]:
-    """One lens seen from the front: square at the temple, its lower edge swept up to the nose."""
-    lift = SWEEP * (bottom - top)
-    return [(x_out, top), (x_in, top), (x_in, bottom - lift), (x_out, bottom)]
+def _curve(start: tuple[float, float], steps, n: int = 6) -> Points:
+    """``start`` and the points of the quadratic curves ``steps`` (control, end) draw from it."""
+    out = [start]
+    for control, end in steps:
+        x0, y0 = out[-1]
+        for k in range(1, n + 1):
+            t = k / n
+            out.append(
+                (
+                    (1 - t) ** 2 * x0 + 2 * (1 - t) * t * control[0] + t**2 * end[0],
+                    (1 - t) ** 2 * y0 + 2 * (1 - t) * t * control[1] + t**2 * end[1],
+                )
+            )
+    return out
+
+
+def _at(points: Points, sign: float = 1.0) -> Points:
+    """Points given as shares of half the front and of the lens height, in inches."""
+    return [(sign * x * FRONT / 2, y * LENS) for x, y in points]
+
+
+def _shield() -> Points:
+    """The whole front's outline: :data:`SIDE` and its mirror."""
+    side = _at(_curve((0.0, 0.005), SIDE))
+    return side + [(-x, y) for x, y in reversed(side)][1:-1]
+
+
+def _lens(sign: float, top: float, rim: float) -> Points:
+    """One lens of two, inset by ``rim`` (inches) all round and ``top`` under the brow."""
+    dx, dy = rim / (FRONT / 2), rim / LENS
+    start = (0.17 + dx, top)
+    steps = (
+        ((0.50, top - 0.01), (0.80 - dx / 2, top + 0.02)),
+        ((1.00 - dx, top + 0.04), (1.00 - dx, 0.30)),
+        ((1.00 - dx, 0.72), (0.92 - dx, 0.86 - dy)),
+        ((0.84 - dx, 1.00 - dy), (0.56, 1.00 - dy)),
+        ((0.28 + dx, 1.00 - dy), (0.21 + dx, 0.76)),
+        ((0.15 + dx, 0.52), start),
+    )
+    return _at(_curve(start, steps), sign)
+
+
+def _ends(fig: Figure, fill: str) -> None:
+    """The temples' end pieces, seen end on at the two outer edges."""
+    for sign in (-1.0, 1.0):
+        fig.poly(_at([(0.93, 0.08), (1.0, 0.12), (1.0, 0.44), (0.95, 0.46)], sign), "grip", fill)
+
+
+def _pads(fig: Figure, fill: str) -> None:
+    """The two nose pads, on the cut-up edges beside the nose."""
+    for sign in (-1.0, 1.0):
+        pad = [(0.09, 0.52), (0.16, 0.56), (0.21, 0.82), (0.16, 0.80)]
+        fig.poly(_at(pad, sign), "grip", fill)
+
+
+def _light(fig: Figure) -> None:
+    """The light on the lenses: a shadow over the lower half, a highlight across the upper."""
+    for sign in (-1.0, 1.0):
+        fig.poly(
+            _at(
+                _curve(
+                    (0.96, 0.46),
+                    (
+                        ((0.96, 0.76), (0.89, 0.84)),
+                        ((0.82, 0.95), (0.56, 0.95)),
+                        ((0.30, 0.95), (0.25, 0.76)),
+                        ((0.22, 0.64), (0.22, 0.56)),
+                        ((0.58, 0.64), (0.96, 0.46)),
+                    ),
+                ),
+                sign,
+            ),
+            "shade",
+        )
+    # The light comes from one side, so the highlight is not mirrored.
+    for x in (-0.86, 0.26):
+        fig.poly(
+            _at([(x + 0.16, 0.16), (x + 0.60, 0.16), (x + 0.46, 0.54), (x + 0.02, 0.54)]), "gloss"
+        )
 
 
 def figure(record: dict[str, str]) -> Drawn:
-    """The pair seen from the front: a one-piece shield (frameless), two lenses
-    under a brow bar (half-frame) or two lenses in rims (full-frame), the
-    lenses in their tint."""
+    """The pair seen from the front, wrapped round: a one-piece shield (frameless), two lenses
+    under a brow bar (half-frame) or two lenses in rims (full-frame), the lenses in their tint
+    and the frame in its color, lit by a highlight and a shadow (#1217)."""
     style = record.get("Style", "")
     tint = LENS_FILL.get(record.get("Lens Color", ""))
     source = "record" if tint else "partial"
     if style not in STYLES:
         source = "nominal"
-    half, gap = FRONT / 2, BRIDGE / 2
-    # The page's y runs down: the brow is y = 0 and the lenses hang below it.
+    colors = [FRAME_FILL[c] for c in record.get("Frame Color", "").split("/") if c in FRAME_FILL]
+    frame = colors[0] if colors else FRAMELESS_FILL
+    accent = colors[-1] if colors else FRAMELESS_FILL
     fig = Figure(size_in=FRONT)
-    if style == "Frameless":
-        lift = SWEEP * LENS
-        fig.poly(
-            [
-                (-half, 0.0),
-                (half, 0.0),
-                (half, LENS),
-                (gap, LENS - lift),
-                (0.0, LENS - 1.6 * lift),
-                (-gap, LENS - lift),
-                (-half, LENS),
-            ],
-            "lens",
-            tint,
-        )
-        return Drawn(fig, source)
-    for sign in (-1.0, 1.0):
-        if style == "Full-Frame":
-            fig.poly(_lens(sign * half, sign * gap, 0.0, LENS))
-            inner = _lens(sign * (half - RIM), sign * (gap + RIM), RIM, LENS - RIM)
-        else:
-            inner = _lens(sign * (half - RIM), sign * (gap + RIM), RIM, LENS)
-        fig.poly(inner, "lens", tint)
-    if style != "Full-Frame":
-        fig.rect(-half, 0.0, half, RIM)
-    fig.rect(-gap, RIM, gap, 2 * RIM)
+    if style == "Full-Frame":
+        fig.poly(_shield(), "grip", frame)
+        for sign in (-1.0, 1.0):
+            fig.poly(_lens(sign, 0.10, RIM), "lens", tint)
+    else:
+        # One shield under both: a half-frame's two lenses join behind its bridge.
+        fig.poly(_shield(), "lens", tint)
+    _light(fig)
+    if style not in ("Full-Frame", "Frameless"):
+        brow = _at(_curve((0.0, 0.005), SIDE[:2]))
+        thick = RIM * 1.6
+        under = [(x * (1 - 0.03 * (x > 0)), y + thick) for x, y in reversed(brow)]
+        half = brow + under
+        fig.poly(half + [(-x, y) for x, y in reversed(half)], "grip", frame)
+    _pads(fig, accent)
+    _ends(fig, accent)
     return Drawn(fig, source)
 
 
@@ -346,7 +446,7 @@ SPEC = TypeSpec(
     standards_family="hand_tool",
     vocab=VOCAB,
     figure=figure,
-    extent=(6.0, 2.0),
+    extent=(5.92, 1.92),
     make=build,
     share=0.015,
     price=PRICE,
