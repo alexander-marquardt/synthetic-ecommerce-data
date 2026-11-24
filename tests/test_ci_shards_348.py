@@ -144,7 +144,7 @@ def test_the_files_the_script_deals_are_the_files_pytest_collects(tmp_path: Path
     env |= {"PYTHONPATH": os.pathsep.join(filter(None, [str(tmp_path), env.get("PYTHONPATH")]))}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", "-p", "modules_only"],
+        + ["no:cacheprovider", "-n", "0", "-p", "modules_only"],
         cwd=REPO,
         env=env | {"MODULES_ONLY_OUT": str(out)},
         capture_output=True,
@@ -276,7 +276,7 @@ def _collect(files: list[str], extra_env: dict[str, str]) -> list[str]:
     env = {k: v for k, v in os.environ.items() if k not in dropped}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", *files],
+        + ["no:cacheprovider", "-n", "0", *files],
         cwd=REPO,
         env={**env, **extra_env},
         capture_output=True,

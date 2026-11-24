@@ -198,15 +198,21 @@ unless a recorded peak shows it.
 
 ## Random order (#539)
 
-`pytest-randomly` is a dev dependency, blocked by `-p no:randomly` in `addopts`, so an ordinary
-run keeps its file order. To put the whole suite in a random order, dispatch the workflow with
-a seed; the same seed reproduces the order, shard by shard:
+An ordinary run keeps its file order. `--order-seed=<n>`, an option of `tests/conftest.py`
+(#1107), shuffles the collected tests from the seed: the modules, then the classes in each
+module, then the tests in each class or module, so a module's tests stay together and its
+fixtures are built once. Each place comes from a hash of the seed and the test's node id, so
+every xdist worker and every shard gets the same order, and the run's header says
+`test order: shuffled by --order-seed=<n>`. It reorders only: `random`'s global state is not
+reseeded per test, as `pytest-randomly` (the plugin this replaced) did. To put the whole suite
+in a random order, dispatch the workflow with a seed; the same seed reproduces the order,
+shard by shard:
 
 ```sh
 gh workflow run ci.yaml --ref <branch> -f random_seed=<n>
 ```
 
-Run one file the same way here with `uv run pytest -p randomly --randomly-seed=<n> tests/<file>`.
+Run one file the same way here with `uv run pytest --order-seed=<n> tests/<file>`.
 
 ## No test file over 3 minutes (#1035)
 
