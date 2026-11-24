@@ -1,7 +1,9 @@
 """What the small kitchen appliance specs share (gen#963): the leaf, the brands, the colors.
 
 Coffee makers, air fryers and blenders (``type_specs/coffee_maker.py``, ``air_fryer.py``,
-``blender.py``) sit beside the kettles and toasters under ``Home > Small Appliances``. Each style
+``blender.py``) sit beside the kettles and toasters under ``Home > Small Appliances``, and so do
+the steam irons, vacuum cleaners and microwaves of #1116 (``steam_iron.py``,
+``vacuum_cleaner.py``, ``microwave.py``, drawn by :mod:`kit_household_appliances`). Each style
 is sold in the six main colors (ruling 2026-10-13, gen#275), and its brands are the invented
 Home brands the kettles and toasters already carry (ruling 2026-10-30, gen#720), so every one
 has its owner, its mark and its house style.
