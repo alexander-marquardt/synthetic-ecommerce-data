@@ -140,7 +140,8 @@ def _slab(cx: float, y0: float, y1: float, back: float, front: float, t: float, 
     if round_:
         cy, ry = (y0 + y1) / 2, (y1 - y0) / 2
         under = f"M{cx - front:.1f},{cy:.1f} L{cx - front:.1f},{cy + t:.1f} A{front:.1f},{ry:.1f} 0 0 0 {cx + front:.1f},{cy + t:.1f} L{cx + front:.1f},{cy:.1f} Z"
-        lit = f"M{cx - front + 4:.1f},{cy:.1f} A{front - 4:.1f},{ry - 4:.1f} 0 0 1 {cx + front * 0.1:.1f},{y0 + 4:.1f} L{cx - front * 0.35:.1f},{y1 - ry * 0.12:.1f} A{front - 4:.1f},{ry - 4:.1f} 0 0 1 {cx - front + 4:.1f},{cy:.1f} Z"
+        # Curves, not arcs: the drawn-box measure reads an arc as a box of its radii around the chord's middle, wider than the top.
+        lit = f"M{cx - front + 4:.1f},{cy:.1f} Q{cx - front * 0.6:.1f},{y0 + 4:.1f} {cx + front * 0.1:.1f},{y0 + 4:.1f} L{cx - front * 0.35:.1f},{y1 - ry * 0.12:.1f} Q{cx - front * 0.8:.1f},{y1 - 2:.1f} {cx - front + 4:.1f},{cy:.1f} Z"
         return [_path(under, edge, LW_DETAIL), _path(_top_outline("round", cx, cy, front, ry), paint, LW, c), _lit(lit)]
     under = _quad((cx - front, y1), (cx + front, y1), (cx + front, y1 + t), (cx - front, y1 + t))
     lit = _quad((cx - back + 4, y0 + 3), (cx + back * 0.15, y0 + 3), (cx - front * 0.3, y1 - 3), (cx - front + 5, y1 - 3))
@@ -165,7 +166,7 @@ def _cabinet(x: float, y: float, w: float, h: float, depth: float, paint: str) -
 
 def _ellipse_slab(cx: float, cy: float, rx: float, ry: float, t: float, paint: str) -> list[str]:
     """A round top at its center: its edge, its surface, its light and its shade."""
-    shade = f"M{cx + rx * 0.45:.1f},{cy + ry * 0.87:.1f} A{rx:.1f},{ry:.1f} 0 0 0 {cx + rx - 3:.1f},{cy:.1f} Q{cx + rx * 0.7:.1f},{cy + ry * 0.35:.1f} {cx + rx * 0.45:.1f},{cy + ry * 0.87:.1f} Z"
+    shade = f"M{cx + rx * 0.45:.1f},{cy + ry * 0.87:.1f} Q{cx + rx * 0.9:.1f},{cy + ry * 0.9:.1f} {cx + rx - 3:.1f},{cy:.1f} Q{cx + rx * 0.7:.1f},{cy + ry * 0.35:.1f} {cx + rx * 0.45:.1f},{cy + ry * 0.87:.1f} Z"
     return [*_slab(cx, cy - ry, cy + ry, rx, rx, t, paint, round_=True), _dim(shade, 0.12)]
 
 
