@@ -172,6 +172,27 @@ gh workflow run ci.yaml --ref <branch> -f random_seed=<n>
 
 Run one file the same way here with `uv run pytest -p randomly --randomly-seed=<n> tests/<file>`.
 
+## No test file over 3 minutes (#1035)
+
+A module's tests stay on one worker (`--dist loadgroup`), so the heaviest file is the floor of
+its shard's time. `tests/test_ci_file_budget_1035.py` reads `scripts/ci_shard_weights.json`
+and refuses a file over 180 s unless `REASONS` in that test names why. A reason also has to name
+a file still over the budget, so it goes when a refresh measures its file under it.
+
+Refresh the table from a green run on the self-hosted runners, where every run now goes. The
+seconds of a hosted run are not the ones the shards spend. The refresh for #1035 read push run
+44208080586 (main 91fc09a9) and covers 472 files and 13,458 s.
+
+What a heavy file most often repeats is a build the worker could share:
+
+* `templates()` in `tests/retail_templates.py` reads the retail templates once per worker. A call
+  to `scale.templates()` takes 6 to 9 s, and `test_retail_scale.py` made 23 of them.
+* `tests/test_type_seam.py` builds the small catalogue once per worker (`_small_build()`), and
+  the 40-odd type files that compare against it share that build.
+
+A shared object is read, never edited. A test that edits one leaks the edit into every later
+test on that worker. Copy the object before editing it.
+
 ## `merge_pr.sh --github-ci <N>`
 
 Builds the merged tree exactly as `--local-ci` does (steps 1 and 2), pushes it to the

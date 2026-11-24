@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 from retail_ceiling import ceiling_build
-from synthetic_ecommerce_data.domains.retail import barry_plotter
+from synthetic_ecommerce_data.domains.retail import barry_plotter, barry_plotter_books
 
 DOC = Path(__file__).resolve().parents[1] / "docs" / "retail-prototype" / "barry-plotter-925.md"
 NAME = re.compile(r"\bbarry plotter\b", re.IGNORECASE)
@@ -115,7 +115,7 @@ def test_structured_names_finds_the_name_in_each_field() -> None:
 
 def test_only_the_range_names_the_range(catalog) -> None:
     named = {d["product_id"] for d in catalog if NAME.search(f"{d['title']} {d['description']}")}
-    assert named == barry_plotter.ids()
+    assert named == barry_plotter.ids() | barry_plotter_books.ids()
 
 
 def test_every_description_says_it_is_from_the_films_and_a_few_titles_do_not(products) -> None:
@@ -130,7 +130,8 @@ def test_the_shared_words_are_where_the_doc_says(catalog) -> None:
     """The shared words the doc lists: ``barry`` and ``plotter`` start no word of any other
     product's text; ``plot`` starts only Fenwold Nursery's "Plot" garden series, and
     ``berry`` (one letter from ``barry``) a few products."""
-    others = [d for d in catalog if d["product_id"] not in barry_plotter.ids()]
+    own = barry_plotter.ids() | barry_plotter_books.ids()
+    others = [d for d in catalog if d["product_id"] not in own]
 
     def holding(word: str) -> list[dict]:
         return [
