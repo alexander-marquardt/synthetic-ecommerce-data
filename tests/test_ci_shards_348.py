@@ -58,7 +58,8 @@ def _shard_count() -> int:
 
 def test_the_tests_job_is_a_matrix_of_shards_that_each_know_the_shard_count() -> None:
     job = _jobs()["tests"]
-    assert job["strategy"]["fail-fast"] is False, "one red shard must not hide the others' reds"
+    # False on a push and a dispatched run: there one red shard must not hide the others' reds.
+    assert job["strategy"]["fail-fast"] == "${{ github.event_name == 'pull_request' }}"
     assert _shard_count() >= 2
     runs = " ".join(step.get("run", "") for step in job["steps"])
     assert "scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }}" in runs
@@ -142,7 +143,7 @@ def test_the_files_the_script_deals_are_the_files_pytest_collects(tmp_path: Path
     env |= {"PYTHONPATH": os.pathsep.join(filter(None, [str(tmp_path), env.get("PYTHONPATH")]))}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", "-p", "modules_only"],
+        + ["no:cacheprovider", "-n", "0", "-p", "modules_only"],
         cwd=REPO,
         env=env | {"MODULES_ONLY_OUT": str(out)},
         capture_output=True,
@@ -272,7 +273,7 @@ def _collect(files: list[str], extra_env: dict[str, str]) -> list[str]:
     env = {k: v for k, v in os.environ.items() if k not in dropped}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", *files],
+        + ["no:cacheprovider", "-n", "0", *files],
         cwd=REPO,
         env={**env, **extra_env},
         capture_output=True,
