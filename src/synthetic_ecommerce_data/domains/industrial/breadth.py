@@ -51,6 +51,7 @@ from typing import TYPE_CHECKING, Any
 
 from synthetic_ecommerce_data.core import size_rungs, typespec
 from synthetic_ecommerce_data.core.breadth import BreadthRow, read_rows, row_from_dict
+from synthetic_ecommerce_data.core.drawing import product_look
 from synthetic_ecommerce_data.core.model import (
     Attribute,
     ProductLine,
@@ -64,6 +65,10 @@ from synthetic_ecommerce_data.core.naming import Segment, build_title
 from synthetic_ecommerce_data.core.voice import product_name
 from synthetic_ecommerce_data.domains.industrial import pack, taxonomy
 from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
+from synthetic_ecommerce_data.domains.industrial.drawing.breadth_products import (
+    BREADTH_PRODUCTS,
+    outline,
+)
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 from synthetic_ecommerce_data.domains.industrial.part_numbers import mfr_part_number
@@ -140,6 +145,17 @@ def row_for(key: str) -> BreadthRow:
     return next(row for row in rows() if row.key == key)
 
 
+def _drawing(row: BreadthRow) -> tuple:
+    """``row``'s drawing and its extent: its own product's (#1216), else its ``shape``'s."""
+    product = BREADTH_PRODUCTS.get(row.key)
+    if product is None:
+        return BREADTH_SHAPES[row.shape]
+    figure = product({}).figure
+    product_look.OUTLINES[row.key] = outline(figure)
+    x0, y0, x1, y1 = figure.bounds()
+    return product, (x1 - x0, y1 - y0)
+
+
 def register(new_rows: tuple[BreadthRow, ...] | None = None) -> None:
     """Wire ``new_rows`` (the YAML table's, by default) into the shared,
     type-keyed registries every row needs.
@@ -152,8 +168,7 @@ def register(new_rows: tuple[BreadthRow, ...] | None = None) -> None:
         taxonomy.LEAVES[row.key] = (row.category,)
         taxonomy.DRAWING[row.key] = row.shape
         STANDARDS_FAMILY[row.key] = row.family
-        shape_fn, extent = BREADTH_SHAPES[row.shape]
-        FIGURES[row.key] = (shape_fn, extent)
+        FIGURES[row.key] = _drawing(row)
         size_rungs.LADDERS[row.key] = functools.partial(breadth_rungs.ratios, row.key)
         specs = [AttrSpec(name=name, scope="line") for name in row.attributes]
         specs.append(AttrSpec(name=row.size_attr, scope="sku", kind="length"))
