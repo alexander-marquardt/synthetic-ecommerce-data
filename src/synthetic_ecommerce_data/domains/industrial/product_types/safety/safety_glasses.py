@@ -283,7 +283,7 @@ FRAMELESS_FILL = "#cfd8dc"
 #: wrap-around spectacles, which bow back at the temple and cut up at the nose. Each
 #: step is a curve's control point and its end.
 SIDE = (
-    ((0.45, -0.02), (0.80, 0.02)),
+    ((0.45, 0.005), (0.80, 0.02)),
     ((1.00, 0.06), (1.00, 0.26)),
     ((1.00, 0.72), (0.92, 0.86)),
     ((0.84, 1.00), (0.56, 1.00)),
@@ -317,7 +317,7 @@ def _at(points: Points, sign: float = 1.0) -> Points:
 
 def _shield() -> Points:
     """The whole front's outline: :data:`SIDE` and its mirror."""
-    side = _at(_curve((0.0, 0.03), SIDE))
+    side = _at(_curve((0.0, 0.005), SIDE))
     return side + [(-x, y) for x, y in reversed(side)][1:-1]
 
 
@@ -397,7 +397,7 @@ def figure(record: dict[str, str]) -> Drawn:
         fig.poly(_shield(), "lens", tint)
     _light(fig)
     if style not in ("Full-Frame", "Frameless"):
-        brow = _at(_curve((0.0, 0.03), SIDE[:2]))
+        brow = _at(_curve((0.0, 0.005), SIDE[:2]))
         thick = RIM * 1.6
         under = [(x * (1 - 0.03 * (x > 0)), y + thick) for x, y in reversed(brow)]
         half = brow + under

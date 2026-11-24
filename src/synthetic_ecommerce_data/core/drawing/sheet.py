@@ -81,7 +81,7 @@ MIN_STROKE = brands.WEIGHTS[0]
 LW_PART = svg.num(MIN_STROKE)
 LW_LINE = "0.8"
 
-#: The light on a figure (#1217): a highlight and a shadow, as a colour and its opacity. No
+#: The light on a figure (#1217): a highlight and a shadow, as a color and its opacity. No
 #: outline, so the brand's ink stays the only line work.
 OVERLAYS = {"gloss": ("#ffffff", "0.55"), "shade": ("#000000", "0.2")}
 
