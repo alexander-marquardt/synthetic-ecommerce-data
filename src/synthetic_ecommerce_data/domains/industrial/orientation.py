@@ -8,7 +8,7 @@ drawn type missing from this table, so a new type cannot forget it. The sets are
   nails, pins, rivets, bar and ball stock, discs and wheels, collets and cutters, chain, belts,
   springs, small fittings, and gloves, which read at any angle (the maintainer's ruling on #860).
 * ``upright`` (+-36 degrees): a product with a natural up, or one nobody was sure of. Tools with
-  a working end and a handle (hammers, pliers, wrenches, files, punches), vises and clamps,
+  a working end and a handle (pliers, wrenches, files, punches), vises and clamps,
   racks, cases and kits, containers of grease or fluid, casters, pulleys and bearings on a
   base, guards and padlocks.
 * ``slight`` (+-15 degrees): clothing. No industrial type wears it; gloves are ``any``.
@@ -59,8 +59,7 @@ UPRIGHT: tuple[str, ...] = (
     "combination_wrenches",
     "cutter_storage_racks",
     "grooving_cutters",
-    "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow", "hammer_framing",
-    "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
+    "hand_files", "induction_heaters", "keyed_padlocks",
     "levels", "milling_tool_holders", "nut_splitters", "picture_hangers",
     "pillow_block_bearings",
     "rigid_casters", "shelf_brackets",
@@ -73,7 +72,7 @@ UPRIGHT: tuple[str, ...] = (
 #: Clothing: within +-15 degrees. No industrial type is clothing.
 SLIGHT: tuple[str, ...] = ()
 
-#: Products drawn to fill the figure area (#1216): within +-6 degrees.
+#: Products drawn to fill the figure area (#1215, #1216): a wider turn would shrink them.
 STEADY: tuple[str, ...] = (
     "anaerobic_threadlockers", "anti_seize_compounds", "backing_pads", "band_saw_blades",
     "bearing_greases", "bearing_pullers", "bench_tool_racks", "bit_index_cases", "blind_rivets",
@@ -81,7 +80,9 @@ STEADY: tuple[str, ...] = (
     "cold_chisels", "compound_cutters", "conduit_pliers", "cutter_sharpening_fixtures",
     "cutter_storage_cases", "diamond_wheels", "drawer_slides", "drill_stop_collars", "drive_guards",
     "eye_bolts", "fastener_dispensers", "foam_ear_plugs", "gear_pullers", "grinder_guards",
-    "grub_screw_keys", "handle_wedges", "magnetic_bit_holders", "micro_collets", "nut_drivers_hex",
+    "grub_screw_keys", "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow",
+    "hammer_framing", "hammer_rubber_mallet", "hammer_sledge", "handle_wedges",
+    "magnetic_bit_holders", "micro_collets", "nut_drivers_hex",
     "nylon_wall_anchors", "orb_hydraulic_fittings", "piloted_counterbores", "pin_pullers",
     "pneumatic_cut_off_tools", "quick_disconnect_couplings", "replacement_pins", "rigging_pulleys",
     "rigid_shaft_couplings", "sds_drill_bits", "shaft_alignment_lasers", "silicone_greases",
