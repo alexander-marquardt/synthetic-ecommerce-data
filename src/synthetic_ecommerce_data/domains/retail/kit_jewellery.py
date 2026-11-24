@@ -332,14 +332,19 @@ def pendant(paint: str, fill: Fill, label: str | None, charm: str = "heart", sto
     return out
 
 
+def _oval(cx: float, cy: float, rx: float, ry: float) -> str:
+    """A closed ellipse as two half arcs: ``motifs.drawn_box`` measures an arc about the middle of its chord, so one full turn from the top would be measured a radius too high."""
+    top, bottom = f"{cx},{cy - ry}", f"{cx},{cy + ry}"
+    return f"M{top} A{rx},{ry} 0 0 1 {bottom} A{rx},{ry} 0 0 1 {top} Z"
+
+
 def anklet(paint: str, fill: Fill, label: str | None, style: str = "chain") -> list[str]:
     """An anklet laid in a round, closed by a lobster clasp with an extender: a plain ``chain``, a ``beaded`` one, a chain with small ``charm`` discs, or a ``double`` chain (gen#1113)."""
     _choice("anklet style", style, ("chain", "beaded", "charm", "double"))
     cx, cy, rx, ry = 200.0, 206.0, 158.0, 138.0
-    ring = f"M{cx},{cy - ry} A{rx},{ry} 0 1 1 {cx - 0.1},{cy - ry} Z"
-    out = list(_chain(ring, paint, 9 if style == "chain" else 6))
+    out = list(_chain(_oval(cx, cy, rx, ry), paint, 9 if style == "chain" else 6))
     if style == "double":
-        out += _chain(f"M{cx},{cy - ry + 8} A{rx - 30},{ry - 22} 0 1 1 {cx - 0.1},{cy - ry + 8} Z", paint, 5)
+        out += _chain(_oval(cx, cy - 14, rx - 30, ry - 22), paint, 5)
     steps = {"beaded": range(0, 360, 12), "charm": range(60, 301, 40)}.get(style, ())
     for deg in steps:
         t = math.radians(deg)

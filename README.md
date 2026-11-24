@@ -1182,7 +1182,7 @@ on one parent (`Standards = [ISO, ISO]`) over-reports it. The multi-valued
 is published twice (`parent repeats a (name, value) pair` in the `comparisons`
 of `stats.json`, with its numerator and denominator).
 The target, `GeneratorConfig.defect_repeated_pair`, is set so the share of ALL
-parents (about 0.43%) matches the 87 in 20,000 documents measured on a live
+parents matches the 87 in 20,000 documents measured on a live
 retail catalog. It is a defect class, so `--defects 0.0` removes it and
 `--defects N` scales it; the draw has its own stream per product, so changing
 it moves no other value in the catalog.

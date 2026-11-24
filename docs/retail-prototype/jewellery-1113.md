@@ -58,8 +58,8 @@ carry one of clothing's invented brands (`EXTRA_BRANDS`), so 13 necklace, bracel
 moved to the jewellery brands. The fitness band and the legacy Earrings and Watch are unchanged.
 
 **The color is the metal.** Necklace, Bracelet and Ring are `main_colors.EXCEPTIONS` entries now, as
-the other jewellery is. Before, the main-color pass added 54 SKUs to 18 of their styles in
-black, blue, green, red, white and yellow, each with a gold or silver metal. Those SKUs are gone.
+the other jewellery is. Before, the main-color pass added SKUs in black, blue, green, red,
+white and yellow to 18 of their styles, each with a gold or silver metal. Those SKUs are gone.
 
 ### The count
 
@@ -84,7 +84,6 @@ Retail ceiling build, seed 0, main 5ea1291a against this cut. All SKUs are in Wo
 | Watch | 8 | 8 |
 | Earrings | 4 | 4 |
 | **The range** | **456** | **2,028** |
-| Retail ceiling total | 376,497 | 378,069 |
 
 `tests/test_retail_jewellery_range_1113.py` holds a floor of 2,000 SKUs on the range, the axes of
 each new type and the fixed build of each derived style.
