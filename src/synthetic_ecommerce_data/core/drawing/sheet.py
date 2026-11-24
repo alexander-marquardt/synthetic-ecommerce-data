@@ -149,6 +149,22 @@ def type_scale(extent: tuple[float, float]) -> float:
     return min(aw / width, ah / height)
 
 
+def outline_scale(figure: Figure, angle: float) -> float:
+    """Sheet units per inch for a ``fit_turned`` figure: its own turned outline, not its type's
+    turned box, fills the figure area (#1217)."""
+    x0, y0, x1, y1 = figure.turned_bounds(angle)
+    return type_scale((x1 - x0, y1 - y0))
+
+
+def _plain_centre(figure: Figure, scale: float, angle: float) -> tuple[float, float]:
+    """Where a plain figure's centre goes, so what it covers is centred in the figure area."""
+    cx, cy = svg.WIDTH / 2, FIGURE_HEIGHT / 2
+    if not figure.fit_turned:
+        return cx, cy
+    x0, y0, x1, y1 = figure.turned_bounds(angle)
+    return cx - (x0 + x1) / 2 * scale, cy - (y0 + y1) / 2 * scale
+
+
 @dataclass(frozen=True)
 class Magnifier:
     """Where a magnified part and its glyph go on the sheet, in sheet units."""
@@ -462,7 +478,7 @@ def paint(
     hatch_id = _hatch_pattern(page, hatch, house.ink) if hatch is not None else None
     mag = magnifier(*_drawn_size(figure, scale), angle)
     if mag is None:
-        centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2)
+        centre = _plain_centre(figure, scale, angle)
         _figure_at(page, figure, house, fill, hatch_id, scale, centre, angle)
     else:
         _figure_at(page, figure, house, fill, hatch_id, scale, mag.part, angle)
@@ -510,6 +526,9 @@ def figure_boxes(
     :data:`PLATE_BOX`."""
     upright = _drawn_size(figure, scale)
     w, h = product_look.turned(*upright, angle)
+    if figure.fit_turned:
+        x0, y0, x1, y1 = figure.turned_bounds(angle)
+        w, h = (x1 - x0) * scale, (y1 - y0) * scale
     half = stroke / 2
     mag = magnifier(*upright, angle)
     centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2) if mag is None else mag.part

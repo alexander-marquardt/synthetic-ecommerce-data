@@ -97,15 +97,19 @@ def test_three_words_show_the_suggestion_and_two_do_not() -> None:
 
 @pytest.mark.parametrize("word", [w for w, (_, n) in WORDS.items() if max(n) <= THRESHOLD])
 def test_the_common_spelling_is_five_times_more_common(records, word) -> None:
-    """Counted over the Combined catalogue: retail and the industrial golden catalogue."""
+    """Counted as the Engine counts them: the titles that hold each word, SKU by SKU, over the
+    Combined catalogue (retail and the industrial golden catalogue). The ``title`` term suggester
+    gives a word's own document frequency, so a description that says "pliers" adds nothing, and
+    neither does a plural the suggester reads as another word."""
     common = WORDS[word][0]
-    industrial = [json.loads(raw) for raw in INDUSTRIAL.read_text().splitlines()]
-    searched = ("title", "parent_title", "brand", "description", "text")
-    commons = len(_carrying(records, common))
-    commons += sum(
-        1 for r in industrial if _has(common, " ".join(str(r.get(f, "")) for f in searched))
-    )
-    assert commons >= RATIO * len(_carrying(records, word)) > 0
+    titles = [json.loads(raw)["title"] for raw in INDUSTRIAL.read_text().splitlines()]
+    for r in records:
+        titles += [r["title"]] * len(r["skus"])
+
+    def holding(token: str) -> int:
+        return sum(re.search(rf"\b{token}\b", t.lower()) is not None for t in titles)
+
+    assert holding(common) >= RATIO * holding(word) > 0, (holding(common), holding(word))
 
 
 @pytest.mark.parametrize("word", NAMED)
@@ -182,3 +186,18 @@ def test_no_derived_style_is_drawn_from_a_misspelled_product(records) -> None:
     pool = {d["product_id"] for d in scale.derivable(scale.templates())}
     assert sorted(ours & pool) == []
     assert sorted(i for i, t in ceiling_build().template_of.items() if t in ours) == []
+
+
+def test_each_pair_of_pliers_draws_the_jaw_its_title_names() -> None:
+    from synthetic_ecommerce_data.domains.retail.kit import Fill
+    from synthetic_ecommerce_data.domains.retail.kit_pliers import JAWS, pliers
+    from synthetic_ecommerce_data.domains.retail.type_specs.pliers import ROWS
+
+    drawn = {jaw: "".join(pliers("#c8312e", Fill(base="#c8312e"), None, jaw)) for jaw in JAWS}
+    assert len(set(drawn.values())) == len(JAWS) == 6
+    jaws = {dict(r.params)["jaw"] for r in ROWS}
+    assert jaws == set(JAWS)
+    for r in ROWS:
+        words = r.title.lower().replace("heavy duty ", "").replace("mini ", "")
+        named = dict(r.params)["jaw"].replace("_", " ").replace("pump", "water pump")
+        assert words == f"{named} pliers", r.title
