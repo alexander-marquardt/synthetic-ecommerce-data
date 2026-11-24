@@ -1,7 +1,7 @@
 # Furniture that fills its picture (gen#1214)
 
 Before gen#1214 the seven types of `kit_furniture` were flat front views, small on the sheet:
-135 of their 155 SKUs painted under half of the product area, the smallest size of a ladder
+87% of their SKUs painted under half of the product area, the smallest size of a ladder
 bookcase 4%. Slice 1 redraws the seven types. The sofas follow in slice 2, the armchair, the
 footstool and the sideboard in slice 3.
 
