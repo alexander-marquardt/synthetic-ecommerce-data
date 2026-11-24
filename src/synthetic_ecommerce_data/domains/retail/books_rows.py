@@ -347,13 +347,12 @@ COLLISIONS = (
     ("Walking the Coast Path", "Walking Boots", "walking"),
     ("Under the Stars with a Sleeping Bag", "Sleeping Bag", "sleeping bag"),
     ("With a Backpack Through the Balkans", "Backpack", "backpack"),
-)
-#: The ruling's titles whose other half the catalogue does not sell yet (0 today): brownie mix
-#: and tins come in slice 3, sewing machines with gen#1118. Each is a title now.
-PENDING = (
     ("How to Make Brownies", "Brownie Mix", "brownies"),
-    ("Learn to Sew", "Sewing Machine", "sew"),
+    ("How to Make Brownies", "Brownie Tin", "brownies"),
 )
+#: The ruling's title whose other half the catalogue does not sell yet (0 today): sewing machines
+#: come with gen#1118. It is a title now.
+PENDING = (("Learn to Sew", "Sewing Machine", "sew"),)
 
 
 def author(k: int) -> str:
