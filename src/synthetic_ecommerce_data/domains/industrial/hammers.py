@@ -15,8 +15,9 @@ The price is GENERATED, not measured: the price census has no hammers.
 
 from __future__ import annotations
 
+import functools
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -25,7 +26,8 @@ from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial import series
 from synthetic_ecommerce_data.domains.industrial.drafts import retired
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import hammer as figure
+from synthetic_ecommerce_data.domains.industrial.drawing import hammer_figures
+from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.vocab import HAMMER_VOCAB
 
 #: The one node every hammer lives under.
@@ -113,6 +115,11 @@ DECOY_CLASSES: dict[int, str] = {
 }
 
 
+def overall_in(kind: HammerKind, ounces: int) -> float:
+    """The overall length, in inches, of ``kind`` at a head weight."""
+    return float(series.snap_imperial(kind.oal_base + ounces * kind.oal_per_oz, 16))
+
+
 def decoy_item(gen: Any, kind: HammerKind, handle: str) -> tuple[str, tuple[str, ...]]:
     """The item as the title says it, and the whole title when that is bare (class 4).
 
@@ -158,7 +165,6 @@ class HammerKind:
     use_lines: tuple[str, ...]
     #: The largest drawn ``(width, height)`` in inches of any product of the kind, with a
     #: little headroom (``tests/test_sku_drawings.py`` holds every drawing to it).
-    extent: tuple[float, float] = (5.8, 18.25)
     #: The standard the kind claims (``ASME B107.400`` is for ball pein hammers).
     standard: str = ""
 
@@ -202,7 +208,7 @@ def build(kind: HammerKind):
         for ounces in sorted(weights[:count]):
             style = gen._style("in")
             child = ChildDraft(system="in")
-            oal_in = float(series.snap_imperial(kind.oal_base + ounces * kind.oal_per_oz, 16))
+            oal_in = overall_in(kind, ounces)
             child.primary = numeric_attribute("Head Weight", f"{ounces} oz", float(ounces))
             overall = gen._length("Overall Length", oal_in, style)
             child.attrs = [
@@ -223,6 +229,18 @@ def price_model(kind: HammerKind) -> PriceModel:
     return PriceModel(kind.price, 16.0, 0.6, 0.25, 0.12, measured=False)
 
 
+def drawing(kind: HammerKind) -> Callable[[Mapping[str, Any]], Drawn]:
+    """``kind``'s drawing function, told the range of each length the kind is sold in."""
+    ends = (min(kind.ounces), max(kind.ounces))
+    overall = tuple(overall_in(kind, ounces) for ounces in ends)
+    ranges = {
+        "Overall Length": overall,
+        "Handle Length": tuple(length - kind.head_trim for length in overall),
+        "Face Dia.": tuple(kind.face_base + ounces * kind.face_per_oz for ounces in ends),
+    }
+    return functools.partial(hammer_figures.hammer, kind.key, ranges)
+
+
 def spec(kind: HammerKind) -> TypeSpec:
     """The type module's ``SPEC`` for ``kind``."""
     return TypeSpec(
@@ -230,8 +248,8 @@ def spec(kind: HammerKind) -> TypeSpec:
         category=CATEGORY,
         standards_family="hand_tool",
         vocab=HAMMER_VOCAB,
-        figure=figure,
-        extent=kind.extent,
+        figure=drawing(kind),
+        extent=hammer_figures.EXTENT,
         make=build(kind),
         share=0.012,
         price=price_model(kind),
@@ -281,7 +299,6 @@ CLAW = HammerKind(
         "Drives nails with the face and pulls them with the curved claw.",
         "The general carpentry hammer for trim, repairs and light framing.",
     ),
-    extent=(4.4, 14.6),
 )
 
 FRAMING = HammerKind(
@@ -302,7 +319,6 @@ FRAMING = HammerKind(
         "A long, heavy hammer for driving framing nails in a few swings.",
         "The face grips the nail head; the straight claw pries and pulls.",
     ),
-    extent=(5.1, 18.0),
 )
 
 CLUB = HammerKind(
@@ -323,7 +339,6 @@ CLUB = HammerKind(
         "A short-handled lump hammer for striking chisels, drills and stakes.",
         "Drives masonry nails and breaks brick with a heavy head on a short handle.",
     ),
-    extent=(6.9, 13.2),
 )
 
 SLEDGE = HammerKind(
@@ -344,7 +359,6 @@ SLEDGE = HammerKind(
         "Swung with both hands to drive stakes and break up masonry.",
         "A heavy head on a long handle, for demolition and driving posts.",
     ),
-    extent=(11.0, 36.6),
 )
 
 RUBBER_MALLET = HammerKind(
@@ -365,7 +379,6 @@ RUBBER_MALLET = HammerKind(
         "Taps parts, tiles and pavers into place without marking them.",
         "A soft face for assembling flat-pack furniture and seating trim.",
     ),
-    extent=(8.3, 14.0),
 )
 
 DEAD_BLOW = HammerKind(
@@ -386,7 +399,6 @@ DEAD_BLOW = HammerKind(
         "A shot-filled head that does not rebound, for seating parts without marring.",
         "Strikes with full force and no bounce on machine setups and assemblies.",
     ),
-    extent=(7.1, 16.0),
 )
 
 KINDS: dict[str, HammerKind] = {
