@@ -22,7 +22,10 @@ FROZEN_KEYS = frozenset(
     {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
      "ip_rating", "fitting", "matter", "works_with", "hub_required",
      "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type",
-     "age_range", "play_time", "finished_size"}
+     "age_range", "play_time", "finished_size",
+     # a house plant's kind, the facts of that kind and its pot, and a plant food's form
+     # (gen#1115)
+     "plant_kind", "light_needs", "pet_safe", "pot_material", "feed_form"}
 )  # fmt: skip
 #: A jewelry style or a watch (gen#1113) is one build too: the metal is its SKUs, and its stone,
 #: style and strap are in its drawing (a pearl stud with an amethyst title would still draw a
