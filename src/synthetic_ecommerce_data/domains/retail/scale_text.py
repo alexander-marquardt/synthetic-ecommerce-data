@@ -41,6 +41,10 @@ TYPE_FROZEN_KEYS: dict[str, frozenset[str]] = {
     "Luggage Set": frozenset({"shell", "wheels", "sizes_included"}),
     "Travel Organizer": frozenset({"organizer_type", "material"}),
     "Neck Pillow": frozenset({"fill", "hood"}),
+    # A women's bag keeps its form, its closure and any strap; its material may vary.
+    "Crossbody Bag": frozenset({"bag_shape", "closure", "strap"}),
+    "Shoulder Bag": frozenset({"bag_shape", "closure"}),
+    "Clutch Bag": frozenset({"bag_shape", "closure"}),
 }
 
 

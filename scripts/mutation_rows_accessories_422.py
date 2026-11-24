@@ -712,8 +712,8 @@ ROWS: list[tuple[str, str, str, str, str, str, str]] = [
     (
         "decoys: a leather wallet counts as a garment fibre",
         "facet_leaves.py",
-        '"Waist Bags", "Wallet", "Watch",',
-        '"Waist Bags", "Watch",',
+        '"Wallet", "Watch",',
+        '"Watch",',
         'tests/test_retail_facet_leaves.py -k "garment_material"',
         "a wallet keeps its own material, no fabric",
         _R,
