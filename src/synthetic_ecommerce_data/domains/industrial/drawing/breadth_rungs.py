@@ -16,7 +16,8 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 
-from synthetic_ecommerce_data.core.size_rungs import ratio_at
+from synthetic_ecommerce_data.core.size_rungs import BOTTOM, TOP, scale_at
+from synthetic_ecommerce_data.domains.industrial.drawing.breadth_products import BREADTH_PRODUCTS
 
 #: A row's size attributes that are no size of the part: a kind, a count or a rating.
 NOT_SIZES = frozenset({"Type", "Piece Count", "Rated Load", "Maximum Workpiece Weight"})
@@ -30,6 +31,10 @@ _SIZE = re.compile(
     r"(?P<mark>[M#]?)(?:(?P<whole>\d+)-(?=\d+/))?(?P<top>\d+(?:\.\d+)?)(?:/(?P<bottom>\d+))?"
     r"(?:[-x][\d.]+)?\s*(?P<unit>[A-Za-z]*)"
 )
+
+#: The smallest rung of a type drawn as its own product (#1216), whose smallest size keeps at least
+#: 86% of the full drawing's area: a step down the ladder never shrinks it under the fill floor.
+PRODUCT_BOTTOM = 0.93 * TOP
 
 
 def measure(value: str) -> float:
@@ -71,4 +76,5 @@ def ratios(product_type: str, records: Sequence[Mapping[str, str]]) -> list[floa
     ladder = sorted(set(sizes))
     if len(ladder) < 2:  # noqa: PLR2004
         return unscaled
-    return [ratio_at(ladder.index(size), len(ladder)) for size in sizes]
+    bottom = PRODUCT_BOTTOM if product_type in BREADTH_PRODUCTS else BOTTOM
+    return [scale_at(ladder.index(size), len(ladder), bottom) / TOP for size in sizes]
