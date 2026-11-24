@@ -17,6 +17,7 @@ from synthetic_ecommerce_data.core import bundle, size_rungs
 from synthetic_ecommerce_data.core.drawing import draw_product
 from synthetic_ecommerce_data.domains.industrial import breadth
 from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs
+from synthetic_ecommerce_data.domains.industrial.drawing.breadth_products import BREADTH_PRODUCTS
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
 
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog"
@@ -103,7 +104,10 @@ def test_a_breadth_ladder_runs_from_the_smallest_rung_to_the_full_drawing():
         if len({r[attr] for r in records}) < 2:
             continue
         ratios = breadth_rungs.ratios(parent["product_type"], records)
-        assert min(ratios) == pytest.approx(size_rungs.BOTTOM / size_rungs.TOP)
+        # A type drawn as its own product starts higher (#1216).
+        own = parent["product_type"] in BREADTH_PRODUCTS
+        bottom = breadth_rungs.PRODUCT_BOTTOM if own else size_rungs.BOTTOM
+        assert min(ratios) == pytest.approx(bottom / size_rungs.TOP)
         assert max(ratios) == 1.0
 
 
