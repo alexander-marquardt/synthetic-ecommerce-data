@@ -179,7 +179,8 @@ type's, from `domains/industrial/orientation.py` (through
 `core.domain.orientation`): `any` turns a part with no natural up (a screw, a
 nut, a glove) to one of the 24 clock positions, `upright` turns the rest within
 -36 to 36 degrees in steps of 12, `slight` (clothing) within -15 to 15 in
-steps of 5, `steady` (a product drawn to fill the figure area, #1216) within -6 to 6 in
+steps of 5, `diagonal` (safety glasses) 54 to 66 degrees to either side in steps of 6 (#1217),
+`steady` (a product drawn to fill the figure area, #1216) within -6 to 6 in
 steps of 3, and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
 drawn level whatever its type's orientation (`product_angle`), so a fan of
 end mills is not tilted as a whole. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright

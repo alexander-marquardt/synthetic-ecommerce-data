@@ -110,6 +110,7 @@ def test_the_five_orientations_are_the_clock_three_fans_and_level():
                 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345),
         "upright": (-36, -24, -12, 0, 12, 24, 36),
         "slight": (-15, -10, -5, 0, 5, 10, 15),
+        "diagonal": (-66, -60, -54, 54, 60, 66),
         "level": (0,),
         "steady": (-6, -3, 0, 3, 6),
     }  # fmt: skip
@@ -268,9 +269,10 @@ def test_every_type_names_one_orientation(table, every):
     """A drawn industrial type missing from its domain's table, or a type named twice, fails
     here, so a new type cannot forget its orientation. A retail shape may go unnamed: tilt is
     opt-in there, and an unnamed shape is ``level`` (#1101)."""
-    # The retail table has no STEADY.
+    # The retail table has no STEADY or DIAGONAL.
     steady = getattr(table, "STEADY", ())
-    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *steady, *table.LEVEL]
+    diagonal = getattr(table, "DIAGONAL", ())
+    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *steady, *diagonal, *table.LEVEL]
     assert len(named) == len(set(named)), Counter(named).most_common(3)
     if table is industrial_orientation:
         assert sorted(every() - set(named)) == []

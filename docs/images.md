@@ -91,6 +91,7 @@ filling at least half of the figure area ([drawings](drawings.md#breadth-types-f
   | `any` | the 24 clock positions, 0 to 345 in steps of 15 | a part with no natural up: screws, nuts, washers, pins, bar stock, discs, gloves |
   | `upright` | -36 to 36 in steps of 12 | a product with a natural up (a bottle, a vise, a light bulb); in retail only a small thing held, carried or worn (#1101) |
   | `slight` | -15 to 15 in steps of 5 | clothing and footwear, and what is worn with them (a belt, a scarf, a tie, a hat) |
+  | `diagonal` | 54 to 66 to either side in steps of 6 | a wide, low industrial product the portrait sheet would draw small: safety glasses (#1217) |
   | `steady` | -6 to 6 in steps of 3 | a product drawn to fill the figure area, which a wider turn would shrink under half of it (#1216) |
   | `level` | 0 only | a set or kit type drawn as several items (cutlery, a dinner set, luggage, a bit socket set), every pack (#884), a bicycle (#1049), every furniture item, lamp, light fitting, garden furniture piece and crib (#1095), and every product the guard below holds level: a large appliance, a bike, a scooter, or anything over 60 cm (#1101) |
 
