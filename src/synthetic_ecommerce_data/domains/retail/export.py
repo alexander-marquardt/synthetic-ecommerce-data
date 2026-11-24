@@ -1,4 +1,4 @@
-"""The retail catalog in the one output standard (gen#125, :mod:`..core.standard`).
+"""The retail domain in the one output standard (gen#125, :mod:`..core.standard`).
 
 :func:`documents` turns each record of the 328-style build
 (:func:`build_preview4.samples`) into the nested document the industrial domain

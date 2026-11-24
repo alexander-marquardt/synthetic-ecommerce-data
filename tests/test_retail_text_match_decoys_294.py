@@ -1,4 +1,4 @@
-"""The retail catalog holds text-match decoys for the demo queries (gen#294).
+"""The retail domain holds text-match decoys for the demo queries (gen#294).
 
 A decoy's title carries the query's word while its color, category path or audience says it is
 not what the query means. Each query is held two ways: without interpretation (BM25 times

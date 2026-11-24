@@ -1,4 +1,4 @@
-"""Bag, umbrella and jewelry templates for the scaled retail catalog (gen#207): data only.
+"""Bag, umbrella and jewelry templates for the scaled retail domain (gen#207): data only.
 
 The catalog had earrings, a watch, a belt and a keyring in accessories and nothing for bags,
 umbrellas or other jewelry, so a search for a handbag, a backpack, an umbrella or a necklace

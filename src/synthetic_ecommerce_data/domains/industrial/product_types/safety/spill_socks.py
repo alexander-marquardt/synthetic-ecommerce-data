@@ -2,7 +2,8 @@
 
 A long tube of absorbent filler laid around a machine to hold an oil or coolant leak. Its title
 holds the plural and its category path does not, so a category policy drops it from a search for
-socks. That query is the retail demo's, so this is no industrial seed decoy (``decoys/``).
+socks. That query is a retail query of the R&I demo, so this is no industrial seed decoy
+(``decoys/``).
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""More deep-SKU templates for the scaled retail catalog (gen#125): data only.
+"""More deep-SKU templates for the scaled retail domain (gen#125): data only.
 
 :func:`scale.templates` builds these after the 328 authored styles
 (:func:`build_preview4.samples`). They stay out of the round 4 preview, so its
