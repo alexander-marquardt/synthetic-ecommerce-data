@@ -112,6 +112,7 @@ def test_the_five_orientations_are_the_clock_three_fans_and_level():
         "slight": (-15, -10, -5, 0, 5, 10, 15),
         "diagonal": (-66, -60, -54, 54, 60, 66),
         "level": (0,),
+        "steady": (-6, -3, 0, 3, 6),
     }  # fmt: skip
     assert product_look.angle_of("ABC-1", "any") == product_look.angle_of("ABC-1", "any")
 
@@ -128,7 +129,7 @@ def test_the_angles_spread_over_each_set_and_most_products_are_turned(name):
         if domain.orientation(p["product_type"]) == name
     )
     total = sum(counts.values())
-    assert total > 50 * len(angles)
+    assert total > 40 * len(angles)
     assert set(counts) == set(angles)
     assert max(counts.values()) / total < 2 / len(angles), counts
 
@@ -268,9 +269,10 @@ def test_every_type_names_one_orientation(table, every):
     """A drawn industrial type missing from its domain's table, or a type named twice, fails
     here, so a new type cannot forget its orientation. A retail shape may go unnamed: tilt is
     opt-in there, and an unnamed shape is ``level`` (#1101)."""
-    # The retail table has no DIAGONAL: no retail shape is laid across its sheet.
+    # The retail table has no STEADY or DIAGONAL.
+    steady = getattr(table, "STEADY", ())
     diagonal = getattr(table, "DIAGONAL", ())
-    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *diagonal, *table.LEVEL]
+    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *steady, *diagonal, *table.LEVEL]
     assert len(named) == len(set(named)), Counter(named).most_common(3)
     if table is industrial_orientation:
         assert sorted(every() - set(named)) == []

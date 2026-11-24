@@ -198,6 +198,7 @@ GROUPS = (
         (
             "kit_drills",
             "industrial/figures",
+            "industrial/hammer_figures",
             "industrial/household_tool_sets",
             "industrial/picture_hangers",
         ),

@@ -21,7 +21,12 @@ from synthetic_ecommerce_data.domains.industrial import hammers, series  # noqa:
 
 FLOOR = 0.50
 #: The named exceptions: a true outline that cannot reach the floor, at its own measured one.
-FLOORS: dict[str, float] = {}
+#: A head thinner than its sheet is wide, over a handle narrower than the head.
+FLOORS: dict[str, float] = {
+    "hammer_ball_pein": 0.39,  # a ball and a neck are narrower than the cheek
+    "hammer_claw": 0.40,  # the claw curves away, and its V is open
+    "hammer_framing": 0.40,  # the straight claw tapers to its tip
+}
 
 
 def _record(kind, ounces, handle, grip, face) -> dict[str, str]:
@@ -57,11 +62,47 @@ def _handles(key):
     return [(h, g) for h in hammers.KINDS[key].handles for g in hammers.HAMMER_GRIPS[h]]
 
 
+def _areas(key):
+    """Every size in every handle, grip and face, at every angle."""
+    yield from _measured(key, hammers.KINDS[key].ounces, _handles(key), _angles(key))
+
+
+def test_every_named_exception_is_under_the_floor():
+    """An exception that reaches the floor is an exception no longer."""
+    for key, floor in FLOORS.items():
+        assert floor <= min(area.cover for _, _, area in _areas(key)) < FLOOR, key
+
+
 @pytest.mark.parametrize("key", sorted(hammers.KINDS))
 def test_every_size_handle_and_angle_fills_the_floor_with_a_highlight_and_a_shadow(key):
-    kind, handles = hammers.KINDS[key], _handles(key)
-    every_size = _measured(key, kind.ounces, handles[:1], _angles(key))
-    every_handle = _measured(key, (min(kind.ounces), max(kind.ounces)), handles, _angles(key)[:1])
-    for angle, record, area in (*every_size, *every_handle):
+    for angle, record, area in _areas(key):
         assert area.cover >= FLOORS.get(key, FLOOR), (angle, record, area)
         assert area.highlight and area.shadow and not area.flat, (angle, record, area)
+
+
+@pytest.mark.parametrize("key", sorted(hammers.KINDS))
+def test_a_longer_hammer_is_drawn_larger_by_whichever_length_it_publishes(key):
+    figure = drawing._figure(key)[0]
+    kind, (handle, grip) = hammers.KINDS[key], _handles(key)[0]
+    records = [_record(kind, oz, handle, grip, kind.faces[0]) for oz in sorted(kind.ounces)]
+    for unpublished in ((), ("Overall Length",), ("Overall Length", "Handle Length")):
+        published = [{k: v for k, v in r.items() if k not in unpublished} for r in records]
+        drawn = [figure(record) for record in published]
+        heights = [d.figure.bounds()[3] for d in drawn]
+        assert heights == sorted(set(heights)), unpublished
+        assert {d.source for d in drawn} == {"partial" if unpublished else "record"}
+
+
+def test_the_record_s_handle_grip_and_face_are_drawn():
+    """A wood handle, a gripped one and a bare one, and a milled face, each draw apart."""
+    figure, kind = drawing._figure("hammer_claw")[0], hammers.KINDS["hammer_claw"]
+    drawn = [
+        figure(_record(kind, 16, handle, grip, face)).figure.shapes
+        for handle, grip, face in (
+            ("Hickory", "None", "Smooth"),
+            ("Steel", "None", "Smooth"),
+            ("Steel", "Rubber", "Smooth"),
+            ("Steel", "Rubber", "Milled"),
+        )
+    ]
+    assert all(a != b for k, a in enumerate(drawn) for b in drawn[k + 1 :])

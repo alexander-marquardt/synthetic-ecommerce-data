@@ -4763,11 +4763,11 @@
   },
   "drawings": {
    "count": 15281,
-   "bytes": 39691194,
+   "bytes": 40502181,
    "geometry": {
     "nominal": 187,
-    "partial": 2982,
-    "record": 12112
+    "partial": 2764,
+    "record": 12330
    },
    "largest_bytes": 7409,
    "largest_product_type": "household_tool_sets"
