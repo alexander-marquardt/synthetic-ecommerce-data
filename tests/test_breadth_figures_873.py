@@ -26,6 +26,7 @@ from synthetic_ecommerce_data.core.drawing.style import house_style
 from synthetic_ecommerce_data.domains.industrial import breadth
 from synthetic_ecommerce_data.domains.industrial.drawing import breadth_shapes
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shapes import BREADTH_SHAPES
+from synthetic_ecommerce_data.domains.industrial.product_types.safety import cut_resistant_gloves
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -185,11 +186,16 @@ def test_the_glove_has_no_rectangle():
     assert boxes == [], "the palm, thumb or a finger is still a rectangle"
 
 
-def test_the_glove_is_one_rounded_outline_that_narrows_to_its_cuff():
+def test_each_glove_is_one_rounded_outline_that_narrows_to_its_cuff():
     fig, _ = _glove()
     parts = _polys(fig, "part")
-    assert len(parts) == 1, "the cuff, palm, thumb and fingers are one outline"
-    points = parts[0].points
+    assert len(parts) == 2, "a pair; one glove's cuff, palm, thumb and fingers are one outline"
+    # Upright again: each glove of the pair leans SPLAY degrees.
+    lean = math.radians(cut_resistant_gloves.SPLAY)
+    points = [
+        (x * math.cos(lean) - y * math.sin(lean), x * math.sin(lean) + y * math.cos(lean))
+        for x, y in parts[0].points
+    ]
     assert len(points) >= 60, "rounded fingertips and thumb take many points"
     tip_y = min(q[1] for q in points)
     tips = [q for q in points if q[1] <= tip_y + 0.05]
