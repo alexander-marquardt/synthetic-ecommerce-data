@@ -118,6 +118,9 @@ first in the table, as the issue orders, and then the departments the catalogue 
   carries attributes to filter on (format, author, publisher, genre, pages, publication year, age
   band), and its words collide with other departments, which is what the demo searches.
 - **Prescription pharmacy and fresh perishables.** These go beyond what the demo searches today.
-  Health stays over the counter.
+  Health stays over the counter. Live flowers and plants are the exception: the maintainer's
+  ruling of 2026-11-21 lets them in, and gen#1115 adds cut flowers, letterbox flowers, house
+  plants and plant food to Garden. At the ceiling build they hold 1,343 SKUs, against 5 bouquets
+  before (+1,338): [retail-prototype/flowers-plants-1115.md](retail-prototype/flowers-plants-1115.md).
 - **More apparel.** Womens and Mens hold 54% of the SKUs today and 43% at the target. That share
   is already above what a general retailer carries, so they do not grow.
