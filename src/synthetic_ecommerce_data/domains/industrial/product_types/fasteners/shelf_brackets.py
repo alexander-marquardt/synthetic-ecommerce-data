@@ -1,4 +1,4 @@
-"""Shelf brackets: home hardware for the general-retail catalogue (#958, slice 3).
+"""Shelf brackets: home hardware for the R&I catalogue (#958, slice 3).
 
 A shelf bracket is the arm a shelf rests on, screwed to a wall or a stud. A hardware listing
 sells it by the length of its arm and names its style, its metal and its color.

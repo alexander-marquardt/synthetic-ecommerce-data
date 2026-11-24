@@ -1,4 +1,4 @@
-"""Utility hooks: home hardware for the general-retail catalogue (#958, slice 3).
+"""Utility hooks: home hardware for the R&I catalogue (#958, slice 3).
 
 A utility hook is the hook a homeowner screws into a wall, under a cabinet or into a ceiling
 to hang a coat, a mug, a towel or a tool. A hardware listing sells it by its length and names

@@ -1,4 +1,4 @@
-# Retail catalog batch 1: ingredient base, text-match decoys, grocery nodes
+# Retail domain batch 1: ingredient base, text-match decoys, grocery nodes
 
 The retail prototype's own reference is [retail-prototype.md](retail-prototype.md); the
 facts this batch adds to it are here. Each section names the issue, the data and the test

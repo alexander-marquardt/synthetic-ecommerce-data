@@ -1,6 +1,6 @@
 """Sewing and knitting, cut 1 (gen#1118): sewing thread, yarn and fabric in Office & School.
 
-The retail catalogue held no sewing machine, thread, fabric, yarn or needle, so a shopper's
+The retail domain held no sewing machine, thread, fabric, yarn or needle, so a shopper's
 ``thread`` found only the industrial catalogue's threaded rods, taps and fasteners. This cut adds
 the three types the issue's title names first, each a spec of its own (``type_specs/
 sewing_thread.py``, ``yarn.py``, ``fabric.py``) drawn by :mod:`kit_sewing`, under ``Office &

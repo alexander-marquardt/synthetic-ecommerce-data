@@ -579,7 +579,7 @@ SKU. `tests/test_variant_axes_47.py` pins the issue's five invariants on both bu
 planted failure. Not every combination exists, so a consumer limits a dropdown to the
 combinations the product's SKUs offer.
 
-### The retail catalog at a size: `scale.py --skus N`
+### The retail domain at a size: `scale.py --skus N`
 
 **The audience facet and the spelling of a facet**. The tree keeps its Womens, Mens
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
@@ -713,7 +713,7 @@ a comma-joined fibre list or a fibre alone, a jean without a `leg_fit` or a
 bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
 
 `src/synthetic_ecommerce_data/domains/retail/scale.py --skus 20000 --out retail.jsonl` builds the
-retail catalog to a target SKU count, writes it in the standard, and prints a
+retail domain to a target SKU count, writes it in the standard, and prints a
 report:
 - the coverage (styles, SKUs per department, products per leaf, attribute fill
   per type, image ids and distinct drawings);

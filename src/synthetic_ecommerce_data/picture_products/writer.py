@@ -1,7 +1,8 @@
 """Step 2: a product of our own around each picture of a manifest (gen#1022).
 
-:func:`write` takes the checked rows of a picture manifest (:mod:`.manifest`) and makes one new
-generator product per picture. The product gets:
+:func:`write` takes the checked rows of a picture manifest (:mod:`..picture_manifest`) and makes one
+new generator product per picture of a type the book describes (``book.TYPES``). A row of another
+type, or a fallback row, shows nothing to describe and makes no product. The product gets:
 
 * a generator id (``BRD-PC`` and eight hex digits, from a hash), never the image id;
 * a brand with a house style and one of that brand's ranges (:mod:`.book`);
@@ -26,8 +27,8 @@ from synthetic_ecommerce_data import drawings
 from synthetic_ecommerce_data.domains.retail import kit, stable_ids
 from synthetic_ecommerce_data.domains.retail.breadth_row import Row
 from synthetic_ecommerce_data.domains.retail.variants import cw
+from synthetic_ecommerce_data.picture_manifest import COLORS, TYPES, Fallback, Picture, is_count
 from synthetic_ecommerce_data.picture_products import book
-from synthetic_ecommerce_data.picture_products.manifest import COLORS, TYPES, Picture, is_count
 
 INCH = 2.54
 DEPARTMENT = "Home"
@@ -176,9 +177,10 @@ def product(picture: Picture) -> Product:
     return Product(doc=doc, image_name=f"{product_id}.svg", svg=svg)
 
 
-def write(pictures: Iterable[Picture]) -> list[Product]:
-    """One product per picture; two pictures that would share a product id are refused."""
-    out = [product(p) for p in pictures]
+def write(pictures: Iterable[Picture | Fallback]) -> list[Product]:
+    """One product per picture of a type the book describes; two pictures that would share a
+    product id are refused."""
+    out = [product(p) for p in pictures if isinstance(p, Picture) and p.type in book.TYPES]
     ids = [p.doc["product_id"] for p in out]
     if len(set(ids)) != len(ids):
         raise ValueError("two pictures hash to one product id")
