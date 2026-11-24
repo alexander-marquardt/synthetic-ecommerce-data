@@ -21,12 +21,15 @@ from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     audience,
+    facet_leaves,
     kit,
+    line_grammar,
     main_colors,
     scale,
     scale_text,
     type_registry,
 )
+from synthetic_ecommerce_data.domains.retail.line_grammar_families import bags
 
 PARENT = ("Womens", "Accessories", "Bags")
 #: key -> (product type, leaf, shape, forms, materials a derived style may take, SKU floor).
@@ -103,6 +106,20 @@ def test_each_form_and_each_material_draws_a_different_figure(key: str) -> None:
     drawn = {(f, m): kit.render(shape, fill, uid="f", params={"bag_shape": f.lower(), "material": m.lower()})
              for f in forms for m in materials}  # fmt: skip
     assert len(set(drawn.values())) == len(drawn)
+
+
+@pytest.mark.parametrize("key", KEYS)
+def test_a_bag_is_no_garment_so_its_material_is_no_fabric(key: str) -> None:
+    for row in _spec(key).rows:
+        rec = {"department": [row.department], "product_type": row.product_type}
+        assert not facet_leaves.is_textile(rec), row.code
+
+
+def test_no_lead_word_of_the_family_is_in_any_template_text() -> None:
+    """A lead a text uses is no derived model (gen#851): it leaves the deal, and the names after it
+    move. The games draw "Arcade" and a kids' film "ballroom" (gen#1120)."""
+    words = line_grammar.text_words(scale.templates(baseline=False))
+    assert [w for w in bags.LEADS if w.lower() in words] == []
 
 
 @pytest.mark.parametrize("key", KEYS)
