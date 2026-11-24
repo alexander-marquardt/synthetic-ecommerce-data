@@ -84,6 +84,10 @@ STYLES = {
         "Farmhouse", "Thick Sliced", "Medium Sliced", "Stonebaked", "Bakery Style", "Crusty",
         "Slow Proved", "Hand Shaped", "Oven Bottom",
     ),
+    "Brownie Mix": (
+        "Bakery Style", "Home Baking", "Bake Day", "Weekend Baking", "Extra Chewy", "Tray Baked",
+        "Family Recipe", "Extra Rich",
+    ),
     "Butter & Spreads": (
         "Farmhouse", "Country Style", "Traditional", "Lightly Whipped", "Soft & Creamy",
         "Extra Creamy", "Easy Spreading", "Home Style",
