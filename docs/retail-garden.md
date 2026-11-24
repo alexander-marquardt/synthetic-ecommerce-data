@@ -6,7 +6,9 @@ The Garden department held plants and growing kits only. `garden_rows.py` adds f
 Planters, outdoor lights and garden chairs (gen#961, slice 1) are derivable specs drawn by
 `kit_patio.py`; hand tools, watering cans and bird feeders (slice 2) are drawn by
 `kit_garden_care.py`; garden tables, grill accessories and garden storage (slice 3) are drawn by
-`kit_garden_yard.py`: [retail-prototype/garden-961.md](retail-prototype/garden-961.md).
+`kit_garden_yard.py`: [retail-prototype/garden-961.md](retail-prototype/garden-961.md). Cut
+flowers, letterbox flowers, house plants and plant food (gen#1115) are derivable specs drawn by
+`kit_flowers.py`: [retail-prototype/flowers-plants-1115.md](retail-prototype/flowers-plants-1115.md).
 
 | Type | Path | Style axis | SKU axis | Key attributes |
 |---|---|---|---|---|

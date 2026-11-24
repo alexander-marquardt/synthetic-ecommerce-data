@@ -110,6 +110,9 @@ MOVED = {
         Option("connectivity", "connectivity", "Connectivity"),
         Option("brightness_lm", "brightness", "Brightness (lm)"),
     ],
+    # a bouquet's stems and a house plant's pot (gen#1115)
+    "bouquet": [Option("stem_count", "stem_count", "Stem count", "C62")],
+    "house_plant": [Option("pot_size_cm", "pot_size", "Pot size", "CMT")],
     # a fabric's cut, a fat quarter to 2 meters (gen#1118), declared by its spec from the start
     "fabric": [Option("fabric_cut", "fabric_cut", "Fabric cut")],
     # the platform a video game SKU is sold on: PC or an invented console family (gen#1120)

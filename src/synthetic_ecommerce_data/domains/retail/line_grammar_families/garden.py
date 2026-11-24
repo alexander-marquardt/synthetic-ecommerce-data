@@ -13,6 +13,7 @@ KINDS = (
     "Garden Furniture Set", "Lawn Mower", "Robot Mower", "Grass Trimmer", "Hedge Trimmer",
     "Parasol", "Garden Hose", "Planter", "Outdoor Light", "Garden Chair", "Hand Tool",
     "Watering Can", "Bird Feeder", "Garden Table", "Grill Accessory", "Garden Storage",
+    "House Plant", "Plant Food",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (
