@@ -192,7 +192,7 @@ def test_a_killed_worker_s_last_module_and_peak_are_in_the_log(tmp_path: Path) -
     env = {k: v for k, v in os.environ.items() if k not in ("PYTEST_ADDOPTS", "WORKER_PEAK_DIR")}
     env["PYTHONPATH"] = str(REPO / "tests")
     pytest_cmd = [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-                  "-p", "no:randomly", "--rootdir", str(tmp_path), "-n", "1",
+                  "--rootdir", str(tmp_path), "-n", "1",
                   "test_done.py", "test_killed.py"]  # fmt: skip
     proc = wrapper_process.start(
         ["--reruns", "0", "--", *pytest_cmd],
@@ -238,7 +238,7 @@ def test_a_worker_lost_under_the_tests_job_s_options_ends_the_run(tmp_path: Path
     env = {k: v for k, v in os.environ.items() if k not in drop}
     env |= {"PYTEST_ADDOPTS": _tests_job_addopts(), "PYTEST_XDIST_AUTO_NUM_WORKERS": "1"}
     pytest_cmd = [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-                  "-p", "no:randomly", "--rootdir", str(tmp_path),
+                  "--rootdir", str(tmp_path),
                   "test_a_killed.py", "test_b_later.py"]  # fmt: skip
     run = wrapper_process.start(
         ["--reruns", "0", "--", *pytest_cmd], cwd=tmp_path, env=env, text=True

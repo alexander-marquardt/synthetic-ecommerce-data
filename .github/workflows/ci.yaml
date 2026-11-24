@@ -28,7 +28,7 @@ on:
         required: false
         default: ""
       random_seed:
-        description: "Run the tests in a random order from this seed (pytest-randomly, #539)"
+        description: "Run the tests in a random order from this seed (--order-seed, #539, #1107)"
         required: false
         default: ""
 
@@ -195,7 +195,7 @@ jobs:
           # The junit path: `runner` is available in a step's env, not in the job's.
           # --durations=10 names the slowest tests in the log, so a shard that stalls is read, not guessed (#704).
           # A dispatched random_seed turns random order on (#539): docs/ci-sharding.md.
-          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('-p randomly --randomly-seed={0}', inputs.random_seed) || '' }}
+          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('--order-seed={0}', inputs.random_seed) || '' }}
         run: |
           plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
           first="${plan_text%%$'\n'*}"
