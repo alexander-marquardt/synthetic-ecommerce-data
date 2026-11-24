@@ -90,8 +90,6 @@ def test_a_step_that_hangs_under_a_test_timeout_is_named_in_the_log(tmp_path: Pa
             str(tmp_path / "base"),
             "-p",
             "no:cacheprovider",
-            "-p",
-            "no:randomly",
             "-o",
             "timeout_method=signal",
             "-o",
