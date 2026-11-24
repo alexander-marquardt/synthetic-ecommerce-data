@@ -17,7 +17,7 @@ the catalog, so adding a product moves no other product's drawing. A drawing sca
 figure by its product's angle (:func:`turned`), so the turned figure and its dimension
 lines stay inside the frame.
 
-FIVE ORIENTATIONS. Every type names one (the industrial table in
+SIX ORIENTATIONS. Every type names one (the industrial table in
 ``domains/industrial/orientation.py``, the retail one, by drawn shape, in
 ``domains/retail/orientation.py``):
 
@@ -29,6 +29,8 @@ FIVE ORIENTATIONS. Every type names one (the industrial table in
   +-36 degrees reads as a garment falling over;
 * ``diagonal``: 54 to 66 degrees to either side in 6 degree steps, for a wide, low product
   (spectacles) that a portrait sheet would otherwise draw small, laid across it (#1217);
+* ``steady``: within +-6 degrees in 3 degree steps, for a product drawn to fill the figure area,
+  which a wider turn would shrink under half of it (#1216);
 * ``level``: 0 degrees only, for a set or kit drawn as several items (#884).
 
 A PACK IS LEVEL. A product any SKU of which is a pack of several items (a cup set in 2, 4
@@ -50,13 +52,14 @@ PAPER = "#ffffff"
 #: The angles a figure may be turned by, in degrees clockwise on screen (SVG's ``rotate``), per
 #: orientation: ``any`` the 24 clock positions, ``upright`` the multiples of 12 within +-36,
 #: ``slight`` the multiples of 5 within +-15, ``diagonal`` the multiples of 6 from 54 to 66 either
-#: way, ``level`` none but 0.
+#: way, ``steady`` the multiples of 3 within +-6, ``level`` none but 0.
 ORIENTATIONS: dict[str, tuple[int, ...]] = {
     "any": tuple(range(0, 360, 15)),
     "upright": (-36, -24, -12, 0, 12, 24, 36),
     "slight": (-15, -10, -5, 0, 5, 10, 15),
     "diagonal": (-66, -60, -54, 54, 60, 66),
     "level": (0,),
+    "steady": (-6, -3, 0, 3, 6),
 }
 
 #: The ``any`` set, which the clock positions name.

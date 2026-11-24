@@ -14,6 +14,8 @@ drawn type missing from this table, so a new type cannot forget it. The sets are
 * ``slight`` (+-15 degrees): clothing. No industrial type wears it; gloves are ``any``.
 * ``diagonal`` (+-54 to 66 degrees, #1217): a wide, low product, laid across the portrait sheet
   so it is drawn large. Safety glasses.
+* ``steady`` (+-6 degrees, #1216): a product drawn to fill the figure area, which a wider turn
+  would shrink under half of it.
 * ``level`` (0 degrees only, #884): a set or kit, whose several items overlap on a slant.
 
 A product with a SKU of more than one unit on a pack type is drawn level whatever its type's
@@ -59,7 +61,7 @@ UPRIGHT: tuple[str, ...] = (
     "fastener_dispensers", "gear_pullers", "grinder_guards", "grooving_cutters",
     "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow", "hammer_framing",
     "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
-    "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "picture_hangers",
+    "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters",
     "pillow_block_bearings", "pin_pullers", "pneumatic_cut_off_tools", "rigging_pulleys",
     "rigid_casters", "shaft_alignment_lasers", "shelf_brackets",
     "side_lock_holders", "silicone_greases", "snap_ring_pliers",
@@ -71,6 +73,9 @@ UPRIGHT: tuple[str, ...] = (
 
 #: Clothing: within +-15 degrees. No industrial type is clothing.
 SLIGHT: tuple[str, ...] = ()
+
+#: Products drawn to fill the figure area (#1215, #1216): a wider turn would shrink them.
+STEADY: tuple[str, ...] = ("picture_hangers",)
 
 #: Wide, low products, laid across the sheet (#1217).
 DIAGONAL: tuple[str, ...] = ("safety_glasses",)
@@ -88,5 +93,6 @@ ORIENTATION: dict[str, str] = {
     **dict.fromkeys(UPRIGHT, "upright"),
     **dict.fromkeys(LEVEL, "level"),
     **dict.fromkeys(SLIGHT, "slight"),
+    **dict.fromkeys(STEADY, "steady"),
     **dict.fromkeys(DIAGONAL, "diagonal"),
 }

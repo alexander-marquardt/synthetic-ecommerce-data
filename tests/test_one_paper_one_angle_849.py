@@ -269,8 +269,9 @@ def test_every_type_names_one_orientation(table, every):
     here, so a new type cannot forget its orientation. A retail shape may go unnamed: tilt is
     opt-in there, and an unnamed shape is ``level`` (#1101)."""
     # The retail table has no DIAGONAL: no retail shape is laid across its sheet.
+    steady = getattr(table, "STEADY", ())
     diagonal = getattr(table, "DIAGONAL", ())
-    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *diagonal, *table.LEVEL]
+    named = [*table.ANY, *table.UPRIGHT, *table.SLIGHT, *steady, *diagonal, *table.LEVEL]
     assert len(named) == len(set(named)), Counter(named).most_common(3)
     if table is industrial_orientation:
         assert sorted(every() - set(named)) == []
