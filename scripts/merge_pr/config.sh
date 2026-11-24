@@ -66,6 +66,7 @@ PINS_REBUILD=(python scripts/measure_pins.py)
 #: REQUIRED_CI check, green; a SKIPPED_BY_DESIGN_CI check may also be skipped:
 #: ci.yaml's push-only job, and review-verdict.yaml's review-verdict-rerun, which
 #: runs only on a Review-Verdict: comment or review event, never on the PR's own
-#: run (#708). Pinned to the workflows by tests/test_merge_pr.py.
+#: run (#708). Each required job's cancel-on-red job runs only when that job is red (#1175).
+#: Pinned to the workflows by tests/test_merge_pr.py.
 REQUIRED_CI=(lint ceiling-catalogue tests commit-messages file-size red-commit-proof customer-name-check no-derived-files)
-SKIPPED_BY_DESIGN_CI=(main-merged-tree review-verdict-rerun)
+SKIPPED_BY_DESIGN_CI=(main-merged-tree review-verdict-rerun "${REQUIRED_CI[@]/#/cancel-on-red-}")
