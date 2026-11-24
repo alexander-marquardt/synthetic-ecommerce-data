@@ -24,17 +24,23 @@ from synthetic_ecommerce_data.domains.industrial.drawing.breadth_products import
 FLOOR = 0.50
 #: The named exceptions: a true outline that cannot reach the floor, at its own measured one.
 FLOORS: dict[str, float] = {
+    "blind_rivets": 0.43,  # a mandrel and a body narrower than the flange
     "c_clamps": 0.42,  # its throat is open
     "chain_lubricants": 0.41,  # an aerosol is a narrow can
     "compound_cutters": 0.39,  # its handles stand apart
     "eye_bolts": 0.43,  # an open eye over a narrower shank
+    "grub_screw_keys": 0.23,  # an L of hex bar, open between its arms
     "replacement_pins": 0.36,  # an eye, a collar and a narrower shank
+    "spanner_wrenches": 0.31,  # an open hook over its handle
     # Rods, laid corner to corner.
+    "cold_chisels": 0.33,
     "magnetic_bit_holders": 0.23,
+    "nut_drivers_hex": 0.24,
     "pin_pullers": 0.20,
     "sds_drill_bits": 0.18,
     "tap_extractors": 0.24,
     "thread_plug_gages": 0.26,
+    "thread_restoring_files": 0.26,
 }
 
 #: Slice 2: the types drawn by their row's shared shape at 5 to 15% of the area before it.
