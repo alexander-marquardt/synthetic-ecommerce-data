@@ -147,6 +147,9 @@ AXES: dict[str, tuple[str, ...]] = {
     "Mirror": ("height_cm", "width_cm", "size"),
     "Plant": ("size",),
     "Plant Pot": ("diameter_cm",),
+    # A bouquet by its stems and a house plant by its pot (gen#1115).
+    "Bouquet": ("stem_count",),
+    "House Plant": ("pot_size_cm",),
     "Planter": ("width_cm",),
     "Garden Table": ("width_cm",),
     "Garden Storage": ("capacity_l", "width_cm"),
