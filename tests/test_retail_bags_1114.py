@@ -1,17 +1,19 @@
-"""Women's crossbody, shoulder and clutch bags (gen#1114, the bag cut).
+"""Women's crossbody, shoulder, clutch and belt bags and men's messenger and laptop bags (gen#1114).
 
 The catalog held five Handbag styles whose ``bag_style`` was Crossbody, Shoulder or Clutch and no
-leaf for any of the three. Each is now a type of its own under ``Womens > Accessories > Bags``, a
-derivable spec drawn by its own shape of :mod:`kit_bags`. A style's SKUs are its colors times its
-sizes; its title shows its form and its material. These checks hold the leaf, the six main colors,
+leaf for any of the three; it held no messenger bag and no laptop bag, and five waist bags that are
+decoys. Each is now a type of its own under ``Womens > Accessories > Bags`` or ``Mens > Accessories
+> Bags``, a derivable spec drawn by its own shape of :mod:`kit_bags` or :mod:`kit_bags_carry`. A
+style's SKUs are its colors times its sizes; its title shows its form and its material. These checks hold the leaf, the six main colors,
 the drawing, the text-match decoys, the range at the ceiling build, the rule that a derived style
-keeps the form and closure its text and drawing show, and the two demo queries of the PR.
+keeps the form and closure its text and drawing show, and the demo queries of the PRs.
 """
 
 # ruff: noqa: E501 -- the type table and the long comprehensions read better whole.
 
 from __future__ import annotations
 
+import importlib
 import re
 
 import pytest
@@ -29,9 +31,9 @@ from synthetic_ecommerce_data.domains.retail import (
     scale_text,
     type_registry,
 )
-from synthetic_ecommerce_data.domains.retail.line_grammar_families import bags
 
-PARENT = ("Womens", "Accessories", "Bags")
+WOMENS = ("Womens", "Accessories", "Bags")
+MENS = ("Mens", "Accessories", "Bags")
 #: key -> (product type, leaf, shape, forms, materials a derived style may take, SKU floor).
 TYPES = {
     "crossbody_bag": ("Crossbody Bag", "Crossbody Bags", "crossbody_bag",
@@ -40,15 +42,34 @@ TYPES = {
                      {"Hobo", "Baguette", "Crescent"}, {"Leather", "Faux Leather", "Suede"}, 200),
     "clutch_bag": ("Clutch Bag", "Clutch Bags", "clutch_bag",
                    {"Envelope", "Foldover", "Frame"}, {"Satin", "Velvet", "Faux Leather"}, 120),
+    "belt_bag": ("Belt Bag", "Belt Bags", "belt_bag",
+                 {"Crescent", "Box", "Pouch"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 120),
+    "messenger_bag": ("Messenger Bag", "Messenger Bags", "messenger_bag",
+                      {"Courier", "Satchel", "Utility"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 250),
+    "laptop_bag": ("Laptop Bag", "Laptop Bags", "laptop_bag",
+                   {"Briefcase", "Top Load", "Folio"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 300),
 }  # fmt: skip
 KEYS = tuple(TYPES)
+#: The men's types; the other types are women's.
+MENS_KEYS = ("messenger_bag", "laptop_bag")
+#: The key of a type's sizes, and the families of the line grammar that name the types' ranges.
+SIZE_KEY = {"messenger_bag": "capacity_l", "laptop_bag": "screen_size_in"}
+FAMILIES = ("bags", "bags_carry")
+#: The shapes whose strap is a named part ("with Red Strap" is drawn).
+STRAPS = ("crossbody_bag", "belt_bag", "messenger_bag")
 #: The attributes a derived style keeps from its template (the text and the drawing follow them).
 BUILD_KEYS = {"bag_shape", "closure", "strap"}
 #: The PR's demo queries -> (product type, the entry a matching SKU's style must hold).
 QUERIES = {
     "black crossbody bag": ("Crossbody Bag", ("color", "Black")),
     "satin clutch bag": ("Clutch Bag", ("material", "Satin")),
+    "black messenger bag": ("Messenger Bag", ("color", "Black")),
+    "leather laptop bag": ("Laptop Bag", ("material", "Leather")),
 }
+
+
+def _parent(key: str) -> tuple[str, ...]:
+    return MENS if key in MENS_KEYS else WOMENS
 
 
 def _spec(key: str) -> type_registry.TypeSpec:
@@ -79,11 +100,13 @@ def test_the_type_is_a_derivable_leaf_of_its_own_under_bags(key: str) -> None:
     assert len(spec.rows) >= 4
     assert len({r.brand for r in spec.rows}) >= 3
     for row in (*spec.rows, *(d.row for d in spec.decoys)):
-        assert row.path == (*PARENT, leaf), row.code
+        assert row.path == (*_parent(key), leaf), row.code
         assert row.shape == shape and shape in kit.shapes(), row.code
         values = _values(row)
         assert dict(row.params) == {k: values[k].lower() for k in ("bag_shape", "material")}, row.code
-        assert values["audience"] == audience.WOMENS, row.code
+        assert values["audience"] == (audience.MENS if key in MENS_KEYS else audience.WOMENS), row.code
+        if key in SIZE_KEY:
+            assert row.size_key == SIZE_KEY[key] and len(row.sizes) >= 2, row.code
     for row in spec.rows:  # the title shows the form and the material
         values = _values(row)
         assert values["bag_shape"] in row.title and values["material"] in row.title, row.code
@@ -115,11 +138,13 @@ def test_a_bag_is_no_garment_so_its_material_is_no_fabric(key: str) -> None:
         assert not facet_leaves.is_textile(rec), row.code
 
 
-def test_no_lead_word_of_the_family_is_in_any_template_text() -> None:
+@pytest.mark.parametrize("family", FAMILIES)
+def test_no_lead_word_of_the_family_is_in_any_template_text(family: str) -> None:
     """A lead a text uses is no derived model (gen#851): it leaves the deal, and the names after it
     move. The games draw "Arcade" and a kids' film "ballroom" (gen#1120)."""
+    module = importlib.import_module(f"synthetic_ecommerce_data.domains.retail.line_grammar_families.{family}")
     words = line_grammar.text_words(scale.templates(baseline=False))
-    assert [w for w in bags.LEADS if w.lower() in words] == []
+    assert [w for w in module.LEADS if w.lower() in words] == []
 
 
 @pytest.mark.parametrize("key", KEYS)
@@ -134,11 +159,11 @@ def test_the_type_plants_text_match_decoys(key: str) -> None:
         assert word not in stated, d.row.code
 
 
-@pytest.mark.parametrize("form", sorted(TYPES["crossbody_bag"][3]))
-def test_the_red_strap_a_crossbody_decoy_names_is_drawn_on_every_form(form: str) -> None:
-    _spec("crossbody_bag")
+@pytest.mark.parametrize(("key", "form"), [(k, f) for k in STRAPS for f in sorted(TYPES[k][3])])
+def test_the_red_strap_a_decoy_names_is_drawn_on_every_form(key: str, form: str) -> None:
+    _spec(key)
     fill = kit.Fill("solid", "#1f1f22", detail=("strap", "#c8322b"))
-    svg = kit.render("crossbody_bag", fill, params={"bag_shape": form.lower(), "material": "nylon"})
+    svg = kit.render(TYPES[key][2], fill, params={"bag_shape": form.lower(), "material": "nylon"})
     assert 'stroke="#c8322b"' in svg and 'data-part="strap"' in svg
 
 
@@ -182,7 +207,7 @@ def test_census_the_type_meets_the_output_standard_under_bags(key: str, ceiling)
     assert mine
     docs = scale.documents(scale.Scaled(mine, {}))
     assert check_catalog(docs, one_class_per_key=True, text_exempt=scale.TEXT_EXEMPT) == []
-    assert {tuple(d["category_path"][:3]) for d in docs} == {tuple(map(sentence_case, PARENT))}
+    assert {tuple(d["category_path"][:3]) for d in docs} == {tuple(map(sentence_case, _parent(key)))}
     titles = [r["title"] for r in mine]
     assert len(set(titles)) == len(titles)
 
