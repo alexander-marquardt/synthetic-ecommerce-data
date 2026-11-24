@@ -1,0 +1,78 @@
+{
+ "source": "gh api repos/alexander-marquardt/synthetic-ecommerce-data/actions/jobs/137725634488, recorded 2026-11-23 (#1175), trimmed to the fields the test reads",
+ "id": 137725634488,
+ "run_id": 45135476982,
+ "run_attempt": 6,
+ "name": "tests (15)",
+ "status": "completed",
+ "conclusion": "cancelled",
+ "started_at": "2026-11-23T13:29:03Z",
+ "completed_at": "2026-11-23T13:39:09Z",
+ "steps": [
+  {
+   "name": "Set up job",
+   "number": 1,
+   "conclusion": "success"
+  },
+  {
+   "name": "Run actions/checkout@v4",
+   "number": 2,
+   "conclusion": "success"
+  },
+  {
+   "name": "Does this shard have a test file to run",
+   "number": 3,
+   "conclusion": "success"
+  },
+  {
+   "name": "Run astral-sh/setup-uv@v5",
+   "number": 4,
+   "conclusion": "success"
+  },
+  {
+   "name": "Run actions/download-artifact@v4",
+   "number": 5,
+   "conclusion": "success"
+  },
+  {
+   "name": "Run actions/download-artifact@v4",
+   "number": 6,
+   "conclusion": "success"
+  },
+  {
+   "name": "Tests",
+   "number": 7,
+   "conclusion": "failure"
+  },
+  {
+   "name": "Run actions/upload-artifact@v4",
+   "number": 8,
+   "conclusion": "success"
+  },
+  {
+   "name": "Run actions/upload-artifact@v4",
+   "number": 9,
+   "conclusion": "success"
+  },
+  {
+   "name": "Cancel the rest of this pull request's run",
+   "number": 10,
+   "conclusion": "cancelled"
+  },
+  {
+   "name": "Post Run astral-sh/setup-uv@v5",
+   "number": 19,
+   "conclusion": "skipped"
+  },
+  {
+   "name": "Post Run actions/checkout@v4",
+   "number": 20,
+   "conclusion": "success"
+  },
+  {
+   "name": "Complete job",
+   "number": 21,
+   "conclusion": "success"
+  }
+ ]
+}
