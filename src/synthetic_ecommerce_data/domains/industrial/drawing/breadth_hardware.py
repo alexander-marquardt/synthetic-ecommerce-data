@@ -52,16 +52,16 @@ def _case(fig: Figure, fill: str, split: float = 0.0) -> None:
 
 def _bolt(fig: Figure, c: Point, r: float) -> None:
     """A screw head with its hex recess."""
-    disc(fig, c, r, "plain")
+    disc(fig, c, r, "plain", steps=4)
     fig.poly(hexagon(c, r * 0.5), "dark")
 
 
 def _screwdriver(fig: Figure, x: float, y0: float, y1: float, w: float, grip: str) -> None:
     """A screwdriver hung by its handle: the grip on top, the blade below."""
     mid = y0 + 0.45 * (y1 - y0)
-    col(fig, x + w * 0.36, mid, x + w * 0.64, y1, "plain")
+    fig.rect(x + w * 0.36, mid, x + w * 0.64, y1, "plain")
     col(fig, x, y0, x + w, mid, "handle", grip)
-    bar(fig, x + w * 0.1, mid, x + w * 0.9, mid + 0.08, "plain")
+    fig.rect(x + w * 0.1, mid, x + w * 0.9, mid + 0.08, "plain")
 
 
 # --- hand tools --------------------------------------------------------------------------------
@@ -187,6 +187,14 @@ def _hex_bit(fig: Figure, x: float, y: float, w: float, h: float) -> None:
     bar(fig, x, y + h * 0.4, x + w, y + h * 0.48, "dark")
 
 
+def _small_hex_bit(fig: Figure, x: float, y: float, w: float, h: float) -> None:
+    """:func:`_hex_bit` in a set of many, in four shapes: a drawing has a size cap."""
+    fig.rect(x + w * 0.3, y + h * 0.5, x + w * 0.7, y + h, "plain")
+    fig.rect(x, y, x + w, y + h * 0.6, "plain")
+    fig.rect(x + w * 0.12, y, x + w * 0.3, y + h * 0.6, "gloss")
+    fig.rect(x + w * 0.64, y, x + w, y + h * 0.6, "shade")
+
+
 def bit_socket_set(record: Record) -> Drawn:
     """A hex key bit socket set on a ratchet: the case, the ratchet and two rows of bits."""
     del record
@@ -195,12 +203,12 @@ def bit_socket_set(record: Record) -> Drawn:
     fig.rect(0.1, 0.12, 1.54, 0.72, "handle", GRIP_BLUE)
     bar(fig, 0.5, 0.34, 1.48, 0.52, "handle", GRIP_RED)
     bar(fig, 0.24, 0.36, 0.64, 0.5, "plain")
-    disc(fig, (0.34, 0.43), 0.22, "plain")
+    disc(fig, (0.34, 0.43), 0.22, "plain", steps=6)
     fig.rect(0.28, 0.37, 0.4, 0.49, "dark")
     for row in range(2):
         fig.rect(0.1, 0.8 + 0.58 * row, 1.54, 1.3 + 0.58 * row, "dark")
         for k in range(5):
-            _hex_bit(fig, 0.16 + 0.28 * k, 0.86 + 0.58 * row, 0.19, 0.4)
+            _small_hex_bit(fig, 0.16 + 0.28 * k, 0.86 + 0.58 * row, 0.2, 0.4)
     return done(fig)
 
 
@@ -231,11 +239,12 @@ def driver_bit_set(record: Record) -> Drawn:
     for row in range(2):
         y = 0.92 + 0.52 * row
         fig.rect(0.1, y, 1.54, y + 0.46, "handle", RUBBER)
-        for k in range(7):
-            x = 0.17 + 0.19 * k
-            hexes(fig, x, y + 0.04, x + 0.12, y + 0.28)
-            slab(fig, [(x, y + 0.28), (x + 0.12, y + 0.28), (x + 0.08, y + 0.42),
-                       (x + 0.04, y + 0.42)], "plain", t=0.02)  # fmt: skip
+        for k in range(6):
+            x, w = 0.17 + 0.225 * k, 0.16
+            fig.poly([(x, y + 0.04), (x + w, y + 0.04), (x + w, y + 0.28), (x + 0.11, y + 0.42),
+                      (x + 0.05, y + 0.42), (x, y + 0.28)], "plain")  # fmt: skip
+            fig.rect(x, y + 0.04, x + w * 0.3, y + 0.28, "gloss")
+            fig.rect(x + w * 0.7, y + 0.04, x + w, y + 0.28, "shade")
     return done(fig)
 
 
@@ -399,10 +408,10 @@ def diamond_wheel(record: Record) -> Drawn:
     disc(fig, c, 0.58, "plain")
     for k in range(6):
         a = math.radians(60 * k)
-        disc(fig, (c[0] + 0.4 * math.cos(a), c[1] + 0.4 * math.sin(a)), 0.07, "dark")
-    disc(fig, c, 0.22, "part")
+        disc(fig, (c[0] + 0.4 * math.cos(a), c[1] + 0.4 * math.sin(a)), 0.07, "dark", steps=4)
+    disc(fig, c, 0.22, "part", steps=6)
     fig.disc(c, 0.12, "hole")
-    grit = [(math.radians(17 * k), 0.63 + 0.06 * (k % 3)) for k in range(21)]
+    grit = [(math.radians(25.7 * k), 0.63 + 0.06 * (k % 3)) for k in range(14)]
     for a, r in grit:
         fig.disc((c[0] + r * math.cos(a), c[1] + r * math.sin(a)), 0.018, "dark")
     return done(fig)
@@ -486,7 +495,7 @@ def screwdriver_rack(record: Record) -> Drawn:
     fig = new()
     slab(fig, [(0.0, 0.0), (1.64, 0.0), (1.64, 2.0), (0.0, 2.0)])
     for x in (0.1, 1.54):
-        _bolt(fig, (x, 0.1), 0.05)
+        fig.disc((x, 0.1), 0.05, "dark")
     grips = (GRIP_RED, GRIP_BLUE, SAFETY, RUBBER)
     for row in range(2):
         y = 0.2 + 0.9 * row
@@ -506,11 +515,11 @@ def drawer_slides(record: Record) -> Drawn:
         fig.rect(x0 + 0.14, 0.36, x0 + 0.64, 1.94, "dark")
         for y in (0.5, 0.72, 0.94, 1.16):
             for x in (0.18, 0.6):
-                disc(fig, (x0 + x, y), 0.05, "plain")
+                fig.disc((x0 + x, y), 0.05, "plain")
         col(fig, x0 + 0.22, 0.0, x0 + 0.56, 1.6, "plain")
         for y in (0.2, 0.75, 1.3):
-            fig.poly(ell((x0 + 0.39, y), 0.08, 0.13), "dark")
-        disc(fig, (x0 + 0.39, 1.78), 0.08, "plain")
+            fig.poly(ell((x0 + 0.39, y), 0.08, 0.13, steps=12), "dark")
+        disc(fig, (x0 + 0.39, 1.78), 0.08, "plain", steps=4)
     return done(fig)
 
 
@@ -570,7 +579,7 @@ def bit_index_case(record: Record) -> Drawn:
         slab(fig, [(inset, y), (1.64 - inset, y), (1.64 - inset, y + 0.42), (inset, y + 0.42)])
         for k in range(5 + row):
             r = (0.11 - 0.02 * row) * (1 - 0.06 * k)
-            fig.poly(ell((0.26 + 1.15 * k / (4 + row), y + 0.2), r, r * 0.75, steps=16), "dark")
+            fig.poly(ell((0.26 + 1.15 * k / (4 + row), y + 0.2), r, r * 0.75, steps=8), "dark")
     slab(fig, [(0.0, 1.8), (1.64, 1.8), (1.64, 2.0), (0.0, 2.0)], "handle", GRIP_RED)
     bar(fig, 0.66, 1.82, 0.98, 1.94, "plain")
     return done(fig)
@@ -585,11 +594,15 @@ def cantilever_rack(record: Record) -> Drawn:
         y = 0.06 + 0.42 * k
         arm = [(0.66, y + 0.04), (0.08, y + 0.06), (0.08, y - 0.06), (0.0, y - 0.06),
                (0.0, y + 0.22), (0.66, y + 0.3)]  # fmt: skip
-        slab(fig, arm, t=0.05)
-        slab(fig, mirror(arm), t=0.05)
+        lit = [(0.66, y + 0.04), (0.08, y + 0.06), (0.08, y + 0.11), (0.66, y + 0.09)]
+        dim = [(0.66, y + 0.25), (0.0, y + 0.17), (0.0, y + 0.22), (0.66, y + 0.3)]
+        for flip in (list, mirror):
+            fig.poly(flip(arm))
+            fig.poly(flip(lit), "gloss")
+            fig.poly(flip(dim), "shade")
     col(fig, 0.6, 0.0, 1.04, 2.0)
-    for k in range(9):
-        fig.rect(0.78, 0.1 + 0.18 * k, 0.86, 0.18 + 0.18 * k, "dark")
+    for k in range(6):
+        fig.rect(0.78, 0.12 + 0.26 * k, 0.86, 0.24 + 0.26 * k, "dark")
     slab(fig, [(0.0, 1.72), (1.64, 1.72), (1.64, 2.0), (0.0, 2.0)], t=0.06)
     for x in (0.16, 1.48):
         _bolt(fig, (x, 1.86), 0.06)

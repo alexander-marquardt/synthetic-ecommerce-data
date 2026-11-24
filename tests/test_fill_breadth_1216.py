@@ -5,6 +5,7 @@ sells, and measured with #1129's sweep (``picture_fill_1129.sheet_measures``).""
 
 from __future__ import annotations
 
+import itertools
 import sys
 from pathlib import Path
 
@@ -20,6 +21,7 @@ from synthetic_ecommerce_data.domains.industrial.drawing import breadth_rungs  #
 from synthetic_ecommerce_data.domains.industrial.drawing.breadth_products import (  # noqa: E402
     BREADTH_PRODUCTS,
 )
+from test_sku_drawings import MAX_DRAWING_BYTES  # noqa: E402
 
 FLOOR = 0.50
 #: The named exceptions: a true outline that cannot reach the floor, at its own measured one.
@@ -113,3 +115,22 @@ def test_every_size_and_angle_fills_the_floor_with_a_highlight_and_a_shadow(key)
     for angle, record, area in _measured(key):
         assert area.cover >= FLOORS.get(key, FLOOR), (angle, record, area)
         assert area.highlight and area.shadow and not area.flat, (angle, record, area)
+
+
+@pytest.mark.parametrize("key", sorted(BREADTH_PRODUCTS))
+def test_every_drawing_stays_under_the_byte_cap(key):
+    """The worst case of each type, over every brand, material, size and angle: one seed's
+    catalog stocks a few of them."""
+    row = breadth.row_for(key)
+    largest = 0
+    for values in itertools.product(*row.attributes.values()):
+        common = dict(zip(row.attributes, values, strict=True))
+        records = [{**common, row.size_attr: value} for value in row.size_values]
+        ratios = breadth_rungs.ratios(key, records)
+        for angle in product_look.ORIENTATIONS[domain.orientation(key)]:
+            scale = drawing.product_scale_for(key, records, angle)
+            for record, ratio in zip(records, ratios, strict=True):
+                for brand in brands.BRANDS:
+                    svg, _ = drawing._draw(key, brand, record, scale * ratio, angle)
+                    largest = max(largest, len(svg))
+    assert largest < MAX_DRAWING_BYTES, largest

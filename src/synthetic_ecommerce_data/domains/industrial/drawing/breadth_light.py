@@ -73,12 +73,16 @@ def slab(fig: Figure, pts: Sequence[Point], role="part", fill=None, t=0.06) -> N
         fig.poly(((ax, ay), (bx, by), *inner), "gloss" if lit > 0 else "shade")
 
 
-def disc(fig: Figure, c: Point, r: float, role="part", fill=None, bore: float = 0.0) -> None:
-    """A round face: a highlight crescent up left, a shadow crescent down right."""
+def disc(
+    fig: Figure, c: Point, r: float, role="part", fill=None, bore: float = 0.0, steps: int = 12
+) -> None:
+    """A round face: a highlight crescent up left, a shadow crescent down right, each drawn in
+    ``steps`` (a small face needs few, and a drawing has a size cap)."""
     fig.disc(c, r, role, fill)
     for start, end, kind, outer in ((-30, 120, "shade", 1.0), (170, 280, "gloss", 0.92)):
         inner = max(outer - 0.22, (bore / r) if r else 0)
-        fig.poly([*arc(c, r * outer, start, end, 12), *arc(c, r * inner, end, start, 12)], kind)
+        rim = arc(c, r * outer, start, end, steps)
+        fig.poly([*rim, *arc(c, r * inner, end, start, steps)], kind)
 
 
 def ell(c: Point, rx: float, ry: float, start=0.0, end=360.0, steps=24) -> list[Point]:

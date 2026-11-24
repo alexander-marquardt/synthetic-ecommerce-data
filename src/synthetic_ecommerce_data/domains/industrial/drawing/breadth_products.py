@@ -2,7 +2,8 @@
 
 A breadth type draws one of the shared shapes of :mod:`.breadth_shapes` until it has a drawing of
 its own here. A drawing here is still fixed geometry, the same whatever the record (a breadth SKU's
-sizes are cheap filler, so nothing is drawn to scale), but it is the real product: its own parts,
+sizes are cheap filler, so nothing is drawn to scale; only foam ear plugs read their ``Type``, for
+the cord), but it is the real product: its own parts,
 its own colors, a highlight and a shadow (the ``gloss`` and ``shade`` overlays), filling
 the figure area. :data:`BREADTH_PRODUCTS` maps a type key to its drawing; the key's row keeps its
 ``shape`` for the day it has none.
