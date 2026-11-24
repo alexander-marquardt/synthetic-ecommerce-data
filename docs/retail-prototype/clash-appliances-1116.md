@@ -33,6 +33,6 @@ The queries, on the no-policy baseline ranker (`tests/test_retail_clash_applianc
 combination microwaves before the combination locks. The bare `iron` meets steam irons and the
 metal-iron products together in its top ten: a category policy, not the data, picks the intent.
 
-Two slices of the issue are left. Slice 2 is the cooker hood, the deeper laundry and freezer
-kinds, and `washer` in the laundry titles. Slice 3 is the department at 1,700+ SKUs and the
-ten-query table without and with a policy.
+The cooker hood, the deeper laundry and freezer kinds and `washer` in the laundry titles came next:
+see [hood-washer-1116.md](hood-washer-1116.md). One slice of the issue is left: the department at
+1,700+ SKUs and the ten-query table without and with a policy.

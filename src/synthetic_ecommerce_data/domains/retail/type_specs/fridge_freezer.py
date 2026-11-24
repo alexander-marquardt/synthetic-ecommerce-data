@@ -47,7 +47,17 @@ _FRIDGE_KINDS = (
     ("FIN", "integrated", "Integrated Fridge Freezer", "Integrated Fridge",
      "A fridge freezer that fits behind a kitchen cabinet door",
      ((220, 54, 499), (250, 54, 549), (270, 56, 599), (290, 56, 649), (250, 54, 579), (280, 56, 699))),
+    # Freezer depth (#1116): models built for an unheated garage, the other place a freezer is kept.
+    ("FCG", "chest", "Garage-Ready Chest Freezer", "Chest Freezer",
+     "A chest freezer that runs in an unheated garage, with a lid on top and one deep space",
+     ((99, 55, 219), (145, 71, 259), (200, 85, 299), (255, 106, 339), (295, 125, 389), (380, 142, 449))),
+    ("FUG", "upright_freezer", "Garage-Ready Upright Freezer", "Upright Freezer",
+     "A tall freezer with drawers that runs in an unheated garage",
+     ((90, 55, 259), (125, 55, 299), (172, 60, 339), (195, 60, 379), (215, 60, 409), (245, 70, 459))),
 )  # fmt: skip
+
+#: The kinds with no defrost choice: a side-by-side and a chest are always frost free.
+_FROST_FREE = {"FSS", "FCH", "FCG"}
 
 
 def _kind(kind, n: int = 6, brands: tuple[str, ...] = lar.BRANDS, code: str = "") -> tuple[Row, ...]:
@@ -56,7 +66,7 @@ def _kind(kind, n: int = 6, brands: tuple[str, ...] = lar.BRANDS, code: str = ""
 
     def make(i):
         cap, width, price = models[i]
-        frost_free = i % 3 != 2 or pre in {"FSS", "FCH"}
+        frost_free = i % 3 != 2 or pre in _FROST_FREE
         retro = pre == "FFB" and i >= 4
         rating = lar.RATINGS[(i + len(pre)) % 5]
         desc = (f"{lead}. {cap} litres in all, {width} cm wide, energy rating {rating}"

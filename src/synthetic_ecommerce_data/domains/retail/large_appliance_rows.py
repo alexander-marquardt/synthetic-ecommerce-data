@@ -1,7 +1,7 @@
 """Large appliance helpers (gen#334): what the fridge, dishwasher and laundry specs share.
 
 Each spec (``type_specs/fridge_freezer.py``, ``dishwasher.py``, ``laundry_appliance.py``, and the
-cooking ``range_cooker.py``, ``built_in_oven.py`` and ``hob.py`` of #1116) holds
+cooking ``range_cooker.py``, ``built_in_oven.py``, ``hob.py`` and ``cooker_hood.py`` of #1116) holds
 its own family's table and builder, so a change to one family touches one file (gen#659). Here
 are the brands, the palettes, the attribute makers, :func:`kind_rows` and :func:`decoy_row`. A
 style is one product (a model with its own capacity, width and rating); its color is the SKU
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import appliance_model_numbers as amn
 from synthetic_ecommerce_data.domains.retail import (
-    kit_cooking,  # noqa: F401 -- registers range_cooker, built_in_oven, hob
+    kit_cooking,  # noqa: F401 -- registers range_cooker, built_in_oven, hob, cooker_hood
     kit_large_appliances,  # noqa: F401 -- registers fridge, dishwasher, washing_machine, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -30,6 +30,7 @@ LAUNDRY = (*ROOT, "Laundry")
 RANGE_COOKERS = (*ROOT, "Range Cookers")
 OVENS = (*ROOT, "Built-in Ovens")
 HOBS = (*ROOT, "Hobs")
+COOKER_HOODS = (*ROOT, "Cooker Hoods")
 BRANDS = ("Frostholm", "Brimwell", "Tavorne", "Hollinmere", "Cleavewick", "Lunden & Voss")
 #: Brands that also sell outside this range (#721): a few models each, in the specs that name them.
 GOODLOOK, SINGINGSAM = "GoodLook", "SingingSam"

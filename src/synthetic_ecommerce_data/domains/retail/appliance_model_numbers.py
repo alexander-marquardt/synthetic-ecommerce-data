@@ -78,6 +78,8 @@ KINDS = {
     "Induction Hob": ("X", "width"),
     "Ceramic Hob": ("Y", "width"),
     "Gas Hob": ("Z", "width"),
+    "Chimney Cooker Hood": ("F", "width"),
+    "Integrated Cooker Hood": ("Q", "width"),
 }  # fmt: skip
 
 COLORS = {"White": "W", "Black": "B", "Silver": "S", "Red": "R", "Blue": "U", "Green": "G",
