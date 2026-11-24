@@ -67,24 +67,30 @@ def _color(variant: dict[str, Any]) -> str | None:
     return "/".join(pair) or None
 
 
-def _drawn(doc: dict[str, Any], variant: dict[str, Any]) -> tuple[str, Any, Any, Any]:
+def _drawn(doc: dict[str, Any], variant: dict[str, Any]) -> tuple[str, Any, Any, Any, Any]:
     """What a variant's file draws: its ``drawing_id``, and the rung, pack factor and count it
     stands on (its drawing's ``size_scale``, ``pack_scale`` and ``pack_count``; ``None``: it does
-    not apply). A cup set sells one colorway in a 2, 4 and 8 pack, each drawn (#851)."""
+    not apply). A cup set sells one colorway in a 2, 4 and 8 pack, each drawn (#851). A hand-written
+    drink draws the container its ``net_volume_ml`` is sold in, and no pack factor (gen#1127)."""
     rec = next(r for r in RECORDS if r["product_id"] == doc["product_id"])
     sku = next(s for s in rec["skus"] if s["sku"] == variant["sku"])
     drawing = image_release.colorway_drawing(rec, sku)
     assert drawing.get("pack_scale") == pack_scale.factor(rec, sku)
     return (export.drawing_id(rec, sku), drawing.get("size_scale"), drawing.get("pack_scale"),
-            drawing.get("pack_count"))
+            drawing.get("pack_count"), _volume(rec, sku))
+
+
+def _volume(rec: dict[str, Any], sku: dict[str, Any]) -> str | None:
+    """The SKU's volume where its drawing reads it as a param."""
+    return export.drawing_spec(rec, sku).get("params", {}).get("net_volume_ml")
 
 
 def test_one_drawing_per_style_colorway_pack_scale_and_size_rung_and_one_file_per_sku(
     documents, files
 ):
-    """A colorway has one drawing, or one per pack factor (gen#543) and per rung of its size
-    ladder (gen#339); the sizes of a rung (a footwear row's UK, EU and US) draw it, and each
-    has its own file of it (gen#706)."""
+    """A colorway has one drawing, or one per pack factor (gen#543), per drawn volume (gen#1127)
+    and per rung of its size ladder (gen#339); the sizes of a rung (a footwear row's UK, EU and
+    US) draw it, and each has its own file of it (gen#706)."""
     by_key: dict[tuple, set[str]] = defaultdict(set)
     by_drawing: dict[str, set[tuple]] = defaultdict(set)
     for doc in documents:
