@@ -61,7 +61,7 @@ UPRIGHT: tuple[str, ...] = (
     "grooving_cutters",
     "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow", "hammer_framing",
     "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
-    "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "picture_hangers",
+    "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters",
     "pillow_block_bearings", "pneumatic_cut_off_tools", "rigging_pulleys",
     "rigid_casters", "shelf_brackets",
     "side_lock_holders", "snap_ring_pliers",
@@ -73,13 +73,14 @@ UPRIGHT: tuple[str, ...] = (
 #: Clothing: within +-15 degrees. No industrial type is clothing.
 SLIGHT: tuple[str, ...] = ()
 
-#: Products drawn to fill the figure area (#1216): within +-6 degrees.
+#: Products drawn to fill the figure area (#1215, #1216): within +-6 degrees.
 STEADY: tuple[str, ...] = (
     "anaerobic_threadlockers", "anti_seize_compounds", "bearing_greases", "bearing_pullers",
     "c_clamps", "chain_breakers", "chain_lubricants", "chain_tensioners", "compound_cutters",
     "conduit_pliers", "drill_stop_collars", "drive_guards", "eye_bolts", "fastener_dispensers",
     "gear_pullers", "grinder_guards", "magnetic_bit_holders", "orb_hydraulic_fittings",
-    "pin_pullers", "replacement_pins", "sds_drill_bits", "shaft_alignment_lasers",
+    "picture_hangers", "pin_pullers", "replacement_pins", "sds_drill_bits",
+    "shaft_alignment_lasers",
     "silicone_greases", "sleeve_anchors", "tap_extractors", "tapping_fluids", "thread_chasers",
     "thread_plug_gages", "zerk_grease_fittings",
 )
