@@ -1,4 +1,4 @@
-"""The real brands the retail catalogue may name, and the guard that refuses all others (gen#341).
+"""The real brands the retail domain may name, and the guard that refuses all others (gen#341).
 
 README "Every name is invented" holds for every brand but these. The maintainer's ruling: there
 is no real brand now. Nike was ruled in by gen#341 and out by gen#722: its products are the

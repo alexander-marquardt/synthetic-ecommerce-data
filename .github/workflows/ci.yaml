@@ -50,7 +50,7 @@ concurrency:
 # for a push, a dispatched run and a pull request from a branch of this repository, once the
 # repository variable SYNTH_CI_SELF_HOSTED is `true`; a fork's pull request, and every run while
 # the variable is unset, stays on GitHub-hosted ubuntu-latest. Every job carries the same
-# expression: tests/test_ci_runs_on_596.py.
+# expression, but for the hosted cancel-on-red jobs (#1175): tests/test_ci_runs_on_596.py.
 jobs:
   lint:
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
@@ -89,7 +89,7 @@ jobs:
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
         shard: [ceiling, hundred_k]
     steps:
@@ -139,9 +139,9 @@ jobs:
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 25
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
@@ -416,6 +416,154 @@ jobs:
           python3 scripts/check_customer_names.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
           --pr "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}"
+
+  # A pull request run's first red required check cancels the rest of the run (#1175,
+  # docs/ci-sharding.md): one job per required job, started once that job has ended red. Never a
+  # step of the red job, which GitHub would then record as cancelled; hosted, so it does not queue
+  # behind the self-hosted pool. Skipped on every green run and on every other event.
+  cancel-on-red-lint:
+    needs: [lint]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-ceiling-catalogue:
+    needs: [ceiling-catalogue]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-tests:
+    needs: [tests]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-commit-messages:
+    needs: [commit-messages]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-file-size:
+    needs: [file-size]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-red-commit-proof:
+    needs: [red-commit-proof]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-customer-name-check:
+    needs: [customer-name-check]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-no-derived-files:
+    needs: [no-derived-files]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
 
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle

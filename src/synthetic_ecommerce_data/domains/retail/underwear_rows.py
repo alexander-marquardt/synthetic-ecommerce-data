@@ -1,4 +1,4 @@
-"""Underwear and nightwear templates for the scaled retail catalog (gen#208): data only.
+"""Underwear and nightwear templates for the scaled retail domain (gen#208): data only.
 
 The catalog had bras, pyjamas and pyjama shorts but no knickers, tights, vests, slips,
 shapewear, dressing gowns or boxers, so a search for any of them found a bra or a pair of

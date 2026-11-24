@@ -51,11 +51,30 @@ def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r", r
     return eval(body, {**names, "EVENT": event, "REF_NAME": ref})
 
 
+#: The jobs that cancel a red pull request run (#1175) are hosted, so they never queue behind the
+#: pool they free. They read no pull request code but scripts/ci_cancel_run.py.
+HOSTED = {
+    "cancel-on-red-lint",
+    "cancel-on-red-ceiling-catalogue",
+    "cancel-on-red-tests",
+    "cancel-on-red-commit-messages",
+    "cancel-on-red-file-size",
+    "cancel-on-red-red-commit-proof",
+    "cancel-on-red-customer-name-check",
+    "cancel-on-red-no-derived-files",
+}
+
+
 def test_every_job_runs_on_the_one_expression():
     jobs = yaml.safe_load(CI.read_text())["jobs"]
-    assert jobs
-    wrong = {n: job.get("runs-on") for n, job in jobs.items() if job.get("runs-on") != RUNS_ON}
+    assert jobs.keys() - HOSTED
+    want = {n: "ubuntu-latest" if n in HOSTED else RUNS_ON for n in jobs}
+    wrong = {n: job.get("runs-on") for n, job in jobs.items() if job.get("runs-on") != want[n]}
     assert wrong == {}
+
+
+def test_every_job_exempt_from_the_expression_exists():
+    assert yaml.safe_load(CI.read_text())["jobs"].keys() >= HOSTED
 
 
 def test_the_expression_keeps_fork_pull_requests_on_hosted_runners():

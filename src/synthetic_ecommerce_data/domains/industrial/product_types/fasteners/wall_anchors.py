@@ -1,4 +1,4 @@
-"""Wall anchors: home hardware for the general-retail catalogue (#958, slice 3).
+"""Wall anchors: home hardware for the R&I catalogue (#958, slice 3).
 
 A wall anchor is the plastic sleeve a homeowner sets in drywall, plaster or brick so a screw
 holds there: to hang a shelf, a mirror, a curtain rod or a towel bar. A hardware listing sells

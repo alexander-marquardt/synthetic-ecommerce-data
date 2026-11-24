@@ -1,7 +1,7 @@
-"""Breadth templates for the scaled retail catalog (gen#125): data only.
+"""Breadth templates for the scaled retail domain (gen#125): data only.
 
 :func:`scale.templates` builds these after :mod:`scale_rows`. The authored styles and
-the deep-SKU rows left a general-retail catalog thin outside clothing and lingerie: at
+the deep-SKU rows left the retail domain thin outside clothing and lingerie: at
 the ceiling, toys, garden, gifts and cleaning held under 1% of the styles each, and
 food and beauty under 5%. These rows give each thin department leaves of its own, so
 that every department holds at least :data:`DEPARTMENT_FLOOR` styles at the ceiling

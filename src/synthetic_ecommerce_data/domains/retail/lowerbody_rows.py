@@ -1,4 +1,4 @@
-"""Lower-body templates for the scaled retail catalog (gen#206): data only.
+"""Lower-body templates for the scaled retail domain (gen#206): data only.
 
 The catalog held trousers and jeans but no leggings, joggers, shorts, cycling shorts,
 tracksuits or skirts, so a search for any of them found trousers or a dress. Each type here
