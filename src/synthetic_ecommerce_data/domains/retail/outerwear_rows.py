@@ -1,4 +1,4 @@
-"""Outerwear templates for the scaled retail catalog (gen#211): data only.
+"""Outerwear templates for the scaled retail domain (gen#211): data only.
 
 The catalog held one check coat, a bomber, a denim jacket and a suit jacket, so a search for a
 trench coat, a raincoat, a parka, a gilet or a peacoat found the one coat or a bomber, and a

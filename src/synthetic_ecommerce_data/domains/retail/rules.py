@@ -16,9 +16,9 @@ the fewest rows each rule must examine in it, to :func:`run_all` (the industrial
 
 The documents come in five shapes of one catalogue: ``templates`` (the retail products before
 they are scaled, with SKUs and color options), ``retail`` and ``retail_flat`` (the exported
-nested and per-SKU documents) and ``golden`` and ``golden_flat`` (the committed industrial and
-retail catalogue the golden test holds equal to a fresh build). A rule reads only the fields its
-shape has, and skips (does not count) a document it does not apply to.
+nested and per-SKU documents) and ``golden`` and ``golden_flat`` (the committed
+industrial and retail products the golden test holds equal to a fresh build). A rule reads only
+the fields its shape has, and skips (does not count) a document it does not apply to.
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # Health: over-the-counter vitamins, first aid, monitors, eye care, incontinence and mobility aids (gen#968)
 
-`Health` is the retail catalogue's thirteenth department, on the closed list in
+`Health` is the retail domain's thirteenth department, on the closed list in
 `core/departments.RETAIL` and the build's `domains/retail/departments.RETAIL`. The 500K mix
 (`docs/catalogue-mix-837.md`) plans 5,000 SKUs for it: vitamins and supplements, first aid,
 thermometers and blood-pressure monitors, eye care, incontinence and mobility aids. Before gen#968

@@ -1,4 +1,4 @@
-"""Camping and fitness templates for the scaled retail catalog (gen#265): data only.
+"""Camping and fitness templates for the scaled retail domain (gen#265): data only.
 
 The catalog had no sports department. This is its first increment: the **Sports & Outdoors**
 root with two families, Camping (tents, sleeping bags, camping chairs) and Yoga & Fitness
