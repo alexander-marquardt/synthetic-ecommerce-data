@@ -66,7 +66,9 @@ NAMED = (
 )
 
 APPAREL = ("kit:tshirt", "kit:dress", "kit:blouse")
-#: One redraw issue each.
+#: One redraw issue each. ``kit_bags`` (gen#1187), ``kit_sewing_tools`` (gen#1184),
+#: ``kit_household_appliances`` (gen#1177), ``kit_flowers`` (gen#1170) and ``kit_pliers`` (gen#1233)
+#: are named ahead of the open pull requests that add them, so those PRs stay green.
 GROUPS = (
     Group("Shoes and boots", ("kit_footwear",), 1190),
     Group(
@@ -93,6 +95,7 @@ GROUPS = (
             "wallet",
             "sunglasses",
             "kit_luggage",
+            "kit_bags",
         ),
         1198,
     ),
@@ -127,6 +130,7 @@ GROUPS = (
             "kit_grocery",
             "kit_biscuits",
             "kit_punnet",
+            "kit_baking:brownie_mix",
         ),
         1195,
     ),
@@ -148,8 +152,21 @@ GROUPS = (
         1194,
     ),
     Group("Picture motifs", ("kit_motifs",), 1197),
-    Group("Tableware and kitchenware", ("kit_tableware", "kit_cups", "kit_household"), 1208),
-    Group("Appliances", ("kit_kitchen_appliances", "kit_appliances", "kit_large_appliances"), 1211),
+    Group(
+        "Tableware and kitchenware",
+        ("kit_tableware", "kit_cups", "kit_household", "kit_baking:brownie_tin"),
+        1208,
+    ),
+    Group(
+        "Appliances",
+        (
+            "kit_kitchen_appliances",
+            "kit_appliances",
+            "kit_large_appliances",
+            "kit_household_appliances",
+        ),
+        1211,
+    ),
     Group(
         "Electronics and office",
         (
@@ -165,7 +182,14 @@ GROUPS = (
     ),
     Group(
         "Garden and patio",
-        ("kit_garden", "kit_garden_care", "kit_garden_yard", "kit_patio", "kit_outdoor"),
+        (
+            "kit_garden",
+            "kit_garden_care",
+            "kit_garden_yard",
+            "kit_patio",
+            "kit_outdoor",
+            "kit_flowers",
+        ),
         1201,
     ),
     Group(
@@ -192,12 +216,18 @@ GROUPS = (
         1209,
     ),
     Group("Lighting and decor", ("kit_lighting", "kit_decor"), 1205),
-    Group("Household goods and sewing", ("kit_goods", "kit_plain_goods", "kit_sewing"), 1212),
+    Group(
+        "Household goods and sewing",
+        ("kit_goods", "kit_plain_goods", "kit_sewing", "kit_sewing_tools"),
+        1212,
+    ),
     Group(
         "Drills, hammers, tool sets and ladders",
         (
             "kit_drills",
+            "kit_pliers",
             "industrial/figures",
+            "industrial/hammer_figures",
             "industrial/household_tool_sets",
             "industrial/picture_hangers",
         ),
@@ -217,6 +247,27 @@ GROUPS = (
         INDUSTRIAL_TIER,
     ),
 )
+
+#: The retail shapes no redraw issue covers (a whole kit, or ``kit:shape``): they fill half the
+#: product area already, or no catalogue template draws them. tests/test_redraw_order_1129.py
+#: refuses a shape that is in no group and not here.
+NO_REDRAW = {
+    "kit_books": "fills 55% or more",
+    "kit_cooking": "fills 59% or more",
+    "kit:trainer": "no template draws it",
+    "kit:sandal": "no template draws it",
+    "kit:round_produce": "no template draws it",
+    "kit_home_furniture": "no template draws it",
+    "kit_bath_kitchen": "no template draws it",
+    "kit_decor_pieces": "no template draws it",
+    "kit_home_variants": "no template draws it",
+}
+
+
+def ungrouped(shapes: dict[str, str]) -> list[str]:
+    """The shapes (name to kit) that no group and no ``NO_REDRAW`` line holds, as ``kit:shape``."""
+    held = {k for g in (*NAMED, *GROUPS) for k in g.kits} | NO_REDRAW.keys()
+    return sorted(f"{k}:{s}" for s, k in shapes.items() if not {k, f"{k}:{s}"} & held)
 
 
 def group_of(

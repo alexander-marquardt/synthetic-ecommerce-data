@@ -95,6 +95,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Yoga Strap": ("length_cm",),
     # What holds: a volume or a capacity.
     "Air Fryer": ("capacity_l",),
+    "Microwave": ("capacity_l",),
     "Backpack": ("capacity_l",),
     "Casserole Dish": ("capacity_l",),
     "Holdall": ("capacity_l",),
@@ -110,7 +111,9 @@ AXES: dict[str, tuple[str, ...]] = {
     "Watering Can": ("capacity_l",),
     # Bags and baskets sold by a word.
     "Gift Bag": ("size", "dimensions"),
+    "Crossbody Bag": ("size",),
     "Handbag": ("size",),
+    "Shoulder Bag": ("size",),
     "Scented Candle": ("size",),
     "Storage Basket": ("size",),
     # Bedding: by bed size, or the cover's own dimensions.
