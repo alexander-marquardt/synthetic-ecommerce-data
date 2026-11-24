@@ -97,15 +97,19 @@ def test_three_words_show_the_suggestion_and_two_do_not() -> None:
 
 @pytest.mark.parametrize("word", [w for w, (_, n) in WORDS.items() if max(n) <= THRESHOLD])
 def test_the_common_spelling_is_five_times_more_common(records, word) -> None:
-    """Counted over the Combined catalogue: retail and the industrial golden catalogue."""
+    """Counted as the Engine counts them: the titles that hold each word, SKU by SKU, over the
+    Combined catalogue (retail and the industrial golden catalogue). The ``title`` term suggester
+    gives a word's own document frequency, so a description that says "pliers" adds nothing, and
+    neither does a plural the suggester reads as another word."""
     common = WORDS[word][0]
-    industrial = [json.loads(raw) for raw in INDUSTRIAL.read_text().splitlines()]
-    searched = ("title", "parent_title", "brand", "description", "text")
-    commons = len(_carrying(records, common))
-    commons += sum(
-        1 for r in industrial if _has(common, " ".join(str(r.get(f, "")) for f in searched))
-    )
-    assert commons >= RATIO * len(_carrying(records, word)) > 0
+    titles = [json.loads(raw)["title"] for raw in INDUSTRIAL.read_text().splitlines()]
+    for r in records:
+        titles += [r["title"]] * len(r["skus"])
+
+    def holding(token: str) -> int:
+        return sum(re.search(rf"\b{token}\b", t.lower()) is not None for t in titles)
+
+    assert holding(common) >= RATIO * holding(word) > 0, (holding(common), holding(word))
 
 
 @pytest.mark.parametrize("word", NAMED)
