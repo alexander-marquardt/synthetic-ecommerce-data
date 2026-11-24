@@ -186,3 +186,18 @@ def test_no_derived_style_is_drawn_from_a_misspelled_product(records) -> None:
     pool = {d["product_id"] for d in scale.derivable(scale.templates())}
     assert sorted(ours & pool) == []
     assert sorted(i for i, t in ceiling_build().template_of.items() if t in ours) == []
+
+
+def test_each_pair_of_pliers_draws_the_jaw_its_title_names() -> None:
+    from synthetic_ecommerce_data.domains.retail.kit import Fill
+    from synthetic_ecommerce_data.domains.retail.kit_pliers import JAWS, pliers
+    from synthetic_ecommerce_data.domains.retail.type_specs.pliers import ROWS
+
+    drawn = {jaw: "".join(pliers("#c8312e", Fill(base="#c8312e"), None, jaw)) for jaw in JAWS}
+    assert len(set(drawn.values())) == len(JAWS) == 6
+    jaws = {dict(r.params)["jaw"] for r in ROWS}
+    assert jaws == set(JAWS)
+    for r in ROWS:
+        words = r.title.lower().replace("heavy duty ", "").replace("mini ", "")
+        named = dict(r.params)["jaw"].replace("_", " ").replace("pump", "water pump")
+        assert words == f"{named} pliers", r.title
