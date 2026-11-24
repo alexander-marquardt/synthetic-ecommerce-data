@@ -10,8 +10,10 @@ drawn type missing from this table, so a new type cannot forget it. The sets are
 * ``upright`` (+-36 degrees): a product with a natural up, or one nobody was sure of. Tools with
   a working end and a handle (hammers, pliers, wrenches, files, punches), vises and clamps,
   racks, cases and kits, containers of grease or fluid, casters, pulleys and bearings on a
-  base, guards, padlocks and glasses.
+  base, guards and padlocks.
 * ``slight`` (+-15 degrees): clothing. No industrial type wears it; gloves are ``any``.
+* ``diagonal`` (+-54 to 66 degrees, #1217): a wide, low product, laid across the portrait sheet
+  so it is drawn large. Safety glasses.
 * ``level`` (0 degrees only, #884): a set or kit, whose several items overlap on a slant.
 
 A product with a SKU of more than one unit on a pack type is drawn level whatever its type's
@@ -59,7 +61,7 @@ UPRIGHT: tuple[str, ...] = (
     "hammer_rubber_mallet", "hammer_sledge", "hand_files", "induction_heaters", "keyed_padlocks",
     "levels", "milling_tool_holders", "nut_drivers_hex", "nut_splitters", "picture_hangers",
     "pillow_block_bearings", "pin_pullers", "pneumatic_cut_off_tools", "rigging_pulleys",
-    "rigid_casters", "safety_glasses", "shaft_alignment_lasers", "shelf_brackets",
+    "rigid_casters", "shaft_alignment_lasers", "shelf_brackets",
     "side_lock_holders", "silicone_greases", "snap_ring_pliers",
     "spanner_wrenches", "stud_finders", "swivel_casters", "tap_wrenches", "tape_measures",
     "tapping_fluids",
@@ -69,6 +71,9 @@ UPRIGHT: tuple[str, ...] = (
 
 #: Clothing: within +-15 degrees. No industrial type is clothing.
 SLIGHT: tuple[str, ...] = ()
+
+#: Wide, low products, laid across the sheet (#1217).
+DIAGONAL: tuple[str, ...] = ("safety_glasses",)
 
 #: Sets and kits, drawn as several items: at 0 degrees only (#884).
 LEVEL: tuple[str, ...] = (
@@ -83,4 +88,5 @@ ORIENTATION: dict[str, str] = {
     **dict.fromkeys(UPRIGHT, "upright"),
     **dict.fromkeys(LEVEL, "level"),
     **dict.fromkeys(SLIGHT, "slight"),
+    **dict.fromkeys(DIAGONAL, "diagonal"),
 }
