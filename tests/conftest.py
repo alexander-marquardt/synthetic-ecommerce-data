@@ -7,6 +7,7 @@ import tempfile
 import pytest
 
 import ci_shard_split
+import templates_memo
 import worker_peak
 from xdist_groups import group_for
 
@@ -20,6 +21,7 @@ def pytest_configure(config):
     """
     config.pluginmanager.register(ci_shard_split, "ci_shard_split")
     config.pluginmanager.register(worker_peak, "worker_peak")
+    templates_memo.watch()
     if hasattr(config, "workerinput") or "RETAIL_FIGURES_CACHE" in os.environ:
         return
     config._retail_figures_cache = tempfile.mkdtemp(prefix="retail-figures-")
@@ -54,3 +56,9 @@ def pytest_collection_modifyitems(items):
         group = group_for(module) if module is not None else None
         if group is not None:
             item.add_marker(pytest.mark.xdist_group(group))
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_setup(item):
+    """The retail templates are computed once per worker (#1035)."""
+    templates_memo.install()

@@ -78,6 +78,16 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   branch of a command line (`if argv[0] == "compose":`) counts only for a test whose closure under
   `tests/` or `scripts/` names the subcommand. A picture under `docs/` is a document: only a test
   or script that names it reads it.
+- A script under `scripts/` imports by a computed name when its code does: a comment, a docstring or
+  a pattern that says `import_module` is no edge (a product file is still read by its text, since a
+  walked package's docstring is the edge to its modules). `IMPORTS_NAMED_BY` names the file whose
+  strings are the modules a script imports: `golden_pins.py` depends on the test modules
+  `tests/pinned.py` lists, not on every script. A retail change went from 363 files (138 min of the
+  weights) to 356 (132 min), and a module of `pinned.MODULES` now selects the tests that measure it.
+- A shard plans once. The `select` step saves its plan in `RUNNER_TEMP` and the `Tests` step reads
+  it. Each plan reads the whole tree (about 20 s on a runner); the selector walks a file once, not
+  four times, which took the graph from 9.7 s of CPU time to 7.3 s. A local run has no
+  `RUNNER_TEMP`, and its `Tests` step plans.
 - Measured over the 20 PRs merged up to #1173 (seconds of `ci_shard_weights.json`): the table is on
   #1035. A documentation change went from 33% of the suite to 2%, and a retail change from 80% to
   55%. What a retail change still selects is the retail tests, which import `retail/scale.py` or
@@ -202,6 +212,16 @@ What a heavy file most often repeats is a build the worker could share:
 
 * `templates()` in `tests/retail_templates.py` reads the retail templates once per worker. A call
   to `scale.templates()` takes 6 to 9 s, and `test_retail_scale.py` made 23 of them.
+* `tests/templates_memo.py` keeps `scale.templates()` for every caller (#1035). `tests/conftest.py`
+  installs it in a test process: the first call computes, and each call returns a list of its own,
+  unpickled in 0.15 s, so an edit is not shared. 139 test files make about 200 calls. While a
+  `MonkeyPatch` holds an edit, the call computes and nothing is kept, so a test that patches what
+  the templates are made of reads what it made. A plain assignment to a module is not seen: patch
+  with `monkeypatch`. `tests/test_templates_memo_1035.py` compares the copy with a computation in
+  another process under another hash seed, which is the determinism two calls in one process no
+  longer prove, and refuses a module that binds the function by `from ... scale import templates`.
+  Over 25 sampled retail test files on three workers, the catalogue time fell from 547 s to 254 s
+  and the `templates` share from 317 s to 29 s (a loaded machine; the sum of the calls, not wall).
 * `tests/test_type_seam.py` builds the small catalogue once per worker (`_small_build()`), and
   the 40-odd type files that compare against it share that build.
 

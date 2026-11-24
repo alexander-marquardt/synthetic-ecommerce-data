@@ -1,7 +1,7 @@
 """What a shard's plan costs, and the edges of an import by computed name (#1035).
 
 * A shard plans once: the ``select`` step saves its plan and the ``Tests`` step reads it.
-* A file imports by a computed name when its code does. A comment, a docstring or a pattern that
+* A script imports by a computed name when its code does. A comment, a docstring or a pattern that
   says ``import_module`` imports nothing, and made a retail change select 127 s of merge tests.
 * ``IMPORTS_NAMED_BY``: ``golden_pins`` imports the modules ``tests/pinned.py`` names, not its own
   directory.
@@ -96,7 +96,7 @@ def _reaches_the_directory(tmp_path: Path, tool: str) -> bool:
         'def clear(cached):\n    return list(cached.glob("*.pyc"))\n',
     ],
 )
-def test_a_file_that_only_names_a_computed_import_does_not_depend_on_its_directory(
+def test_a_script_that_only_names_a_computed_import_does_not_depend_on_its_directory(
     tmp_path: Path, tool: str
 ) -> None:
     assert not _reaches_the_directory(tmp_path, tool)
@@ -123,6 +123,22 @@ def test_a_file_that_imports_by_a_computed_name_depends_on_its_directory(
     tmp_path: Path, tool: str
 ) -> None:
     assert _reaches_the_directory(tmp_path, tool)
+
+
+def test_a_walked_package_whose_docstring_says_so_still_depends_on_its_modules(
+    tmp_path: Path,
+) -> None:
+    """``product_types/__init__`` holds no walk: its docstring is the edge to each type module."""
+    tree = _tree(
+        tmp_path,
+        {
+            "src/pkg/__init__.py": '"""Walked by ``pkgutil.iter_modules``."""\n',
+            "src/pkg/leaf.py": "L = 1\n",
+            "tests/test_pkg.py": "import pkg\n",
+            "tests/test_other.py": "import json\n",
+        },
+    )
+    assert _picked(tree, "src/pkg/leaf.py") == ["tests/test_pkg.py"]
 
 
 def test_a_file_of_imports_named_by_depends_on_the_named_modules(tmp_path: Path) -> None:
@@ -164,3 +180,11 @@ def test_a_retail_row_selects_no_test_through_a_script_s_prose(real: ci_select.T
     assert "tests/test_retail_scale.py" in chosen
     industrial = ("test_merge_pr_shape_539", "test_type_roller_chain", "test_golden_pins_reseed_50")
     assert [n for n in industrial if f"tests/{n}.py" in chosen] == []
+
+
+def test_a_new_test_file_selects_the_guards_that_read_the_list_of_test_files(
+    real: ci_select.Tree,
+) -> None:
+    chosen = ci_select.select(["tests/test_not_there_yet.py"], real)[0]
+    guards = ("test_ci_run_order_348", "test_ci_shard_budget_704", "test_ci_workers_790")
+    assert [g for g in guards if f"tests/{g}.py" not in chosen] == []
