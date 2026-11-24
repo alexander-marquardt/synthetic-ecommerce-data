@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import appliance_lineups as lineups
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
@@ -38,12 +39,15 @@ def _attrs(kind_name: str, width: int, zones: int) -> tuple:
 
 def hob_rows() -> tuple[Row, ...]:
     out: list[Row] = []
-    for pre, shape, title, kind_name, lead, palettes, models in _HOB_KINDS:
+    for pre, shape, title, kind_name, lead, palettes, table in _HOB_KINDS:
+        models = lineups.line_up(pre, table, 2)
+
         def make(i, models=models, lead=lead, kind_name=kind_name, palettes=palettes):
             width, zones, price = models[i]
-            desc = f"{lead}. It is {width} cm wide with {_WORDS[zones]} cooking zones."
-            return float(price), desc, palettes[i % len(palettes)], _attrs(kind_name, width, zones)
-        rows = lar.kind_rows(pre, 6, lar.HOBS, "Hob", "hob", (), title, make)
+            says, sold_on = lineups.feature("Hob", i)
+            desc = f"{lead}. It is {width} cm wide with {_WORDS[zones]} cooking zones.{says}"
+            return float(price), desc, palettes[i % len(palettes)], (*_attrs(kind_name, width, zones), *sold_on)
+        rows = lar.kind_rows(pre, len(models), lar.HOBS, "Hob", "hob", (), title, make)
         out += [replace(r, params=(("kind", shape), ("width", str(w)), ("zones", str(z))))
                 for r, (w, z, _) in zip(rows, models, strict=True)]
     return tuple(out)

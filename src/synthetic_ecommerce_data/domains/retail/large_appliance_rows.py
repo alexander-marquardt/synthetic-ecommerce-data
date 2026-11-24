@@ -5,8 +5,8 @@ cooking ``range_cooker.py``, ``built_in_oven.py``, ``hob.py`` and ``cooker_hood.
 its own family's table and builder, so a change to one family touches one file (gen#659). Here
 are the brands, the palettes, the attribute makers, :func:`kind_rows` and :func:`decoy_row`. A
 style is one product (a model with its own capacity, width and rating); its color is the SKU
-variant. Each kind is six models, so a kind has depth and the whole range is more than sixty
-products. Every brand is invented (README, gen#334); the description states the numbers the
+variant. Each kind is six authored models, and three more a brand (``appliance_lineups.py``,
+#1116). Every brand is invented (README, gen#334); the description states the numbers the
 structured entries state, and no more.
 """
 
