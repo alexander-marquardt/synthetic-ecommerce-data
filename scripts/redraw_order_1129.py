@@ -102,6 +102,7 @@ GROUPS = (
         (
             "kit_beauty",
             "kit_beauty_cotton",
+            "kit_bath_shave",
             "kit_skin",
             "kit_grooming",
             "kit_hair",
