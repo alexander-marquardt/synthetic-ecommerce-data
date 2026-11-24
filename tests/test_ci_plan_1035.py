@@ -153,6 +153,22 @@ def test_the_plans_written_are_the_plans_a_shard_makes_and_the_change_is_read_on
     assert len(list((tmp_path / "out").iterdir())) == 5
 
 
+def test_a_caller_cannot_change_the_kept_selection_of_a_range(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The selection of a range is kept and shared by every shard's plan, so it is a tuple: a list
+    one caller added to or sorted would be the next shard's selection."""
+    chosen = ci_shards.collected_test_files()[:40]
+    monkeypatch.setattr(ci_select, "selection_for_range", lambda *_: chosen[::-1])
+    ends = (f"b{tmp_path}", f"h{tmp_path}")
+    kept = ci_shards.scoped_files(*ends)
+    assert isinstance(kept, tuple), "a caller can change the selection that is kept"
+    assert kept == tuple(sorted(chosen))
+    assert ci_shards.scoped_files(*ends) is kept, "the selection is not kept"
+    dealt = [ci_shards.plan(number, 5, *ends)[1] for number in range(1, 6)]
+    assert {name for files in dealt for name in files} == set(chosen)
+
+
 def test_a_selection_searches_a_text_for_a_changed_file_once(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
