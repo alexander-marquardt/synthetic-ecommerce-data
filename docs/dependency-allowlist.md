@@ -23,6 +23,12 @@ The list records no lock total: two PRs that each drop a package would record th
 merge into a lock with one fewer (elastic/prism#16760). The job counts the locks of both trees and
 its summary prints them beside the number of entries.
 
+`dependency-allowlist` is a required check: `.github/required-checks.json` names it, so agent-ops'
+shared gate refuses a merge until it is green at the pull request's head. Its first run on main
+took 14 seconds. `merge_pr.sh` does not add it to its own `REQUIRED_CI`, which is `ci.yaml`'s jobs.
+A head last pushed before the workflow reached main has no run and is refused as absent: a push,
+a merge of main into it, a reopen or a label added or removed starts one.
+
 ## Clearing a red
 
 - **You removed a dependency:** run `python3 .github/scripts/check_dependency_allowlist.py --write`
