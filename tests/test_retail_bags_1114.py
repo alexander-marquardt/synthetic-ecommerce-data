@@ -43,11 +43,11 @@ TYPES = {
     "clutch_bag": ("Clutch Bag", "Clutch Bags", "clutch_bag",
                    {"Envelope", "Foldover", "Frame"}, {"Satin", "Velvet", "Faux Leather"}, 120),
     "belt_bag": ("Belt Bag", "Belt Bags", "belt_bag",
-                 {"Crescent", "Box", "Pouch"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 120),
+                 {"Crescent", "Box", "Pouch"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 150),
     "messenger_bag": ("Messenger Bag", "Messenger Bags", "messenger_bag",
-                      {"Courier", "Satchel", "Utility"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 250),
+                      {"Courier", "Satchel", "Utility"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 300),
     "laptop_bag": ("Laptop Bag", "Laptop Bags", "laptop_bag",
-                   {"Briefcase", "Top Load", "Folio"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 300),
+                   {"Briefcase", "Top Load", "Folio"}, {"Leather", "Faux Leather", "Canvas", "Nylon"}, 450),
 }  # fmt: skip
 KEYS = tuple(TYPES)
 #: The men's types; the other types are women's.
