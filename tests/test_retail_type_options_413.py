@@ -110,6 +110,9 @@ MOVED = {
         Option("connectivity", "connectivity", "Connectivity"),
         Option("brightness_lm", "brightness", "Brightness (lm)"),
     ],
+    # a bouquet's stems and a house plant's pot (gen#1115)
+    "bouquet": [Option("stem_count", "stem_count", "Stem count", "C62")],
+    "house_plant": [Option("pot_size_cm", "pot_size", "Pot size", "CMT")],
     # a fabric's cut, a fat quarter to 2 meters (gen#1118), declared by its spec from the start
     "fabric": [Option("fabric_cut", "fabric_cut", "Fabric cut")],
     # a knitting needle's and a crochet hook's size in millimeters (gen#1118, cut 2)
