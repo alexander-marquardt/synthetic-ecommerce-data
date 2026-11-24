@@ -1,7 +1,7 @@
 """Pets, slices 1 to 3 (gen#967): the department, its food, litter, treats, toys, beds, leashes,
 brushes and small-pet supplies.
 
-The retail catalogue had no pets department, so a search for ``dry dog food`` or ``cat litter``
+The retail domain had no pets department, so a search for ``dry dog food`` or ``cat litter``
 found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first three
 types, each a spec of its own (``type_specs/dog_food.py``, ``cat_food.py``, ``cat_litter.py``)
 drawn by :mod:`kit_pets`. These checks hold the slice's Done-when: the ceiling build has at least

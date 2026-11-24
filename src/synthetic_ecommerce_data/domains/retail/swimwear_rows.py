@@ -1,4 +1,4 @@
-"""Swimwear templates for the scaled retail catalog (gen#212): data only.
+"""Swimwear templates for the scaled retail domain (gen#212): data only.
 
 The catalog had no swimsuit, bikini, swim short or swimwear shape, so a search for any of them
 found nothing relevant. Each type here is a leaf under the Swimwear node of its audience
