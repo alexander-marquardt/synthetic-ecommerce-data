@@ -230,5 +230,6 @@ def test_the_collection_hook_marks_each_test_with_its_module_s_group() -> None:
         module=SimpleNamespace(__name__="test_merge_pr", XDIST_SPREAD=True),
         add_marker=marks.append,
     )
-    pytest_collection_modifyitems([plain, spread])
+    config = SimpleNamespace(getoption=lambda name, default=None: default)
+    pytest_collection_modifyitems(config, [plain, spread])
     assert [(m.name, m.args) for m in marks] == [("xdist_group", ("test_price",))]  # type: ignore[attr-defined]

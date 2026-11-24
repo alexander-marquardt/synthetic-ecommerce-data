@@ -163,7 +163,7 @@ def test_a_run_writes_every_modules_peak_where_module_peaks_out_names(tmp_path: 
     env["MODULE_PEAKS_OUT"] = str(out)
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "-o", "addopts=", "-p", "no:cacheprovider",
-         "-p", "no:randomly", "--rootdir", str(tmp_path), "-n", "1",
+         "--rootdir", str(tmp_path), "-n", "1",
          "test_one.py", "test_two.py"],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=120, check=False,
     )  # fmt: skip
