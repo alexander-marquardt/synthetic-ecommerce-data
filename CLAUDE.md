@@ -4,6 +4,7 @@ One line per directive; the detail is behind each pointer. This file loads on ev
 - Run the tests your change touches, not the whole suite (about 27 minutes serially; CI runs it): [README → Contributing](README.md#contributing).
 - A test that outlives the per-test timeout fails rather than growing; raise it for that test alone with `@pytest.mark.timeout(<s>)` (README → Contributing).
 - US spelling (`color`, `colorway`); `tests/test_us_spelling.py` refuses the British spelling in any tracked file.
+- One demo catalog, R&I's `catalog_combined`; retail and industrial are its domains: `tests/test_one_demo_catalog_1186.py` refuses prose that names a second one.
 - Lint as CI does: `uv run --locked ruff check .`.
 - Before review run `scripts/prepush.sh [--pr-body-file BODY]` (the pre-push hook runs it too): the cheap CI jobs, in seconds: [docs/pre-push-gate.md](docs/pre-push-gate.md).
 - Add a retail type (one spec file, `scripts/new_type.py`; at most three types per issue): [docs/new-type-quick-path.md](docs/new-type-quick-path.md), and its map [docs/adding-a-retail-type.md](docs/adding-a-retail-type.md).
