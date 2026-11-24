@@ -51,5 +51,6 @@ fields tell the truth.
 styles, Air Fryer 1,738 in 186, Blender 762 in 170 (215, 178 and 160 of them derived); every
 other style keeps its id, title and brand. Bedding and storage (slice 2: bed sheets, pillows, food storage
 containers) merged first, in `bedding-storage-963.md`. Floor care and furniture (slice 3: vacuum
-cleaners, desks, wall art) is the last slice of gen#963. The guards are in
+cleaners, desks, wall art) was the last slice of gen#963; the vacuum cleaners came with #1116
+instead, beside steam irons and microwaves (`clash-appliances-1116.md`). The guards are in
 `tests/test_retail_small_appliances_963.py`.
