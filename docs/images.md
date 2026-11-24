@@ -19,7 +19,9 @@ published values. The "drawn from its own dimensions" rule above does not
 apply to them: they are filler to give a facet something to show, not a
 figure meant to survive a close look (maintainer, 2026-09-30). They still go
 through the same text allow-list, brand plate, house style and material/finish fill as
-every other drawing -- only the GEOMETRY is fixed.
+every other drawing -- only the GEOMETRY is fixed. A breadth type with a drawing of its own
+(30 so far, `drawing/breadth_products.py`, #1216) is drawn as the product it is sold as, lit and
+filling at least half of the figure area ([drawings](drawings.md#breadth-types-fixed-shapes)).
 
 * **One image per SKU**, so two lengths of one screw look different, and a
   grouped view can switch the picture when a variant is selected.

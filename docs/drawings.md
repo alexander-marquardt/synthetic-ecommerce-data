@@ -353,6 +353,24 @@ attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a type, a piece cou
 rating) keeps one picture, and so does a figure drawn from its own dimensions: a longer bolt is
 already a longer drawing, and a rank on top would shrink it twice.
 
+### A breadth type drawn as its own product (#1216)
+
+A type named in `BREADTH_PRODUCTS` (`domains/industrial/drawing/breadth_products.py`) draws the
+product it is sold as, in place of its row's `shape`: a jaw puller, a grease tub, an eye bolt.
+The geometry is still fixed and reads nothing from the record, but it has the product's own parts
+and colors, a highlight and a shadow (the `gloss` and `shade` roles: translucent, unoutlined), and
+it is laid out to fill the figure area. Three things keep it large:
+
+* it is `steady`, turned by 6 degrees at most (a kit is `level`);
+* its scale is fitted to its own turned outline (`product_look.OUTLINES`), not to its turned box;
+* its size ladder starts at 0.93 of the full drawing (`breadth_rungs.PRODUCT_BOTTOM`).
+
+`tests/test_fill_breadth_1216.py` draws every size at every angle and holds each to 50% of the
+figure area, measured as [the picture sweep](retail-prototype/picture-fill-1129.md) does, or to
+the type's own floor where its true outline cannot reach that (`FLOORS`: a rod, an open clamp).
+Before and after: [the sheet](images/breadth-fill-1216.png). The other breadth types under 50%
+follow in later slices of #1216.
+
 ### Every drawing is drawn by code (#803)
 
 Every product drawing is original and made by code; no external image file is used. The C-clamp
