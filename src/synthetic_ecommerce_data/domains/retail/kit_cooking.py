@@ -1,4 +1,5 @@
-"""Cooking appliance shapes for the retail drawing kit (#1116): range cookers, built-in ovens and hobs.
+"""Cooking appliance shapes for the retail drawing kit (#1116): range cookers, built-in ovens, hobs and
+cooker hoods.
 
 Each shape is drawn in the kit's ink with the record's fill on the body, so a black range and a
 red one are one drawing in two fills; a hob's glass is black whatever the finish.
@@ -15,6 +16,9 @@ built_in_oven  an oven in a wood housing: one door (single) or two stacked   kin
 hob            a hob seen from above on a worktop: outlined zones on black   kind, width, zones
                glass (induction), ringed zones (ceramic) or burners under
                a grid (gas); 60 to 90 cm wide, its zones as many as it has
+cooker_hood    a cooker hood seen front on: a chimney and a flared canopy    kind, width
+               (chimney) or a slim hood under a wall cabinet (integrated),
+               filters and lamps below; 50 to 100 cm wide
 =============  ============================================================  ==================
 
 Every params value is a string and every param has a default, so each shape draws bare.
@@ -30,6 +34,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     Fill,
     _highlight,
     _line,
+    _path,
     _shade,
     _tint,
     register,
@@ -156,7 +161,28 @@ def hob(paint: str, fill: Fill, label: str | None, kind: str = "induction", widt
     return out
 
 
-register({"range_cooker": range_cooker, "built_in_oven": built_in_oven, "hob": hob})
+def cooker_hood(paint: str, fill: Fill, label: str | None, kind: str = "chimney", width: str = "60") -> list[str]:
+    """A cooker hood seen front on: a chimney over a flared canopy, or a slim hood in a wall cabinet."""
+    cm = _int(width, 60)
+    w = 220 + (max(50, min(100, cm)) - 50) * 2.4
+    x, y = 200 - w / 2, 236
+    out: list[str] = []
+    if kind == "integrated":
+        out += [_rect(x, 48, w, y - 48, WOOD, 3), _line(f"M200,56 L200,{y - 8}", LW_DETAIL)]
+        out += [_circle(190, y - 40, 4, STEEL, 1), _circle(210, y - 40, 4, STEEL, 1)]
+    else:
+        out += [_rect(148, 40, 104, 132, paint, 2), _line("M148,132 L252,132"), _highlight("M160,52 L160,160", 4, 0.4)]
+        out.append(_path(f"M148,172 L252,172 L{x + w},{y} L{x},{y} Z", _tint(fill.base, 0.06)))
+    # the canopy's lip with its buttons, then the filters and lamps underneath it
+    out += [_rect(x, y, w, 34, paint, 3), _highlight(f"M{x + 10},{y + 8} L{x + w * 0.5},{y + 8}", 3, 0.4)]
+    out += [_circle(x + w * (0.4 + i * 0.05), y + 19, 4, STEEL_DARK, 1) for i in range(5)]
+    out.append(_path(f"M{x + 8},{y + 34} L{x + w - 8},{y + 34} L{x + w - 26},{y + 78} L{x + 26},{y + 78} Z", STEEL))
+    out += [_line(f"M{x + 30},{y + 44 + i * 9} L{x + w - 30},{y + 44 + i * 9}", 1.5) for i in range(4)]
+    out += [_circle(x + w * 0.25, y + 72, 7, "#fff3c4", LW_DETAIL), _circle(x + w * 0.75, y + 72, 7, "#fff3c4", LW_DETAIL)]
+    return out
+
+
+register({"range_cooker": range_cooker, "built_in_oven": built_in_oven, "hob": hob, "cooker_hood": cooker_hood})
 
 #: The shapes this module adds, in its table's order.
-SHAPES = ("range_cooker", "built_in_oven", "hob")
+SHAPES = ("range_cooker", "built_in_oven", "hob", "cooker_hood")
