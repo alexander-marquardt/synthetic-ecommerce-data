@@ -68,6 +68,7 @@ ROW_TIMEOUT_S = 900
 #: seconds. ``PREPUSH_SCAN_TESTS`` (space separated) replaces them, for this gate's own tests.
 SCAN_TESTS = (
     "tests/test_us_spelling.py",
+    "tests/test_one_demo_catalog_1186.py",
     "tests/test_ignore_hides_only_data_10032.py",
     "tests/test_vendored_core_pin_11683.py",
 )
