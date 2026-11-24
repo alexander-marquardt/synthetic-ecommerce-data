@@ -174,3 +174,13 @@ def test_every_group_names_its_own_filed_issue_and_its_own_kits() -> None:
     assert len(set(issues)) == len(issues)
     kits = [k for g in (*ro.NAMED, *ro.GROUPS) for k in g.kits]
     assert len(set(kits)) == len(kits)
+
+
+def test_the_bath_and_shave_kit_goes_to_the_beauty_redraw() -> None:
+    """The kit was merged after the sweep was posted, so no group held it and the script stopped."""
+    holders = [g.issue for g in (*ro.NAMED, *ro.GROUPS) if "kit_bath_shave" in g.kits]
+    assert holders == [1207]
+    rows = ro.order([_row("kit_bath_shave", "Shave Gel", "shave_gel_can")], NO_HITS)
+    assert [(r["group"].issue, [t["type"] for t in r["types"]]) for r in rows if r["types"]] == [
+        (1207, ["Shave Gel"])
+    ]

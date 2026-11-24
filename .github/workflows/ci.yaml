@@ -28,7 +28,7 @@ on:
         required: false
         default: ""
       random_seed:
-        description: "Run the tests in a random order from this seed (pytest-randomly, #539)"
+        description: "Run the tests in a random order from this seed (--order-seed, #539, #1107)"
         required: false
         default: ""
 
@@ -167,6 +167,8 @@ jobs:
           if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
           mapfile -t plan <<< "$plan_text"
           echo "$first: ${#plan[@]} lines (the first is the shard count)"
+          # A plan reads the whole tree (about 20 s on a runner): the Tests step reads this one (#1035).
+          if [ -n "${RUNNER_TEMP:-}" ]; then printf '%s\n' "$plan_text" > "$RUNNER_TEMP/test-plan-${{ matrix.shard }}.txt"; fi
           if [ "${#plan[@]}" -gt 1 ]; then echo "run=true" >> "${GITHUB_OUTPUT:-/dev/null}"; else echo "run=false" >> "${GITHUB_OUTPUT:-/dev/null}"; fi
       - uses: astral-sh/setup-uv@v5
         if: steps.select.outputs.run == 'true'
@@ -195,9 +197,15 @@ jobs:
           # The junit path: `runner` is available in a step's env, not in the job's.
           # --durations=10 names the slowest tests in the log, so a shard that stalls is read, not guessed (#704).
           # A dispatched random_seed turns random order on (#539): docs/ci-sharding.md.
-          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('-p randomly --randomly-seed={0}', inputs.random_seed) || '' }}
+          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('--order-seed={0}', inputs.random_seed) || '' }}
         run: |
-          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          # The plan the select step saved (#1035); a local run has no RUNNER_TEMP and plans here.
+          saved="${RUNNER_TEMP:-}/test-plan-${{ matrix.shard }}.txt"
+          if [ -n "${RUNNER_TEMP:-}" ] && [ -f "$saved" ]; then
+            plan_text=$(cat "$saved")
+          else
+            plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          fi
           first="${plan_text%%$'\n'*}"
           if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
           mapfile -t plan <<< "$plan_text"
