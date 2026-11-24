@@ -901,16 +901,16 @@ def test_an_unreadable_range_is_every_test_file(repo_with_change: tuple[Path, st
 
 def test_the_plan_line_prints_the_count_then_the_files() -> None:
     done = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
     )
     assert done.returncode == 0, done.stderr
     first, *files = done.stdout.splitlines()
-    assert first == "shards=3"
+    assert first == "shards=20"
     shard = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--shard", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--shard", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
