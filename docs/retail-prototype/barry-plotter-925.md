@@ -159,6 +159,10 @@ department's share: one product in four of each type is reduced, in a pass of it
 
 ## What a search meets
 
+- **The books are not in these counts.** The seven books the films are made from, a box set and an
+  illustrated edition are two dozen SKUs of the Book type under Books (gen#1119,
+  [books-1119.md](books-1119.md)). Their descriptions say "the Barry Plotter books", and they carry
+  no licence line.
 - **The name is in the title and description only.** Five products name it in the description
   only (`barry_plotter.DESCRIPTION_ONLY`): the Talking Scarecrow kids' pyjamas, pullover hoodie,
   mug, A5 notebook and 60-piece building set. A search can rank a description-only match against
@@ -167,9 +171,9 @@ department's share: one product in four of each type is reduced, in a pass of it
 
   | Word | What the rest of the catalogue holds |
   |---|---|
-  | `barry` | No other product. It is one letter from `berry`, so a spelling corrector may rewrite it. |
+  | `barry` | No other product but the books. It is one letter from `berry`, so a spelling corrector may rewrite it. |
   | `berry` | A word of eight other products' text in the templates (five meads, oranges, a cake, a body mist), and inside a word of many more (strawberry, raspberry, blueberry). |
-  | `plotter` | No other product: the catalogue sells no pen plotter. |
+  | `plotter` | No other product but the books: the catalogue sells no pen plotter. |
   | `plot` | Fenwold Nursery's "Plot" garden series, derived in the scaled builds (plants, trees, bulbs: "Fenwold Nursery Plot Woolly Thyme Plant"). A stemmer that takes `plotter` to `plot` meets them. |
 
   Phrase matching has to keep the name together: elastic/prism-retail-and-industrial gets a

@@ -14,6 +14,7 @@ import re
 import pytest
 
 from retail_ceiling import ceiling_build
+from retail_templates import templates
 from synthetic_ecommerce_data.domains.retail import (
     lighting_rows,
     scale,
@@ -33,7 +34,8 @@ OTHER_FORMS = ("Flush", "Semi-Flush", "Spotlight Bar", "Chandelier")
 
 
 def _template(pid: str) -> dict:
-    return next(t for t in scale.templates() if t["product_id"] == pid)
+    """The template, from the one shared list (#1035): building the list took 6 to 9 s a test."""
+    return next(t for t in templates() if t["product_id"] == pid)
 
 
 def _derive(pid: str, form: str) -> dict:
@@ -134,7 +136,7 @@ def test_every_authored_ceiling_light_has_a_drop_length_only_if_it_hangs() -> No
 
 #: Every ceiling-light template: each one is derived to both hanging forms.
 CEILING_TEMPLATES = tuple(
-    t["product_id"] for t in scale.templates() if t["product_type"] == "Ceiling Light"
+    t["product_id"] for t in templates() if t["product_type"] == "Ceiling Light"
 )
 HANGING_FORMS_TO_DERIVE = ("Pendant", "Chandelier")
 
