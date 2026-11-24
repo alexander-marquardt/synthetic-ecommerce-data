@@ -122,4 +122,5 @@ def test_washer_8kg_is_laundry_and_m8_washer_is_fasteners(merged):
 
 def test_heat_pump_dryer_finds_only_tumble_dryers(index):
     top = br.rank(index, "heat pump dryer", 10, popular=False)
-    assert {r["product_type"] for r in top} == {"Laundry Appliance"}, [r["title"] for r in top]
+    kinds = {_attrs(r).get("appliance_type", "") for r in top}
+    assert all(k.startswith("Tumble Dryer") for k in kinds), [r["title"] for r in top]

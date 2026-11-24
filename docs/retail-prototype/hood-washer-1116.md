@@ -40,5 +40,6 @@ On the no-policy baseline ranker (without popularity):
   data, picks the laundry intent. The titles are not shortened to win.
 * `washer 8kg` finds laundry only and `m8 washer` finds flat washers only, each in its top five.
 
-The department's SKU count and the ten-query table with a policy are the next slice.
+The department holds 471 SKUs after this round (364 before). The 1,700+ SKU target and the
+ten-query table without and with a policy are the next slice.
 `tests/test_retail_hood_washer_1116.py` holds this page.
