@@ -13,6 +13,7 @@ from __future__ import annotations
 import re
 from html import escape
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     FONT,
     INK,
@@ -165,7 +166,7 @@ def pillow(paint: str, fill: Fill, label: str | None) -> list[str]:
     d = "M78,116 Q200,92 322,116 Q346,216 322,316 Q200,340 78,316 Q54,216 78,116 Z"
     folds = "M78,116 Q98,136 116,140 M322,116 Q302,136 284,140 M78,316 Q98,296 116,292 M322,316 Q302,296 284,292"
     return [
-        '<ellipse cx="200" cy="338" rx="130" ry="10" fill="#000000" fill-opacity=".08"/>',
+        ground_shadow.ellipse(200, 338, 130, 10),
         _path(d, paint),
         _path(
             d,
@@ -217,7 +218,7 @@ def duvet(paint: str, fill: Fill, label: str | None) -> list[str]:
 
 def bath_towel(paint: str, fill: Fill, label: str | None, folded: str = "3") -> list[str]:
     """A stack of folded towels, three unless told otherwise, each with a woven border band."""
-    out = ['<ellipse cx="200" cy="344" rx="150" ry="9" fill="#000000" fill-opacity=".08"/>']
+    out = [ground_shadow.ellipse(200, 344, 150, 9)]
     for k, y in enumerate((280, 220, 160)[: int(folded)]):
         x0 = 78 + 6 * (k % 2)
         d = f"M{x0 + 26},{y} L{x0 + 246},{y} L{x0 + 246},{y + 58} L{x0 + 26},{y + 58} Q{x0},{y + 58} {x0},{y + 29} Q{x0},{y} {x0 + 26},{y} Z"
@@ -297,7 +298,7 @@ def cutlery_set(paint: str, fill: Fill, label: str | None) -> list[str]:
     knife = "M194,58 Q216,70 212,210 L190,210 L190,66 Q190,58 194,58 Z"
     spoon = "M258,148 L260,206 L250,206 L252,148 Z"
     out = [
-        '<ellipse cx="200" cy="350" rx="120" ry="8" fill="#000000" fill-opacity=".08"/>',
+        ground_shadow.ellipse(200, 350, 120, 8),
         _path(fork, METAL),
         _path(knife, METAL),
         _path(spoon, METAL),

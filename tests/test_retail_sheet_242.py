@@ -89,6 +89,22 @@ def test_rounding_in_the_drawing_numbers_is_not_an_overrun() -> None:
     assert sheet_extent.overrun(_svg('<rect x="390" y="10" width="11" height="20"/>')) > 0
 
 
+def test_reaches_is_reach_of_each_turn_read_once() -> None:
+    """``reaches`` (one parse for every lean the ground shadow measures, #1182) gives, at each
+    angle, the box ``reach`` gives the same drawing in a group turned by it."""
+    body = (
+        '<defs><clipPath id="c"><rect x="0" y="0" width="60" height="40"/></clipPath>'
+        '<path id="p" d="M10,20 C10,-30 90,-30 90,20 A30,15 20 0 1 40,60 Z"/></defs>'
+        '<g transform="translate(30 10) scale(1.5)"><use href="#p"/>'
+        '<rect x="5" y="5" width="80" height="30" clip-path="url(#c)"/>'
+        '<ellipse cx="50" cy="70" rx="40" ry="6"/></g>'
+    )
+    angles = [0, 3, -3, 12, -15, 45, -66, 90]
+    turned = [sheet_extent.reach(_svg(f'<g transform="rotate({a})">{body}</g>')) for a in angles]
+    assert sheet_extent.reaches(_svg(body), angles) == turned
+    assert sheet_extent.reaches(_svg("<title>none</title>"), [0, 12]) == [None, None]
+
+
 def test_a_path_is_measured_through_its_lines_and_relative_moves() -> None:
     assert sheet_extent.reach(_svg('<path d="M10,20 L50,20 l0,30 H5 V60 Z"/>')) == (5, 20, 50, 60)
 
