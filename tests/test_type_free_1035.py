@@ -60,7 +60,7 @@ _READERS = {
 }
 
 
-def _run(tmp_path: Path, files: dict[str, str], listed: list[str]):
+def _run(tmp_path: Path, files: dict[str, str], listed: list[str], order: list[str] | None = None):
     """The planted files run by pytest with the recorder, and what it wrote."""
     for name, body in files.items():
         (tmp_path / name).write_text(textwrap.dedent(body), encoding="utf-8")
@@ -74,7 +74,10 @@ def _run(tmp_path: Path, files: dict[str, str], listed: list[str]):
         "TYPE_READS_OUT": str(out),
     }
     done = subprocess.run(
-        [sys.executable, "-m", "pytest", "-p", "type_reads", "-p", "no:cacheprovider", *files],
+        [
+            *(sys.executable, "-m", "pytest", "-p", "type_reads", "-p", "no:cacheprovider"),
+            *(order or files),
+        ],
         cwd=tmp_path, env=env, capture_output=True, text=True, timeout=300, check=False,
     )  # fmt: skip
     return done, json.loads(out.read_text(encoding="utf-8"))
@@ -146,6 +149,97 @@ def test_a_hit_on_a_cache_a_read_filled_is_a_read_of_the_file_that_hit_it(tmp_pa
     assert done.returncode == 1
     assert "test_b.py is listed" in done.stdout
     assert "test_c.py is listed" not in done.stdout
+
+
+_FILLER = f"""
+    {_READ}
+
+    def test_reads():
+        assert len(DRAWING)
+"""
+
+
+def _ordered(tmp_path, files, listed, before=0):
+    """The files in this order in one process, ``test_0_reads.py`` after ``before`` of them."""
+    names = list(files)
+    names.insert(before, "test_0_reads.py")
+    return _run(tmp_path, {**files, "test_0_reads.py": _FILLER}, listed, names)
+
+
+def test_a_hit_on_a_recursive_cache_that_reads_none_is_no_read(tmp_path):
+    files = {
+        "depth.py": """
+            import functools
+
+            @functools.cache
+            def down(n):
+                return 0 if n == 0 else down(n - 1) + 1
+        """,
+        "test_1_fills.py": "import depth\n\ndef test_a():\n    assert depth.down(3) == 3\n",
+        "test_2_hits.py": "import depth\n\ndef test_b():\n    assert depth.down(3) == 3\n",
+    }
+    done, seen = _ordered(tmp_path, files, ["test_1_fills.py", "test_2_hits.py"])
+    assert seen["read"] == ["test_0_reads.py"], done.stdout + done.stderr
+    assert done.returncode == 0, done.stdout
+
+
+def test_a_hit_on_the_pathlib_glob_cache_after_a_multi_part_glob_is_no_read(tmp_path):
+    files = {
+        "test_1_globs.py": (
+            "from pathlib import Path\n\ndef test_a():\n    list(Path('.').glob('*/*/*.py'))\n"
+        ),
+        "test_2_hits.py": (
+            "from pathlib import Path\n\ndef test_b():\n    list(Path('.').glob('*/*/*.py'))\n"
+        ),
+    }
+    done, seen = _ordered(tmp_path, files, ["test_1_globs.py", "test_2_hits.py"])
+    assert seen["read"] == ["test_0_reads.py"], done.stdout + done.stderr
+    assert done.returncode == 0, done.stdout
+
+
+def test_a_hit_on_a_cache_whose_earlier_call_raised_before_a_read_is_no_read(tmp_path):
+    files = {
+        "flaky.py": """
+            import functools
+
+            @functools.cache
+            def value(n):
+                if n == 0:
+                    raise ValueError(n)
+                return n
+        """,
+        "test_00_raises.py": (
+            "import flaky\n\ndef test_a():\n"
+            "    try:\n        flaky.value(0)\n    except ValueError:\n        pass\n"
+        ),
+        "test_1_fills.py": "import flaky\n\ndef test_b():\n    assert flaky.value(1)\n",
+        "test_2_hits.py": "import flaky\n\ndef test_c():\n    assert flaky.value(1)\n",
+    }
+    done, seen = _ordered(
+        tmp_path, files, ["test_00_raises.py", "test_1_fills.py", "test_2_hits.py"], before=2
+    )
+    assert seen["read"] == ["test_0_reads.py"], done.stdout + done.stderr
+    assert done.returncode == 0, done.stdout
+
+
+def test_a_hit_on_a_recursive_cache_a_reader_filled_is_still_a_read(tmp_path):
+    files = {
+        "depth.py": f"""
+            import functools
+
+            {_READ}
+
+            @functools.cache
+            def down(n):
+                return len(tuple(DRAWING)) if n == 0 else down(n - 1)
+        """,
+        "test_1_fills.py": "import depth\n\ndef test_a():\n    assert depth.down(2)\n",
+        "test_2_hits.py": "import depth\n\ndef test_b():\n    assert depth.down(2)\n",
+    }
+    done, seen = _ordered(tmp_path, files, ["test_2_hits.py"])
+    assert seen["read"] == ["test_0_reads.py", "test_1_fills.py", "test_2_hits.py"]
+    assert done.returncode == 1
+    assert "test_2_hits.py is listed" in done.stdout
 
 
 def test_a_product_module_reads_no_table_when_it_is_imported():
