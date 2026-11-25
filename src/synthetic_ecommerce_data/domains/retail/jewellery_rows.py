@@ -1,8 +1,8 @@
 """The helpers the jewellery and watch specs share (gen#423): data only.
 
-Eight spec files of ``type_specs/`` (``hoop_earrings``, ``drop_earrings``, ``analog_watch``,
-``digital_watch``, ``fitness_band``, and gen#1113's ``stud_earrings``, ``bangle`` and
-``cufflinks``) build their rows from these. An earring SKU is a metal (the color is the metal, as
+Eleven spec files of ``type_specs/`` (``hoop_earrings``, ``drop_earrings``, ``analog_watch``,
+``digital_watch``, ``fitness_band``, and gen#1113's ``stud_earrings``, ``bangle``, ``cufflinks``,
+``pendant``, ``anklet`` and ``watch_strap``) build their rows from these. An earring SKU is a metal (the color is the metal, as
 every jewelry row since gen#207: :class:`accessory_rows.ARow`); a watch SKU is a strap color times
 a case diameter in millimetres (``case_mm``, a measured option).
 """

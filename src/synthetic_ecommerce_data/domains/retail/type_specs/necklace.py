@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Clothing",
     product_type="Necklace",
     rows=(),
-    homes=(Home("accessory_rows", False),),
+    homes=(Home("accessory_rows", True),),
 )

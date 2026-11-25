@@ -59,9 +59,12 @@ AXES: dict[str, tuple[str, ...]] = {
     "Hat": ("hat_size",),
     "Necklace": ("length_cm",),
     "Ring": ("ring_size_us", "ring_size_uk"),
+    "Pendant": ("length_cm",),
+    "Anklet": ("length_cm",),
     "Analog Watch": ("case_mm",),
     "Digital Watch": ("case_mm",),
     "Fitness Band": ("case_mm",),
+    "Watch Strap": ("lug_mm",),
     # Sewing and knitting tools (gen#1118): a needle's and a hook's diameter.
     "Knitting Needles": ("needle_mm",),
     "Crochet Hook": ("hook_mm",),

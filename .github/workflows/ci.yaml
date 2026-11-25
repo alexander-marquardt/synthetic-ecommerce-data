@@ -254,6 +254,8 @@ jobs:
           if [ -d build/hundred_k ]; then export SHARED_BUILDS_DIR="$PWD/build/hundred_k"; fi
           # Every module's peak (tests/worker_peak.py), uploaded below for --refresh-peaks; a local run has no RUNNER_TEMP.
           if [ -n "${RUNNER_TEMP:-}" ]; then export MODULE_PEAKS_OUT="$RUNNER_TEMP/module-peaks-${{ matrix.shard }}.json"; fi
+          # Which files read a type table (tests/type_reads.py), uploaded below for scripts/ci_type_free.py.
+          if [ -n "${RUNNER_TEMP:-}" ]; then export TYPE_READS_OUT="$RUNNER_TEMP/type-reads-${{ matrix.shard }}.json"; fi
           # Three workers, not the runner's two, when no module of the plan was measured over
           # 1500 MB (scripts/ci_module_peaks.json, #790); the line above the run says why.
           workers=$(python3 scripts/ci_shards.py --workers "${files[@]}") || { echo "the worker count failed"; exit 1; }
@@ -273,6 +275,13 @@ jobs:
         with:
           name: module-peaks-${{ matrix.shard }}
           path: ${{ runner.temp }}/module-peaks-${{ matrix.shard }}.json
+          if-no-files-found: ignore
+      # Each shard's reads of a type table: scripts/ci_type_free.py --refresh reads them (#1035).
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: type-reads-${{ matrix.shard }}
+          path: ${{ runner.temp }}/type-reads-${{ matrix.shard }}.json
           if-no-files-found: ignore
 
   main-merged-tree:

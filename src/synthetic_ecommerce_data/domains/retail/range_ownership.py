@@ -186,7 +186,9 @@ SCALE = Roster(
            "Hallowby Chemist", "Lindcombe Health", "Sedgemoor Pharmacy", "Ottermere Care",
            "Finbrook", "Burrowell", "Bobbinmere", "Purlwick",
            # The luggage brands, derived from gen#1114 on.
-           "Tarnwick", "Fenmoor & Co", "Skerry Travel"),
+           "Tarnwick", "Fenmoor & Co", "Skerry Travel",
+           # The jewelry and watch brands, derived from gen#1113 on.
+           "Tidewell", "Skerry & Cole"),
     # The scale-half words skipped when the base was dealt: the excluded words in the half and
     # Fenmere, a brand's own word. Never edit: a word dropped later leaves its owner alone.
     gaps=frozenset({

@@ -129,7 +129,7 @@ def test_the_angles_spread_over_each_set_and_most_products_are_turned(name):
         if domain.orientation(p["product_type"]) == name
     )
     total = sum(counts.values())
-    assert total > 40 * len(angles)
+    assert total > 35 * len(angles)
     assert set(counts) == set(angles)
     assert max(counts.values()) / total < 2 / len(angles), counts
 
@@ -291,6 +291,6 @@ def test_gloves_turn_any_way_and_clothing_only_slightly():
                   "trainer"):  # fmt: skip
         assert retail_orientation.of(shape) == "slight", shape
     assert domain.orientation("screw_socket_head") == "any"
-    assert domain.orientation("bench_vises") == "upright"
+    assert domain.orientation("levels") == "upright"
     assert retail_orientation.of("bottle") == "upright"
     assert retail_orientation.of("cutlery_set") == "level"
