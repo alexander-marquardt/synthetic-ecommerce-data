@@ -38,11 +38,12 @@ together, one file per SKU (gen#706), and it ships as its own release, tagged
    and nothing of the catalog.
    A second `v*` tag the same day whose archive has the same count reuses that release when its
    `images.tar.gz.content-sha256` is the same, and fails when it differs;
-7. runs `scripts/open_pin_bump_pr.py --images-tag images-<count>-<YYYYMMDD>`, which writes the two
-   pin files with the new digests and opens a pull request in `elastic/prism-retail-and-industrial`:
-   `catalog_release.json` names the `v*` tag, `images_release.json` the images tag. The catalog
-   pin's digest is of the UNCOMPRESSED composed documents (a gzip's bytes depend on the
-   toolchain); the image pin's is the content digest `image_release.py` prints. The script refuses
+7. runs `scripts/open_pin_bump_pr.py --images-tag images-<count>-<YYYYMMDD>` before it uploads
+   anything. The script prints the two pin files with the new digests and the body that names them,
+   and opens nothing: v3's catalogue load publishes and pins the images in
+   `elastic/prism-retail-and-industrial` (agent-ops#917). `catalog_release.json` names the `v*`
+   tag, `images_release.json` the images tag. The catalog pin's digest is of the
+   UNCOMPRESSED composed documents (a gzip's bytes depend on the toolchain); the image pin's is the content digest `image_release.py` prints. The script refuses
    an `--images-tag` that is not `images-<count>-<YYYYMMDD>`, names no real date, or counts other
    than the archive's files.
 
@@ -128,20 +129,22 @@ writes, at the golden seed and at 5,200 lines.
 ## The dry run
 
 A manual run of the workflow (Actions, Release, Run workflow, with a `tag` such as `v0.0.0-dryrun`)
-builds the same assets, prints the pin-bump pull request body (`scripts/open_pin_bump_pr.py
---dry-run`) and uploads the assets and the body as the `release-dry-run` artifact. It creates no
-release and opens no pull request, so it runs on a fork. Locally, with the two built files:
+builds the same assets, prints the pins and the body (`scripts/open_pin_bump_pr.py`) and uploads
+them as the `release-dry-run` artifact. It creates no release, so it runs on a
+fork. Locally, with the two built files:
 
 ```sh
 python3 scripts/open_pin_bump_pr.py --tag v0.0.0-dryrun --catalog build/release/catalog/catalog.ndjson \
-    --images-sidecar build/release/images.tar.gz.content-sha256 --dry-run
+    --images-sidecar build/release/images.tar.gz.content-sha256
 ```
 
 ## The token
 
-The real run needs a repository secret `PIN_BUMP_TOKEN`: a token scoped to contents and pull
-requests of `elastic/prism-retail-and-industrial` and nothing else. The script reads it from the
-environment and never prints it; without it, and without `--dry-run`, it exits 2.
+A release needs no repository secret. The maintainer ruled on 2026-11-02 that the pins do not move
+by a cross-repository request (agent-ops#917): v3's catalogue load publishes and pins the images with
+the access it already has. The workflow's own `github.token` creates the two releases in this
+repository and cannot write to another. `tests/test_no_derived_files_536.py` fails if `release.yaml`
+reads a secret or opens a pull request (gen#1246).
 
 `release.yaml` is not a pull-request check: `scripts/local_ci_jobs.py` (`NOT_A_CHECK`) leaves it
 out of `merge_pr.sh --local-ci`.

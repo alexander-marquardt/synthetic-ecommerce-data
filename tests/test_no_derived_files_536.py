@@ -188,6 +188,28 @@ def test_the_release_reads_no_secret_and_opens_no_pull_request_in_another_reposi
     assert run.count("open_pin_bump_pr.py") == 1, "the pins are printed once, and nothing is opened"
 
 
+def test_a_pin_the_script_refuses_stops_the_tag_before_anything_is_uploaded(tmp_path) -> None:
+    """The step pipes the script into ``tee``, and GitHub runs a step with ``bash -e`` and no
+    ``pipefail``: a refusal would be hidden by ``tee`` and the tag would publish (gen#1246)."""
+    out, bin_dir, called = tmp_path / "release", tmp_path / "bin", tmp_path / "called"
+    (out / "catalog").mkdir(parents=True)
+    (out / "catalog" / "catalog.ndjson").write_bytes(b"{}\n")
+    (out / "images.tar.gz.content-sha256").write_text("nothex 3\n", encoding="utf-8")
+    bin_dir.mkdir()
+    fake = bin_dir / "gh"
+    fake.write_text(f'#!/bin/sh\necho "$@" >> {called}\n', encoding="utf-8")
+    fake.chmod(0o755)
+    done = subprocess.run(
+        ["bash", "-e", "-c", _release_run("The pins").replace("build/release", str(out))],
+        cwd=ROOT, capture_output=True, text=True,
+        env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}", "TAG": "v0.0.0-test",
+             "DRY_RUN": "false", "GITHUB_SHA": "0" * 40},
+    )  # fmt: skip
+    assert "is not '<sha256>  <file count>'" in done.stderr
+    assert done.returncode != 0
+    assert not called.exists(), "nothing is uploaded after a refused pin"
+
+
 NETWORK = {"urllib", "http", "socket", "ssl", "requests", "httpx", "subprocess"}
 
 
