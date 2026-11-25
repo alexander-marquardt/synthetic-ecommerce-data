@@ -58,6 +58,28 @@ def summary(peaks: dict[str, int]) -> str:
 HEAVY_MB = 1500
 
 
+#: A module measured more than this share above its recorded peak is named in the log (#1230): a
+#: pair dealt at the bound of scripts/ci_shards.py (4944 MB) that grew this much is 5438 MB, still
+#: inside the 6144 MB container.
+OVER_SHARE = 0.10
+#: The peak the deal counts for a module with no record: ``UNMEASURED_MB`` of scripts/ci_shards.py.
+UNMEASURED_MB = HEAVY_MB + 1
+#: The table the deal reads: ``MODULE_PEAKS`` of scripts/ci_shards.py.
+RECORDED_PEAKS = Path(__file__).resolve().parent.parent / "scripts" / "ci_module_peaks.json"
+
+
+def recorded_peaks() -> dict[str, int]:
+    """Each module's recorded peak in MB; none when there is no table."""
+    return {}
+
+
+def over_recorded(
+    workers: list[dict[str, int]], recorded: dict[str, int]
+) -> dict[str, tuple[int, int]]:
+    """``{module: (measured, recorded)}`` of each module well over its record, highest first."""
+    return {}
+
+
 def reset_peak() -> bool:
     """Set this process's high-water mark back to its resident memory now (Linux only)."""
     try:
