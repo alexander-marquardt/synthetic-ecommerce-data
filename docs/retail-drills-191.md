@@ -35,6 +35,28 @@ Each type carries three text-match decoys, each a product that holds the type's 
 Their structured fields tell the truth, so a department or category policy drops them. The decoys
 are templates: the scaled build neither derives from them nor completes their colors.
 
+## Fill (gen#1215)
+
+Each shape but the bit set's is drawn as the real product, with a highlight and a shadow, over at least half of
+the product area (`TURN_AREA`) at every param and in every main color. Share of the product area on
+the retail templates' SKUs, measured by `scripts/picture_fill_1129.py` (least to most):
+
+| Product type | Before | After |
+|---|---|---|
+| Drill Driver | 22-24% | 54-58% |
+| Combi Drill | 22-24% | 55-59% |
+| Hammer Drill | 23-26% | 61-62% |
+| Corded Drill | 20-21% | 60-63% |
+| Impact Driver | 19-24% | 56-68% |
+| SDS Hammer Drill | 20-23% | 59-63% |
+| Tool Kit | 40-53% | 69-90% |
+| Step Ladder | 14-21% | 51-56% |
+| Volt Meter | 25-27% | 52-69% |
+
+A cable is wound in a coil and strapped, as it is sold, and a tool kit is open, so each shows what
+it holds. No type needs a named exception. `tests/test_fill_drills_1215.py` holds the floor, the light and the
+bounds. Before and after: [the sheet](images/drills-fill-1215.png).
+
 ## Checks
 
 `tests/test_retail_drills_191.py` holds the types, brands, shapes, attributes, colors, decoys and
