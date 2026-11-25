@@ -10,7 +10,9 @@ Each test module's peak too (#790): a worker sets its high-water mark back to wh
 is the worker's peak while that module ran (what earlier modules left resident counts too). The
 ``module peak memory:`` line names the modules over :data:`HEAVY_MB`, so a shard's log says which
 modules need a worker of their own, and ``MODULE_PEAKS_OUT`` names a file for every module's
-figure, which picks a shard's worker count (``scripts/ci_shards.py --workers``). A worker that
+figure, which picks a shard's worker count (``scripts/ci_shards.py --workers``). A
+``module over its recorded peak:`` line names each module measured more than :data:`OVER_SHARE`
+above ``scripts/ci_module_peaks.json``, which the shard deal reads (#1230). A worker that
 cannot reset the mark (no ``/proc``) reports no
 module. Before each reset the worker keeps the mark it clears, so its ``peak worker memory:``
 figure is its peak over the whole run, not the last module's (#869).
@@ -70,14 +72,43 @@ RECORDED_PEAKS = Path(__file__).resolve().parent.parent / "scripts" / "ci_module
 
 def recorded_peaks() -> dict[str, int]:
     """Each module's recorded peak in MB; none when there is no table."""
-    return {}
+    try:
+        return json.loads(RECORDED_PEAKS.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
 
 
 def over_recorded(
     workers: list[dict[str, int]], recorded: dict[str, int]
 ) -> dict[str, tuple[int, int]]:
-    """``{module: (measured, recorded)}`` of each module well over its record, highest first."""
-    return {}
+    """``{module: (measured, recorded)}`` of each module well over its record, highest first.
+
+    ``workers`` is each worker's ``{module: MB}``. A reset keeps what is resident, so a module run
+    after a heavier one can read high on its leftovers: only a figure over :data:`HEAVY_MB` that is
+    the highest of its worker is taken as the module's own.
+    """
+    over: dict[str, tuple[int, int]] = {}
+    for peaks in workers:
+        top = max(peaks.values(), default=0)
+        for module, mb in peaks.items():
+            record = recorded.get(module, UNMEASURED_MB)
+            grown = mb > record * (1 + OVER_SHARE)
+            if mb == top and mb > HEAVY_MB and grown and mb > over.get(module, (0, 0))[0]:
+                over[module] = (mb, record)
+    return dict(sorted(over.items(), key=lambda entry: entry[1], reverse=True))
+
+
+def over_line(over: dict[str, tuple[int, int]], recorded: dict[str, int]) -> str:
+    """The line the run prints for the modules :func:`over_recorded` named."""
+    each = ", ".join(
+        f"{module} measured {mb} MB, "
+        + (f"recorded {record} MB" if module in recorded else f"no record (counted {record} MB)")
+        for module, (mb, record) in over.items()
+    )
+    return (
+        f"module over its recorded peak: {each} (over by more than {OVER_SHARE:.0%}; refresh with "
+        "scripts/ci_shards.py --refresh-peaks, docs/ci-sharding.md)"
+    )
 
 
 def reset_peak() -> bool:
@@ -162,7 +193,9 @@ def pytest_testnodedown(node, error) -> None:  # noqa: ARG001 - xdist's hook sig
     if peak is not None:
         node.config.__dict__.setdefault("_worker_peaks", {})[node.gateway.id] = peak
     modules = node.config.__dict__.setdefault("_all_module_peaks", {})
-    for module, mb in (output.get("module_peaks") or {}).items():
+    own = output.get("module_peaks") or {}
+    node.config.__dict__.setdefault("_module_peaks_by_worker", []).append(own)
+    for module, mb in own.items():
         modules[module] = max(modules.get(module, 0), mb)
 
 
@@ -173,6 +206,10 @@ def pytest_terminal_summary(terminalreporter, config) -> None:
     modules = getattr(config, "_all_module_peaks", None)
     if modules:
         terminalreporter.write_line(module_summary(modules))
+        recorded = recorded_peaks()
+        over = over_recorded(config._module_peaks_by_worker, recorded)
+        if over:
+            terminalreporter.write_line(over_line(over, recorded))
         out = os.environ.get(MODULE_PEAKS_OUT_ENV)
         if out:
             table = json.dumps(dict(sorted(modules.items())), indent=1)

@@ -81,7 +81,7 @@ def test_the_two_modules_of_1172_are_each_named_against_the_table_that_dealt_the
     workers = [{VOICE: 2873, "tests/test_light.py": 1400}, {LEAVES: 2912, "tests/test_b.py": 2300}]
     recorded = {VOICE: 2470, LEAVES: 2209, "tests/test_light.py": 500, "tests/test_b.py": 700}
     named = worker_peak.over_recorded(workers, recorded)
-    assert named == {LEAVES: (2912, 2209), VOICE: (2873, 2470)}
+    assert list(named.items()) == [(LEAVES, (2912, 2209)), (VOICE, (2873, 2470))]
 
 
 @pytest.mark.parametrize(("measured", "named"), [(2200, False), (2201, True)])
