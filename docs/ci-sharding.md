@@ -14,7 +14,7 @@ a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The
 
 | Change               | Where                                                                                                      |
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`)                                |
+| more or fewer shards | the matrix list in `ci.yaml`, and `--of` in its `Plan the test shards` step (`tests/test_ci_plan_1035.py` holds the two equal) |
 | refresh the weights  | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
 | run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 20` prints its files                                          |
 | refresh the peaks    | download the `module-peaks-*` artifacts of green runs, then `python3 scripts/ci_shards.py --refresh-peaks module-peaks-*.json` |
@@ -84,10 +84,14 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   strings are the modules a script imports: `golden_pins.py` depends on the test modules
   `tests/pinned.py` lists, not on every script. A retail change went from 363 files (138 min of the
   weights) to 356 (132 min), and a module of `pinned.MODULES` now selects the tests that measure it.
-- A shard plans once. The `select` step saves its plan in `RUNNER_TEMP` and the `Tests` step reads
-  it. Each plan reads the whole tree (about 20 s on a runner); the selector walks a file once, not
-  four times, which took the graph from 9.7 s of CPU time to 7.3 s. A local run has no
-  `RUNNER_TEMP`, and its `Tests` step plans.
+- A run plans its shards once (#1035). The ceiling leg of `ceiling-catalogue`, which `tests` needs,
+  runs `ci_shards.py --plans-out DIR --of 20` before it builds anything, and uploads
+  `test-plan-K.txt` for every shard as the `test-plans` artifact: a planner that crashes is red
+  there and no shard starts. A shard downloads the artifact before it checks out, and its `select` and `Tests`
+  steps read its own file; a file that is missing or does not start with `shards=N` is a red step,
+  never an empty plan. A shard with no file checks out nothing. A local run is the shard `all` and
+  plans for itself. The selector searches each text once per changed file, however many tests
+  reach it.
 - Measured over the 20 PRs merged up to #1173 (seconds of `ci_shard_weights.json`): the table is on
   #1035. A documentation change went from 33% of the suite to 2%, and a retail change from 80% to
   55%. What a retail change still selects is the retail tests, which import `retail/scale.py` or
@@ -106,10 +110,11 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   (1200 s of the weights, `SHARD_BUDGET_SECONDS`), checked against the deal itself: the
   longest-first deal can leave a shard a file over the average, so the count grows until the
   heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
-  that count prints no file, and its job ends after the checkout without installing anything.
+  that count prints no file, and its job ends before the checkout.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
-  every file, for a local run. A full run deals the files to 20 shards of about 1137 s of the
-  weights each. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
+  every file, for a local run. A full run deals the files to 20 shards of about 547 s of the
+  weights each, since the refresh from run 45347596547 (182 minutes of test seconds, after the
+  memo of #1227); the counts below are by the tables of their time. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
   20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949); at 18 the one test file of #1052 put it at 1200.4 s, so it is 19 now (#1052); the smart home test file (#956) deals within the 19; at 19 the two test files of #1175 put the heaviest at 1200.5 s with the next one, so it is 20 now (#1175).
   `tests/test_ci_shard_budget_704.py` deals main's files plus one unweighted file at the matrix
   count, so the shard to add is named before the pull request that would need it.
