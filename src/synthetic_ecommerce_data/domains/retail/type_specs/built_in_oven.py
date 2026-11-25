@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import appliance_lineups as lineups
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
@@ -32,13 +33,16 @@ def _attrs(kind_name: str, litres: int, rating: str) -> tuple:
 
 def oven_rows() -> tuple[Row, ...]:
     out: list[Row] = []
-    for pre, shape, title, kind_name, lead, models in _OVEN_KINDS:
+    for pre, shape, title, kind_name, lead, table in _OVEN_KINDS:
+        models = lineups.line_up(pre, table, 1)
+
         def make(i, models=models, lead=lead, kind_name=kind_name, pre=pre):
             litres, price = models[i]
             rating = lar.RATINGS[(i + len(pre)) % 3]
-            desc = f"{lead}. It holds {litres} litres and is 60 cm wide, energy rating {rating}."
-            return float(price), desc, lar.PALETTES[i % 3], _attrs(kind_name, litres, rating)
-        rows = lar.kind_rows(pre, 6, lar.OVENS, "Built-in Oven", "built_in_oven", (("kind", shape),), title, make)
+            says, sold_on = lineups.feature("Built-in Oven", i)
+            desc = f"{lead}. It holds {litres} litres and is 60 cm wide, energy rating {rating}.{says}"
+            return float(price), desc, lar.PALETTES[i % 3], (*_attrs(kind_name, litres, rating), *sold_on)
+        rows = lar.kind_rows(pre, len(models), lar.OVENS, "Built-in Oven", "built_in_oven", (("kind", shape),), title, make)
         out += [replace(r, params=(("kind", shape),)) for r in rows]
     return tuple(out)
 
