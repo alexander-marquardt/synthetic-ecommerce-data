@@ -133,6 +133,38 @@ a push to `main` runs every test file, so the whole suite still runs once after 
 
 To check what a change runs before pushing: `python3 scripts/ci_select.py --base origin/main --head HEAD --why`.
 
+## A change to an industrial type (#1035)
+
+Importing the package loads no type module: the functions of `domains/industrial/__init__.py` that
+import them (`TYPE_LOADERS` in `scripts/ci_select.py`) run only when a type table is read
+(`core/typespec.py`, `RegistryTable`). The import graph has those edges anyway, so a change to one
+type module selected nearly every test file.
+
+- `scripts/ci_type_free.json` lists the test files that were seen to read no type table. The
+  selection does not follow a listed file into the loaders, and follows every other file as before.
+  On the list of 2026-11-25 (301 files), a change to `product_types/fasteners/bolt_hex.py` selects
+  230 files and 102.9 minutes of the weights instead of 530 and 150.9.
+- `tests/type_reads.py`, in every run, notes the files that call a reader of those tables. A listed
+  file that does fails, and the message names its line to remove. A hit on a `functools` cache that
+  a read filled counts as a read of the file that hit it, in whatever order the files run. A
+  recursive cache, the `pathlib` glob cache and a cache whose earlier call raised are not charged
+  for a read that happened outside their own call (each running call keeps its own start count).
+- The recorder cannot see into another process, so a file that starts one, or that takes a build
+  from `tests/shared_builds.py`, or that names `typespec`, is never listed. Importing a core or
+  retail module, `scale.templates()` and `scale.build()` must read no table, because a read there
+  would count for the first file of a worker only. Any other sharing (a module-level dict, a session
+  fixture) can hide a read of a later file: a push to main runs every file whatever the list says.
+- The list is refreshed from green runs, whose shards upload `type-reads-<N>`:
+
+  ```
+  gh run download <run> --pattern 'type-reads-*' --dir /tmp/reads
+  python3 scripts/ci_type_free.py --refresh /tmp/reads/*/*.json
+  ```
+
+  Only a file that was seen is added, and one seen to read is dropped. A new test file is not
+  listed, so it runs on every type change until a refresh. A change to the list is a full run.
+- The guard is `tests/test_type_free_1035.py`.
+
 ## The ceiling catalogue is built once per run (#539)
 
 The retail ceiling build (every template exhausted, seed 0) takes about a minute, and the retail
