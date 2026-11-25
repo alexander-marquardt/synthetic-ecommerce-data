@@ -1,6 +1,8 @@
 """What a shard's plan costs, and the edges of an import by computed name (#1035).
 
-* A shard plans once: the ``select`` step saves its plan and the ``Tests`` step reads it.
+* A run plans once: the ``ceiling-catalogue`` job writes every shard's plan, and a shard reads its
+  own before it checks out, so a shard with no file costs seconds.
+* A selection searches each text once for a changed file.
 * A script imports by a computed name when its code does. A comment, a docstring or a pattern that
   says ``import_module`` imports nothing, and made a retail change select 127 s of merge tests.
 * ``IMPORTS_NAMED_BY``: ``golden_pins`` imports the modules ``tests/pinned.py`` names, not its own
@@ -15,11 +17,14 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 import pinned
-from test_ci_select_495 import _picked, _tests_job_step, _tree, _write, ci_select
+from test_ci_select_495 import _picked, _tests_job_step, _tree, _write, ci_select, ci_shards
 
-# --- a plan is made once a shard ------------------------------------------------------------
+REPO = Path(__file__).resolve().parent.parent
+
+# --- a plan is made once a run --------------------------------------------------------------
 
 PLANNER = """
 import sys
@@ -30,45 +35,164 @@ if "--plan" in sys.argv:
     print("shards=3")
     print("tests/test_a.py")
 """
-NO_FILE_PLANNER = PLANNER.replace('    print("tests/test_a.py")\n', "")
 RUNNER = "import sys\nopen('ran', 'w').write(' '.join(sys.argv[1:]))\n"
+CI = yaml.safe_load((REPO / ".github" / "workflows" / "ci.yaml").read_text(encoding="utf-8"))
+SHARDS = CI["jobs"]["tests"]["strategy"]["matrix"]["shard"]
 
 
-def _steps(tmp_path: Path, planner: str, runner_temp: Path | None, *steps: str) -> None:
-    """Run the named steps of the tests job, in order, with ``planner`` as the planner script."""
-    _write(tmp_path, {"scripts/ci_shards.py": planner, "scripts/ci_run_pytest.py": RUNNER})
-    env = {k: v for k, v in os.environ.items() if k not in ("RUNNER_TEMP", "GITHUB_OUTPUT")}
-    if runner_temp is not None:
-        runner_temp.mkdir()
-        env["RUNNER_TEMP"] = str(runner_temp)
+def _steps(tmp_path: Path, saved: str | None, shard: str, *steps: str) -> tuple[int, str]:
+    """Run the named steps of shard ``shard``, in order, on a runner whose plan artifact holds
+    ``saved`` as shard 1's plan. The last step's exit status and what GITHUB_OUTPUT holds."""
+    _write(tmp_path, {"scripts/ci_shards.py": PLANNER, "scripts/ci_run_pytest.py": RUNNER})
+    output = tmp_path / "output"
+    output.write_text("")
+    plans = tmp_path / "temp" / "test-plans"
+    plans.mkdir(parents=True)
+    if saved is not None:
+        (plans / "test-plan-1.txt").write_text(saved)
+    # A local run started on a runner has that runner's RUNNER_TEMP too.
+    env = {**os.environ, "GITHUB_OUTPUT": str(output), "RUNNER_TEMP": str(plans.parent)}
+    status = 0
     for step in steps:
-        script = re.sub(r"\$\{\{.*?\}\}", "1", _tests_job_step(step))
-        done = subprocess.run(
-            ["bash", "-e", "-c", script], cwd=tmp_path, capture_output=True, text=True, env=env
-        )
-        assert done.returncode == 0, f"{step}: {done.stdout}{done.stderr}"
+        script = re.sub(r"\$\{\{.*?\}\}", shard, _tests_job_step(step))
+        status = subprocess.run(["bash", "-e", "-c", script], cwd=tmp_path, env=env).returncode
+        if status:
+            break
+    return status, output.read_text()
 
 
-def test_the_tests_step_reads_the_plan_the_select_step_made(tmp_path: Path) -> None:
-    _steps(tmp_path, PLANNER, tmp_path / "temp", "select", "Tests")
+def test_a_shard_runs_the_plan_the_run_made(tmp_path: Path) -> None:
+    done = _steps(tmp_path, "shards=3\ntests/test_a.py\n", "1", "select", "Tests")
+    assert done == (0, "run=true\n")
     assert (tmp_path / "ran").read_text() == "-- uv run --locked pytest tests/test_a.py"
-    assert (tmp_path / "plans").read_text() == "x", "the shard planned twice"
+    assert not (tmp_path / "plans").exists(), "the shard planned again"
 
 
-def test_a_saved_plan_that_holds_no_file_runs_no_test(tmp_path: Path) -> None:
-    _steps(tmp_path, NO_FILE_PLANNER, tmp_path / "temp", "select", "Tests")
+def test_a_shard_with_no_file_plans_nothing_and_runs_no_test(tmp_path: Path) -> None:
+    done = _steps(tmp_path, "shards=3\n", "1", "select", "Tests")
+    assert done == (0, "run=false\n")
     assert not (tmp_path / "ran").exists()
-    assert (tmp_path / "plans").read_text() == "x", "the shard planned twice"
+    assert not (tmp_path / "plans").exists(), "the shard planned again"
 
 
-def test_a_tests_step_with_no_saved_plan_makes_its_own(tmp_path: Path) -> None:
-    """``merge_pr.sh --local-ci`` runs the steps with no RUNNER_TEMP."""
-    _steps(tmp_path, PLANNER, None, "select", "Tests")
-    assert (tmp_path / "plans").read_text() == "xx"
+@pytest.mark.parametrize("saved", [None, "", "Traceback\n"], ids=["absent", "empty", "garbage"])
+def test_a_shard_whose_plan_is_absent_or_no_plan_is_red(tmp_path: Path, saved: str | None) -> None:
+    """Never an empty plan: a hosted shard that plans for itself hides a run with no plan."""
+    status, written = _steps(tmp_path, saved, "1", "select")
+    assert status != 0
+    assert "run=" not in written
+    assert not (tmp_path / "plans").exists(), "the shard planned for itself"
+
+
+def test_a_local_run_makes_its_own_plan(tmp_path: Path) -> None:
+    """``merge_pr.sh --local-ci`` runs the steps as the shard ``all``, and reads no other plan."""
+    assert _steps(tmp_path, "shards=3\ntests/test_b.py\n", "all", "select", "Tests") == (
+        0,
+        "run=true\n",
+    )
     assert (tmp_path / "ran").read_text() == "-- uv run --locked pytest tests/test_a.py"
-    (tmp_path / "ran").unlink()
-    _steps(tmp_path, PLANNER, tmp_path / "temp", "Tests")
-    assert (tmp_path / "ran").exists()
+
+
+def test_a_shard_reads_its_plan_before_it_checks_out_and_checks_out_only_with_a_file() -> None:
+    """A shard with no file cost 0.6 to 1.0 runner-minutes, most of it the checkout of the whole
+    history; a retail change left about 15 of the 20 shards with none (#1035)."""
+    steps = CI["jobs"]["tests"]["steps"]
+    select = next(i for i, s in enumerate(steps) if s.get("id") == "select")
+    checkouts = [i for i, s in enumerate(steps) if s.get("uses", "").startswith("actions/checkout")]
+    assert len(checkouts) == 1
+    assert checkouts[0] > select, "every shard checks out before it knows it has a file"
+    assert steps[checkouts[0]].get("if") == "steps.select.outputs.run == 'true'"
+    plans = [s for s in steps[:select] if "uses" in s]
+    assert [s["with"]["name"] for s in plans] == ["test-plans"]
+    assert plans[0]["with"]["path"] == "${{ runner.temp }}/test-plans"
+
+
+def test_the_run_plans_every_shard_of_the_matrix_once_where_the_shards_read_it() -> None:
+    job = CI["jobs"]["ceiling-catalogue"]
+    assert CI["jobs"]["tests"]["needs"] == "ceiling-catalogue"
+    planned = [s["run"] for s in job["steps"] if "--plans-out" in s.get("run", "")]
+    assert len(planned) == 1, "the plan is not made in the job the shards wait for"
+    assert re.search(r"--of (\d+)", planned[0])[1] == str(len(SHARDS)), "not the matrix's count"
+    for name in ("github.event.pull_request.base.sha || inputs.base", "head.sha || inputs.head"):
+        assert name in planned[0]
+    upload = next(s for s in job["steps"] if s.get("with", {}).get("name") == "test-plans")
+    assert upload["with"]["path"] == "${{ runner.temp }}/test-plans"
+    assert upload["with"]["if-no-files-found"] == "error"
+    checkout = next(s for s in job["steps"] if s.get("uses", "").startswith("actions/checkout"))
+    assert "'0'" in str(checkout.get("with", {}).get("fetch-depth")), "the base is not reachable"
+
+
+def _main(*args: str) -> int:
+    """``ci_shards.main``'s exit status, argparse's refusal included."""
+    try:
+        return ci_shards.main(list(args))
+    except SystemExit as refused:
+        return int(refused.code or 0)
+
+
+def test_the_plans_written_are_the_plans_a_shard_makes_and_the_change_is_read_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    reads: list[str] = []
+    chosen = ci_shards.collected_test_files()[:40]
+
+    def selection(base: str, head: str, root: Path) -> list[str]:
+        reads.append(base)
+        return list(chosen)
+
+    monkeypatch.setattr(ci_select, "selection_for_range", selection)
+    # not the base and head of any other test: a selection may be kept per range
+    ends = ["--base", f"b{tmp_path}", "--head", f"h{tmp_path}"]
+    assert _main("--plans-out", str(tmp_path / "out"), "--of", "5", *ends) == 0
+    assert len(reads) == 1, "each shard's plan read the change again"
+    capsys.readouterr()
+    for number in range(1, 6):
+        assert _main("--plan", str(number), "--of", "5", *ends) == 0
+        expected = capsys.readouterr().out
+        assert (tmp_path / "out" / f"test-plan-{number}.txt").read_text() == expected
+    assert len(list((tmp_path / "out").iterdir())) == 5
+
+
+def test_a_caller_cannot_change_the_kept_selection_of_a_range(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The selection of a range is kept and shared by every shard's plan, so it is a tuple: a list
+    one caller added to or sorted would be the next shard's selection."""
+    chosen = ci_shards.collected_test_files()[:40]
+    monkeypatch.setattr(ci_select, "selection_for_range", lambda *_: chosen[::-1])
+    ends = (f"b{tmp_path}", f"h{tmp_path}")
+    kept = ci_shards.scoped_files(*ends)
+    assert isinstance(kept, tuple), "a caller can change the selection that is kept"
+    assert kept == tuple(sorted(chosen))
+    assert ci_shards.scoped_files(*ends) is kept, "the selection is not kept"
+    dealt = [ci_shards.plan(number, 5, *ends)[1] for number in range(1, 6)]
+    assert {name for files in dealt for name in files} == set(chosen)
+
+
+def test_a_selection_searches_a_text_for_a_changed_file_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Every test that reaches a module searched that module's text again: a change to one JSON
+    file took 8 to 32 s to select for, most of it the same two million searches (#1035)."""
+    files = {"tests/helper.py": "X = 1\n", "data/some_rows_1.json": "{}\n"}
+    files |= {f"tests/test_{n}.py": "import helper\n" for n in "abc"}
+    tree = _tree(tmp_path, files)
+    asked: list[str] = []
+    real = tree._tokens
+    monkeypatch.setattr(tree, "_tokens", lambda changed: asked.append(changed) or real(changed))
+    searched: list[str] = []
+
+    class Texts(dict):
+        def get(self, name, default=None):
+            searched.append(name)
+            return super().get(name, default)
+
+    monkeypatch.setattr(tree, "strings", Texts(tree.strings))
+    assert _picked(tree, "data/some_rows_1.json") == []
+    assert asked == ["data/some_rows_1.json"]
+    assert searched.count("tests/helper.py") == 1
+    _write(tmp_path, {"tests/helper.py": 'X = "some_rows_1.json"\n'})
+    assert len(_picked(ci_select.Tree(tmp_path), "data/some_rows_1.json")) == 3
 
 
 # --- an import by computed name -------------------------------------------------------------
