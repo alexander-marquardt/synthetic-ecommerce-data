@@ -4,11 +4,13 @@ Ten queries whose words name an appliance and something else (``washer`` is a la
 flat washer), or that name one thing only (``m8 washer``). Each :class:`Clash` states its families,
 the policy that settles it and what the policy is meant to do. A policy is a filter or a boost on a
 structured field, the shape R&I's policies take, applied to the no-policy ranker of
-:mod:`baseline_rank` (text score, no popularity). It is the generator's measurement of what the data
-can support, not a policy anyone authored in R&I.
+``domains/retail/baseline_rank.py`` (text score, no popularity). It is the generator's measurement
+of what the data can support, not a policy anyone authored in R&I.
 
 :func:`catalog` is the retail templates and the default industrial build, as the combined catalog
-holds them. ``python -m synthetic_ecommerce_data.domains.retail.clash_queries`` prints the table of
+holds them. A domain reaches core only, never another domain (#125), so this module, which needs
+both builds, is above ``domains/`` like :mod:`rule_rowsets`. ``python -m
+synthetic_ecommerce_data.clash_queries`` prints the table of
 ``docs/retail-prototype/clash-queries-1116.md``; ``--ceiling`` measures the scaled retail build in
 place of the templates. Standard library only.
 """

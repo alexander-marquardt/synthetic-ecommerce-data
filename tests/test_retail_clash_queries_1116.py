@@ -12,8 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from synthetic_ecommerce_data import clash_queries as cq
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
-from synthetic_ecommerce_data.domains.retail import clash_queries as cq
 
 DOC = Path(__file__).parents[1] / "docs" / "retail-prototype" / "clash-queries-1116.md"
 BY_QUERY = {clash.query: clash for clash in cq.CLASHES}

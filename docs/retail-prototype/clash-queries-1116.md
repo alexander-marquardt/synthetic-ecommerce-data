@@ -5,7 +5,7 @@ issue's table, for search-quality demos. The build holds every family of each.
 
 Measured on 2026-11-25 at main `c9ed28c8`, which carries the brand line-ups
 ([appliance-lineups-1116.md](appliance-lineups-1116.md)), by
-`uv run python -m synthetic_ecommerce_data.domains.retail.clash_queries --ceiling`: the scaled
+`uv run python -m synthetic_ecommerce_data.clash_queries --ceiling`: the scaled
 retail build (`retail_figures.ceiling`, every template exhausted) and the default industrial build,
 as the combined catalog holds them. The counts are products, not SKUs. They are a record: a product
 added later moves them, so re-run the command before quoting one.
