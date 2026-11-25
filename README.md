@@ -54,8 +54,9 @@ everything industrial: the generator, the types, vocabularies, standards,
 taxonomy, figures, geometry, census measurement and data. The commands
 compose a domain with core, so they stay at the top level beside `prism/`:
 `generate_cli.py` (`ecom-generate`), and so does `rule_rowsets.py`, which hands the retail realism
-rules (`domains/retail/rules.py`) the industrial build's rows (#716). Some core modules still hold industrial tables next to their
-machinery; every way core reaches outside itself (an import, relative or
+rules (`domains/retail/rules.py`) the industrial build's rows (#716), and
+`clash_queries.py`, which measures the appliance clash queries over both builds (#1116). Some core
+modules still hold industrial tables next to their machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
 `tests/test_core_extraction_125.py`, and that list only shrinks. A domain hands core its tables through `core/domain.py` (#128): importing `domains/industrial/` registers its types, brand families and figures, and emit's image-id check, `Brand.makes()` and `core/drawing` ask the registry. Old `synthetic_industrial_products.catalog.*` import paths resolve to the moved modules. `src/synthetic_ecommerce_data/domains/retail/` is the
 retail store (the former `prototypes/retail_drawings/`, #125 slice 1): its departments live
@@ -239,7 +240,7 @@ prints its FAILED/ERROR lines (up to 20) and its log is copied to
 `<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
 without a re-run. A pull request passes the `review-verdict` check only on a reviewer's ARM verdict bound to its head commit: [docs/review-verdict.md](docs/review-verdict.md). `vuln-gate` fails a high or critical pip-audit finding in `uv.lock`: [docs/vulnerability-gate.md](docs/vulnerability-gate.md). `dependency-allowlist` fails a direct dependency that is not on the checked-in list: [docs/dependency-allowlist.md](docs/dependency-allowlist.md).
 
-Install the hook types once per clone: `pre-commit install` (the config sets `default_install_hook_types: [pre-commit, commit-msg, pre-push]`; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
+Install the hooks once per clone: `python3 scripts/hooks.py install` writes the pre-commit, commit-msg and pre-push hooks, each of which runs `scripts/hooks.py` (no pre-commit tool, #1108; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
 bot. Its patterns are the core repository's AI-attribution family, vendored
 with the commit it came from, plus this repository's additions. CI runs the
@@ -247,8 +248,8 @@ same check over every commit a pull request adds, so a clone without hooks
 cannot skip it. Git's `#` help lines are skipped only by the hook, because a recorded
 message keeps any `#` line it was given. Messages are folded before matching:
 look-alike letters, invisible and bidirectional characters, and a phrase
-wrapped across two lines are all caught. The capitalised agent-instructions file name, alone or in a path, is masked first so a commit that edits it may name it; a vendor name beside it still fails. The pre-commit hooks run `ruff check` and the whitespace
-fixers, which leave `golden-catalog/` alone.
+wrapped across two lines are all caught. The capitalised agent-instructions file name, alone or in a path, is masked first so a commit that edits it may name it; a vendor name beside it still fails. The commit hook runs `ruff check`, the YAML check and the end-of-file and whitespace
+fixers, which leave `golden-catalog/` and `vendor/` alone. CI's lint job runs the same script over every tracked file.
 
 Run the test suite with `uv run pytest`. The whole suite takes about 27
 minutes serially, or about 22 on two workers with `uv run pytest -n 2`

@@ -218,7 +218,28 @@ leftovers. A figure over 1,500 MB that is below its shard's highest is therefore
 while a figure at or under 1,500 MB always is. The first table came from the logs and junit
 reports of the 18 push-to-main runs from 42182122044 to 42370021846. A module a shard's line
 named got its figure. Any other module the shard ran got the smaller of 1,500 MB and the shard's
-highest worker peak, since the line says it stayed under 1,500 MB.
+highest worker peak, since the line says it stayed under 1,500 MB. The table was refreshed
+for #1230 from the `module-peaks-*` artifacts of main's runs 45308069902, 45316258631,
+45319972788 and 45331393444.
+
+### What a shard's modules may peak at together (#1230)
+
+A shard that holds a heavy module runs two workers, each on one module at a time, so its two
+highest recorded peaks can meet. `deal()` in `scripts/ci_shards.py` puts a file only in a shard
+where that sum stays at or under `SHARD_PEAK_MB`: the 6,144 MB container less a 1,200 MB margin
+(about 360 MB for the runner and pytest's controller, read from #1172's kill, and git's cap of
+about 800 MB). A file with no recorded peak counts 1,501 MB. A spread file (`XDIST_SPREAD`, and
+the `SPLIT_FILES`) runs on both workers, so it counts twice. A change-scoped run takes one more
+shard while its deal cannot meet the bound. When no count up to the matrix does, `--plan` and
+`--shard` exit 1 and name the modules, so the step reads `the planner failed` and never an
+OOM-killed worker: lower a named module's peak, or add a shard. A full run on a few shards
+(`--of 3`) is refused too, since main's eight modules over 2,500 MB each need a shard of their
+own. `--shard all` and `--plan all` are one local run with its own memory-capped worker count
+and are not bounded. The bound holds on a hosted runner too, which has no such container.
+`tests/test_ci_shard_memory_1230.py` replays #1172's plan and #839's shard 9.
+
+What the bound does not see: memory a worker keeps from an earlier module (#839's leak, below),
+unless a recorded peak shows it.
 
 ## Random order (#539)
 

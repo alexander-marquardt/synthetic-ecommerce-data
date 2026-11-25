@@ -35,5 +35,5 @@ metal-iron products together in its top ten: a category policy, not the data, pi
 
 The cooker hood, the deeper laundry and freezer kinds and `washer` in the laundry titles came next:
 see [hood-washer-1116.md](hood-washer-1116.md). The department's 1,700+ SKUs are in
-[appliance-lineups-1116.md](appliance-lineups-1116.md). One slice of the issue is left: the
-ten-query table without and with a policy.
+[appliance-lineups-1116.md](appliance-lineups-1116.md). The ten-query
+table, without and with a policy, is [clash-queries-1116.md](clash-queries-1116.md).
