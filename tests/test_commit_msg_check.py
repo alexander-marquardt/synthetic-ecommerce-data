@@ -63,8 +63,12 @@ def test_git_comment_lines_are_ignored():
 
 
 def test_the_hook_is_wired_for_commit_msg():
-    config = (REPO / ".pre-commit-config.yaml").read_text("utf-8")
-    assert "commit-msg" in config and "check_commit_msg.py" in config
+    spec = importlib.util.spec_from_file_location("hooks", REPO / "scripts" / "hooks.py")
+    assert spec is not None and spec.loader is not None
+    hooks = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(hooks)
+    stage, argv = hooks.COMMAND_HOOKS["no-ai-attribution"]
+    assert stage == "commit-msg" and argv[1:] == ("scripts/check_commit_msg.py",)
 
 
 def test_a_hash_line_is_skipped_by_the_hook_but_not_in_a_recorded_message():

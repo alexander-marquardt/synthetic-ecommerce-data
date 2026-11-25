@@ -60,6 +60,9 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
+      # scripts/hooks.py: the commit hook's file checks (end of file, trailing
+      # whitespace, YAML, `ruff check`) over every tracked file, the same script
+      # the git hook runs (#1108).
       # `ruff check` only. `ruff format --check .` reds on 12 files that were
       # already in the tree before this workflow existed; wiring it in here
       # would mean reformatting them inside a change about published images,
@@ -68,7 +71,7 @@ jobs:
       # --locked everywhere: a uv.lock that no longer matches pyproject.toml
       # is refused, not silently re-locked for this run only.
       - name: Lint
-        run: uv run --locked ruff check .
+        run: uv run --locked python scripts/hooks.py run pre-commit --all-files
 
   ceiling-catalogue:
     # The retail ceiling build and its figures, once per run (#539): 45 test files each built it
@@ -298,7 +301,7 @@ jobs:
 
   commit-messages:
     # The commit-msg hook's rule, enforced where a clone that never ran
-    # ``pre-commit install`` cannot skip it: every commit a pull request adds
+    # ``scripts/hooks.py install`` cannot skip it: every commit a pull request adds
     # is checked with scripts/check_commit_msg.py (the vendored core
     # AI-attribution family plus this repository's additions).
     if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')

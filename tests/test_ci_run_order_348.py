@@ -128,7 +128,7 @@ def test_plan_all_lists_the_files_in_run_order() -> None:
 
 def test_a_shard_plan_lists_its_files_in_run_order() -> None:
     done = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
@@ -138,7 +138,7 @@ def test_a_shard_plan_lists_its_files_in_run_order() -> None:
     every = ci_shards.collected_test_files()
     spread = ci_shards.spread_files(every)
     assert files == ci_shards.run_order(files, ci_shards.load_weights(), spread)
-    assert files != sorted(files), "a shard of 60 files is not already alphabetical in run order"
+    assert files != sorted(files), "a shard of 27 files is not already alphabetical in run order"
 
 
 @pytest.mark.parametrize("workers", [8, 12, 13, 24])
