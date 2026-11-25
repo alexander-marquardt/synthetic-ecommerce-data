@@ -9,7 +9,7 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.price import FITTED
 from synthetic_ecommerce_data.core.typespec import TypeSpec
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import kit
+from synthetic_ecommerce_data.domains.industrial.drawing.case_figures import EXTENT, kit
 from synthetic_ecommerce_data.domains.industrial.newtypes import build_kit
 from synthetic_ecommerce_data.domains.industrial.vocab import _KIT
 
@@ -24,7 +24,7 @@ SPEC = TypeSpec(
     standards_family="hand_tool",
     vocab=_KIT,
     figure=kit,
-    extent=(5.65, 2.95),
+    extent=EXTENT,
     make=_make,
     share=60 / 2600,
     price=FITTED["kit_assortment"],

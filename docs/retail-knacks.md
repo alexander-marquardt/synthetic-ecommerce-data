@@ -48,4 +48,4 @@ mark, `laced_eyelets`: a shoe's laces crossing between two rows of eyelets, in s
 
 ## Release
 
-This ships with the next retail catalogue re-release, not as its own ingest (the batch rule).
+This ships with the next re-release of the retail products, not as its own ingest (the batch rule).

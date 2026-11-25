@@ -10,7 +10,8 @@ from typing import Any
 
 from synthetic_ecommerce_data.core.price import FITTED
 from synthetic_ecommerce_data.core.typespec import TypeSpec
-from synthetic_ecommerce_data.domains.industrial.drawing.figures import hammer
+from synthetic_ecommerce_data.domains.industrial import hammers
+from synthetic_ecommerce_data.domains.industrial.drawing import hammer_figures
 from synthetic_ecommerce_data.domains.industrial.vocab import HAMMER_VOCAB
 
 
@@ -27,8 +28,8 @@ SPEC = TypeSpec(
     category=("Hand Tools", "Hammers"),
     standards_family="hand_tool",
     vocab=HAMMER_VOCAB,
-    figure=hammer,
-    extent=(5.8, 18.25),
+    figure=hammers.drawing(hammers.BALL_PEIN),
+    extent=hammer_figures.EXTENT,
     make=_make,
     share=0.04,
     price=FITTED["hammer_ball_pein"],

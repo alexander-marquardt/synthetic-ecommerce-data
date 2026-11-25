@@ -23,7 +23,8 @@ already here; any other action, a custom shell, or an expression other than the
 pull request's base and head shas is an error, never a silent skip. The ``if:`` of
 a job is ignored: a pull request's local run executes every job, the
 push-only ``main-merged-tree`` included, since it is the same check on the
-same tree.
+same tree. The one kind of job left out is ``cancel-on-red-<job>`` (#1175), which
+checks nothing: it cancels a hosted pull request's run, and a local run has none.
 
 A matrix is understood in one shape: ``strategy: {matrix: {shard: [...]}}`` (with
 ``fail-fast``), the CI test shards (``scripts/ci_shards.py``). Locally the job runs
@@ -63,6 +64,12 @@ SETUP_ACTIONS = (
     "actions/upload-artifact",
     "actions/download-artifact",
 )
+
+#: A job that cancels a hosted pull request's run once a required job is red (#1175): its name's
+#: start, its condition and its one command. Nothing else is left out of the job list.
+CANCEL_JOB_PREFIX = "cancel-on-red-"
+CANCEL_JOB_IF = "failure() && github.event_name == 'pull_request'"
+CANCEL_JOB_RUN = "python3 scripts/ci_cancel_run.py"
 
 _EXPR = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 
@@ -138,12 +145,14 @@ class NoLocalEquivalent(Exception):
 #: has no local value either. ``vuln-gate.yaml`` is generated in elastic/prism (#1149): it asks
 #: the advisory databases and the GitHub API whether each allowlist issue is open, and its
 #: workflow ``env`` and ``setup-uv`` step are core's to keep, so GitHub runs it, never --local-ci.
+#: ``dependency-allowlist.yaml`` (#1106) reads the pull request's labels from the event.
 NOT_A_CHECK = (
     "release.yaml",
     "release.yml",
     "review-verdict.yaml",
     "review-verdict.yml",
     "vuln-gate.yaml",
+    "dependency-allowlist.yaml",
 )
 
 
@@ -152,8 +161,18 @@ def workflow_files(directory: Path) -> list[Path]:
     return sorted(path for path in found if path.name not in NOT_A_CHECK)
 
 
+def only_cancels(job_id: str, job: dict) -> bool:
+    """True for a job that does nothing but cancel a red hosted pull request run (#1175)."""
+    return (
+        job_id.startswith(CANCEL_JOB_PREFIX)
+        and job.get("if") == CANCEL_JOB_IF
+        and [step["run"] for step in job.get("steps", []) if "run" in step] == [CANCEL_JOB_RUN]
+    )
+
+
 def load_jobs(directory: Path) -> dict[str, dict]:
-    """Every job of every workflow file, by job id (an id used twice is an error)."""
+    """Every job of every workflow file, by job id (an id used twice is an error), but for the
+    jobs that only cancel a hosted run: they check nothing, here or in the prepush gate."""
     jobs: dict[str, dict] = {}
     for path in workflow_files(directory):
         document = yaml.safe_load(path.read_text()) or {}
@@ -164,7 +183,7 @@ def load_jobs(directory: Path) -> dict[str, dict]:
             if job_id in jobs:
                 raise NoLocalEquivalent(f"job {job_id!r} is defined twice (in {path.name})")
             jobs[job_id] = job
-    return jobs
+    return {job_id: job for job_id, job in jobs.items() if not only_cancels(job_id, job)}
 
 
 def _substitute(text: str, values: dict[str, str], where: str) -> str:

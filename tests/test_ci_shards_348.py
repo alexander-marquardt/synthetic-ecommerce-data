@@ -58,7 +58,8 @@ def _shard_count() -> int:
 
 def test_the_tests_job_is_a_matrix_of_shards_that_each_know_the_shard_count() -> None:
     job = _jobs()["tests"]
-    assert job["strategy"]["fail-fast"] is False, "one red shard must not hide the others' reds"
+    # False on a push and a dispatched run: there one red shard must not hide the others' reds.
+    assert job["strategy"]["fail-fast"] == "${{ github.event_name == 'pull_request' }}"
     assert _shard_count() >= 2
     runs = " ".join(step.get("run", "") for step in job["steps"])
     assert "scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }}" in runs
@@ -68,7 +69,8 @@ def test_the_tests_job_is_a_matrix_of_shards_that_each_know_the_shard_count() ->
 @pytest.mark.parametrize("count", [1, 2, 3, 6, 11])
 def test_every_test_file_is_in_exactly_one_shard(count: int) -> None:
     files = ci_shards.collected_test_files()
-    shards = ci_shards.deal(files, count, ci_shards.load_weights())
+    # No peaks: a few shards cannot hold main's heavy modules apart, which the plan refuses (#1230).
+    shards = ci_shards.deal(files, count, ci_shards.load_weights(), peaks={})
     flat = Counter(name for shard in shards for name in shard)
     # A split file is in every shard (its test ids are dealt out in ci_shard_split.py); any
     # other file is in exactly one.
@@ -142,7 +144,7 @@ def test_the_files_the_script_deals_are_the_files_pytest_collects(tmp_path: Path
     env |= {"PYTHONPATH": os.pathsep.join(filter(None, [str(tmp_path), env.get("PYTHONPATH")]))}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", "-p", "modules_only"],
+        + ["no:cacheprovider", "-n", "0", "-p", "modules_only"],
         cwd=REPO,
         env=env | {"MODULES_ONLY_OUT": str(out)},
         capture_output=True,
@@ -171,7 +173,9 @@ def test_a_file_with_no_weight_weighs_the_default_so_a_new_test_file_needs_no_ed
 def test_the_deal_is_the_same_every_time_so_a_rerun_runs_the_same_shards() -> None:
     files = ci_shards.collected_test_files()
     weights = ci_shards.load_weights()
-    assert ci_shards.deal(files, 6, weights) == ci_shards.deal(list(reversed(files)), 6, weights)
+    count = _shard_count()
+    reverse = list(reversed(files))
+    assert ci_shards.deal(files, count, weights) == ci_shards.deal(reverse, count, weights)
 
 
 def test_the_shards_stay_balanced_by_the_committed_weights() -> None:
@@ -272,7 +276,7 @@ def _collect(files: list[str], extra_env: dict[str, str]) -> list[str]:
     env = {k: v for k, v in os.environ.items() if k not in dropped}
     done = subprocess.run(
         [sys.executable, "-m", "pytest", "--collect-only", "-q", "-o", "addopts=", "-p"]
-        + ["no:randomly", "-p", "no:cacheprovider", "-n", "0", *files],
+        + ["no:cacheprovider", "-n", "0", *files],
         cwd=REPO,
         env={**env, **extra_env},
         capture_output=True,

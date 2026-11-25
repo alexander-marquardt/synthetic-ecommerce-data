@@ -68,6 +68,7 @@ ROW_TIMEOUT_S = 900
 #: seconds. ``PREPUSH_SCAN_TESTS`` (space separated) replaces them, for this gate's own tests.
 SCAN_TESTS = (
     "tests/test_us_spelling.py",
+    "tests/test_one_demo_catalog_1186.py",
     "tests/test_ignore_hides_only_data_10032.py",
     "tests/test_vendored_core_pin_11683.py",
 )
@@ -92,16 +93,18 @@ CI_COMMANDS: dict[str, tuple[str, str]] = {
 #: cheap job cannot go unnoticed.
 LEFT_TO_CI: dict[str, str] = {
     "main-merged-tree": "the merged-tree checks; scripts/merge_pr.sh --local-ci runs them",
-    "tests/Does this shard have a test file to run": "it reads the pull request's base and head,"
-    " which a push does not have yet; tests/test_ci_select_495.py runs the emitted step",
+    "tests/Does this shard have a test file to run": "it reads the shard's plan, which the"
+    " ceiling-catalogue job makes from the pull request's base and head, and a push has neither"
+    " yet; tests/test_ci_select_495.py and tests/test_ci_plan_1035.py run the emitted step",
     "red-commit-proof": "it runs each declared red test in a worktree of its commit, and its"
     " range is the pull request's base and head, which a push does not have yet",
     "no-derived-files": "it reads the pull request's base and head, as red-commit-proof does,"
     " which a"
     " push does not have yet; tests/test_no_derived_files_536.py runs its command",
-    "ceiling-catalogue": "it builds the ceiling and measures its figures, and builds the shared"
-    " 100K files, minutes of work; tests/test_ceiling_artifact_539.py runs its script on a"
-    " planted build",
+    "ceiling-catalogue": "it plans the test shards from the pull request's base and head, builds"
+    " the ceiling and measures its figures, and builds the shared 100K files, minutes of work;"
+    " tests/test_ci_plan_1035.py runs its plan and tests/test_ceiling_artifact_539.py its script"
+    " on a planted build",
 }
 
 

@@ -283,6 +283,127 @@ def test_a_test_that_scans_the_tree_is_selected_by_any_change(tmp_path: Path) ->
     assert _picked(tree, "src/unrelated.py") == ["tests/test_scan.py", "tests/test_via_helper.py"]
 
 
+def test_a_scan_with_a_literal_pattern_is_selected_only_by_a_path_it_can_match(
+    tmp_path: Path,
+) -> None:
+    """A document is not read by ``rglob("*.py")`` (#1035); a directory the pattern matches is
+    walked, so a file under it is."""
+    tree = _tree(
+        tmp_path,
+        {
+            "docs/guide.md": "x\n",
+            "src/data/kit_one/row.csv": "x\n",
+            "tests/scanning.py": 'import p\nALL = list(p.src.rglob("*.py"))\n',
+            "tests/test_via_helper.py": "import scanning\n",
+            "tests/test_kits.py": 'import p\nK = list(p.src.glob("data/kit_*"))\n',
+            "tests/test_all.py": 'from pathlib import Path\nK = list(Path("src").rglob("*"))\n',
+            "tests/test_named.py": (
+                'from pathlib import Path\nN = "a"\nK = list(Path("src").glob(f"{N}*.py"))\n'
+            ),
+        },
+    )
+    unplaced = ["tests/test_all.py", "tests/test_named.py"]
+    assert _picked(tree, "docs/guide.md") == unplaced
+    assert _picked(tree, "src/new.py") == [*unplaced, "tests/test_via_helper.py"]
+    assert _picked(tree, "src/data/kit_one/row.csv") == [
+        "tests/test_all.py",
+        "tests/test_kits.py",
+        "tests/test_named.py",
+    ]
+
+
+def test_a_scan_with_a_row_reads_the_row_s_paths_and_an_edited_one_reads_any(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    files = {
+        "tests/test_out.py": "import p\nA = [x for x in p.out.iterdir()]\n",
+        "tests/test_gold.py": "import p\nA = p.gold.iterdir()\n",
+        "tests/test_edited.py": "import p\nA = p.other.iterdir()\n",
+    }
+    monkeypatch.setattr(
+        ci_select,
+        "SCAN_SCOPES",
+        {
+            "tests/test_out.py": {"A = [x for x in p.out.iterdir()]": ()},
+            "tests/test_gold.py": {"A = p.gold.iterdir()": ("gold/",)},
+            "tests/test_edited.py": {"A = p.out.iterdir()": ()},
+        },
+    )
+    tree = _tree(tmp_path, files)
+    assert _picked(tree, "gold/x.bin") == ["tests/test_edited.py", "tests/test_gold.py"]
+    assert _picked(tree, "other/x.bin") == ["tests/test_edited.py"]
+
+
+def test_an_import_of_the_standard_library_is_not_a_product_module_of_that_name(
+    tmp_path: Path,
+) -> None:
+    """``import pickle`` reached the product type ``type_specs/pickle.py`` (#1035)."""
+    tree = _tree(
+        tmp_path,
+        {
+            "src/pkg/__init__.py": "",
+            "src/pkg/types/__init__.py": "",
+            "src/pkg/types/pickle.py": "KEY = 'pickle'\n",
+            "scripts/queue.py": "Q = 1\n",
+            "tests/test_stdlib.py": "import pickle\nfrom pickle import dumps\n",
+            "tests/test_type.py": "from pkg.types import pickle\n",
+            "tests/test_script.py": "import queue\n",
+        },
+    )
+    assert _picked(tree, "src/pkg/types/pickle.py") == ["tests/test_type.py"]
+    assert _picked(tree, "scripts/queue.py") == ["tests/test_script.py"]
+
+
+def test_an_import_in_a_subcommand_s_branch_is_reached_only_by_a_test_that_names_it(
+    tmp_path: Path,
+) -> None:
+    """The command line imports the union of the catalogues for its ``compose`` subcommand
+    alone, and that import made every industrial type's test reach all of retail (#1035)."""
+    tree = _tree(
+        tmp_path,
+        {
+            "src/pkg/__init__.py": "",
+            "src/pkg/cli.py": (
+                "def main(argv):\n"
+                '    if argv and argv[0] == "union":\n'
+                "        from pkg import union\n\n"
+                "        return union.main()\n"
+                "    from pkg import build\n\n"
+                '    return build.main("union")\n'
+            ),
+            "src/pkg/union.py": "from pkg import retail\n",
+            "src/pkg/retail.py": "R = 1\n",
+            "src/pkg/build.py": 'B = "the union"\n',  # product text says no subcommand
+            "tests/test_build.py": 'from pkg import cli\n\ncli.main(["build"])\n',
+            "tests/test_union.py": 'from pkg import cli\n\ncli.main(["union"])\n',
+            "tests/runner.py": 'ARGS = "ecom union --out x"\n',
+            "tests/test_runner.py": "from pkg import cli\nimport runner\n",
+            "tests/test_direct.py": "from pkg import union\n",
+        },
+    )
+    assert _picked(tree, "src/pkg/retail.py") == [
+        "tests/test_direct.py",
+        "tests/test_runner.py",
+        "tests/test_union.py",
+    ]
+    assert "tests/test_build.py" in _picked(tree, "src/pkg/build.py")
+
+
+def test_a_picture_of_a_document_is_not_reached_through_product_code(tmp_path: Path) -> None:
+    """A product module with the string ``images`` does not read ``docs/images`` (#1035)."""
+    tree = _tree(
+        tmp_path,
+        {
+            "docs/images/worst-40.png": "x\n",
+            "src/pkg/__init__.py": "",
+            "src/pkg/writer.py": 'OUT = "images"\n',
+            "tests/test_writer.py": "from pkg import writer\n",
+            "tests/test_page.py": 'P = "docs/images/worst-40.png"\n',
+        },
+    )
+    assert _picked(tree, "docs/images/worst-40.png") == ["tests/test_page.py"]
+
+
 def test_a_file_in_a_source_directory_is_not_reached_by_the_directory_s_name(
     tmp_path: Path,
 ) -> None:
@@ -427,9 +548,17 @@ def _direct_imports(path: str) -> set[str]:
     return {f for f in found if f and f != path}
 
 
+#: The import only ``ecom-generate compose`` runs: a test reaches it through the command line only
+#: when it says the word, so the oracle does not follow it (#1035).
+_CLI = "src/synthetic_ecommerce_data/generate_cli.py"
+_COMPOSE = "src/synthetic_ecommerce_data/compose.py"
+
+
 def _import_closure(path: str, cache: dict[str, set[str]]) -> set[str]:
     seen: set[str] = set()
     stack = [path]
+    if _CLI not in cache:
+        cache[_CLI] = _direct_imports(_CLI) - {_COMPOSE}
     while stack:
         node = stack.pop()
         if node not in cache:
@@ -527,13 +656,10 @@ def test_the_smoke_tests_are_selected_by_any_change(real: ci_select.Tree) -> Non
     assert set(ci_select.SMOKE) <= set(ci_select.select(["docs/ci-sharding.md"], real)[0])
 
 
-#: The most of the suite's seconds a documentation change may select. The bound was 0.2 while
-#: the weights held the hosted runners' seconds and 20 s for each file they never measured; the
-#: refresh from the self-hosted run 44208080586 (#1035) measures the same 117 files at 34%,
-#: every one of them selected by the `reads the whole tree` rule. Slice 3 of #1035 narrows that
-#: rule and brings this back to 0.2; until then the bound holds today's share, so a doc change
-#: never selects more.
-_DOC_CHANGE_SHARE = 0.35
+#: The most of the suite's seconds a documentation change may select. The rule that selected a
+#: test that scans the tree on any change put it at 33% (main 975bad42, #1035); a scan that cannot
+#: read the changed path no longer counts.
+_DOC_CHANGE_SHARE = 0.2
 
 
 def test_a_documentation_change_selects_a_small_part_of_the_suite(real: ci_select.Tree) -> None:
@@ -544,6 +670,39 @@ def test_a_documentation_change_selects_a_small_part_of_the_suite(real: ci_selec
     assert share < _DOC_CHANGE_SHARE, (
         f"a document change selects {share:.0%} of the suite's seconds: {chosen}"
     )
+
+
+@pytest.mark.parametrize(
+    "name", ["tests/test_type_shackles.py", "tests/test_type_seam.py", "tests/test_price.py"]
+)
+def test_an_industrial_test_is_selected_by_its_domain_and_not_by_a_retail_module(
+    name: str, real: ci_select.Tree
+) -> None:
+    """Each reached retail by ``import pickle``, the build cache's key or the ``compose``
+    subcommand, so every retail PR ran the 55 industrial type files (#1035)."""
+    domains = "src/synthetic_ecommerce_data/domains"
+    assert name in ci_select.select([f"{domains}/industrial/generate.py"], real, among=[name])[0]
+    assert name not in ci_select.select([f"{domains}/retail/grocery.py"], real, among=[name])[0]
+
+
+def test_a_test_of_the_compose_subcommand_is_selected_by_a_retail_module(
+    real: ci_select.Tree,
+) -> None:
+    name = "tests/test_compose_125.py"
+    changed = ["src/synthetic_ecommerce_data/domains/retail/grocery.py"]
+    assert ci_select.select(changed, real, among=[name])[0] == [name]
+
+
+def test_each_row_of_the_scan_table_is_a_scan_of_its_file() -> None:
+    """A row whose line is gone is dead, and the line that took its place selects its test on
+    any change."""
+    for name, rows in ci_select.SCAN_SCOPES.items():
+        lines = {x.strip() for x in (REPO / name).read_text(encoding="utf-8").splitlines()}
+        for line, paths in rows.items():
+            assert line in lines, f"SCAN_SCOPES: {name} has no line {line!r}"
+            assert ci_select._SCANS.search(line), f"SCAN_SCOPES: {name}: {line!r} scans nothing"
+            for path in paths:
+                assert (REPO / path).exists(), f"SCAN_SCOPES: {name} names {path}, which is absent"
 
 
 #: The tests of ``scripts/merge_pr.sh`` that build a throwaway origin per case: 76 of the
@@ -742,16 +901,16 @@ def test_an_unreadable_range_is_every_test_file(repo_with_change: tuple[Path, st
 
 def test_the_plan_line_prints_the_count_then_the_files() -> None:
     done = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
     )
     assert done.returncode == 0, done.stderr
     first, *files = done.stdout.splitlines()
-    assert first == "shards=3"
+    assert first == "shards=20"
     shard = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--shard", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--shard", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
@@ -870,14 +1029,15 @@ def _run_step(tmp_path: Path, run: str, planner: str) -> tuple[int, str]:
     _write(tmp_path, {"scripts/ci_shards.py": planner})
     output = tmp_path / "github_output"
     output.write_text("", encoding="utf-8")
-    script = re.sub(r"\$\{\{.*?\}\}", "1", run)
+    # The local run's shard: a hosted shard's plan is the run's (tests/test_ci_plan_1035.py).
+    script = re.sub(r"\$\{\{.*?\}\}", "all", run)
     done = subprocess.run(
         ["bash", "-e", "-c", script],
         cwd=tmp_path,
         capture_output=True,
         text=True,
         check=False,
-        env={**os.environ, "GITHUB_OUTPUT": str(output)},
+        env={**os.environ, "GITHUB_OUTPUT": str(output), "RUNNER_TEMP": str(tmp_path)},
     )
     return done.returncode, output.read_text(encoding="utf-8")
 

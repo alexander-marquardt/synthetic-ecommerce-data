@@ -247,7 +247,7 @@ def test_the_assortment_kit_figure_draws_to_no_length() -> None:
               "Tip Style": "Ball End", "Piece Count": "9",
               "Sizes Included": "1.50mm, 2mm, 2.50mm, 3mm, 4mm, 5mm, 6mm, 8mm, 10mm"}  # fmt: skip
     assert pf.drawn_to_scale(fn, record) == []
-    assert pf.figure_kit(fn, "kit_assortment") == ("industrial/figures", "kit")
+    assert pf.figure_kit(fn, "kit_assortment") == ("industrial/case_figures", "kit")
 
 
 def test_a_drawn_to_scale_type_is_out_of_scope_unless_the_maintainer_names_its_kind() -> None:

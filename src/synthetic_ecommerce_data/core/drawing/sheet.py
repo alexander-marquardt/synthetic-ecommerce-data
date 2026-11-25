@@ -81,6 +81,10 @@ MIN_STROKE = brands.WEIGHTS[0]
 LW_PART = svg.num(MIN_STROKE)
 LW_LINE = "0.8"
 
+#: The light on a figure (#1217): a highlight and a shadow, as a color and its opacity. No
+#: outline, so the brand's ink stays the only line work.
+OVERLAYS = {"gloss": ("#ffffff", "0.55"), "shade": ("#000000", "0.2")}
+
 #: The magnifier's rule and geometry (see the module docstring).
 #: The too-small-to-see rule: a part drawn at most this share of the sheet's
 #: WIDTH and at most that share of its HEIGHT gets a lens.
@@ -143,6 +147,22 @@ def type_scale(extent: tuple[float, float]) -> float:
     width, height = extent
     aw, ah = svg.WIDTH - 2 * MARGIN, FIGURE_HEIGHT - 2 * MARGIN
     return min(aw / width, ah / height)
+
+
+def outline_scale(figure: Figure, angle: float) -> float:
+    """Sheet units per inch for a ``fit_turned`` figure: its own turned outline, not its type's
+    turned box, fills the figure area (#1217)."""
+    x0, y0, x1, y1 = figure.turned_bounds(angle)
+    return type_scale((x1 - x0, y1 - y0))
+
+
+def _plain_centre(figure: Figure, scale: float, angle: float) -> tuple[float, float]:
+    """Where a plain figure's centre goes, so what it covers is centred in the figure area."""
+    cx, cy = svg.WIDTH / 2, FIGURE_HEIGHT / 2
+    if not figure.fit_turned:
+        return cx, cy
+    x0, y0, x1, y1 = figure.turned_bounds(angle)
+    return cx - (x0 + x1) / 2 * scale, cy - (y0 + y1) / 2 * scale
 
 
 @dataclass(frozen=True)
@@ -365,6 +385,10 @@ def _figure_at(
             weight = svg.num(house.stroke)
             page.polygon(points, fill=house.paper, stroke=house.paper, stroke_width=weight)
             continue
+        if isinstance(shape, Poly) and shape.role in OVERLAYS:
+            color, opacity = OVERLAYS[shape.role]
+            page.polygon([at(p) for p in shape.points], fill=color, opacity=opacity)
+            continue
         if shape.role == "part":
             color, hatched = fill, True
         elif shape.role == "plain":
@@ -454,7 +478,7 @@ def paint(
     hatch_id = _hatch_pattern(page, hatch, house.ink) if hatch is not None else None
     mag = magnifier(*_drawn_size(figure, scale), angle)
     if mag is None:
-        centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2)
+        centre = _plain_centre(figure, scale, angle)
         _figure_at(page, figure, house, fill, hatch_id, scale, centre, angle)
     else:
         _figure_at(page, figure, house, fill, hatch_id, scale, mag.part, angle)
@@ -502,6 +526,9 @@ def figure_boxes(
     :data:`PLATE_BOX`."""
     upright = _drawn_size(figure, scale)
     w, h = product_look.turned(*upright, angle)
+    if figure.fit_turned:
+        x0, y0, x1, y1 = figure.turned_bounds(angle)
+        w, h = (x1 - x0) * scale, (y1 - y0) * scale
     half = stroke / 2
     mag = magnifier(*upright, angle)
     centre = (svg.WIDTH / 2, FIGURE_HEIGHT / 2) if mag is None else mag.part

@@ -1,6 +1,6 @@
 """Books, slice 1 (gen#1119): a department of invented titles in three formats.
 
-The retail catalogue had no books: Bookcase and E-reader were the only book-related types. The
+The retail domain had no books: Bookcase and E-reader were the only book-related types. The
 maintainer's ruling (2026-11-21) asks for about 1,500 SKUs of invented titles in hardback,
 paperback and ebook, whose words collide with other departments ('The Book of Chocolate' beside
 the chocolate bars), so a search has to tell a book from the thing the book is about. Slice 1

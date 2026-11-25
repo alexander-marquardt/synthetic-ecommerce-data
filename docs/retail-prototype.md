@@ -264,7 +264,9 @@ chocolate it is made of), the sharing bags a `chocolate_bag` (a stand-up bag, it
 buttons or bites in a window and spilled in front), hot chocolate a `hot_chocolate` (a
 lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
 ball of segments in its opened foil;
-[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
+[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)); tables, chairs, bookcases,
+wardrobes and mirrors fill their picture too
+([furniture-fill-1214](retail-prototype/furniture-fill-1214.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -579,7 +581,7 @@ SKU. `tests/test_variant_axes_47.py` pins the issue's five invariants on both bu
 planted failure. Not every combination exists, so a consumer limits a dropdown to the
 combinations the product's SKUs offer.
 
-### The retail catalog at a size: `scale.py --skus N`
+### The retail domain at a size: `scale.py --skus N`
 
 **The audience facet and the spelling of a facet**. The tree keeps its Womens, Mens
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
@@ -713,7 +715,7 @@ a comma-joined fibre list or a fibre alone, a jean without a `leg_fit` or a
 bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
 
 `src/synthetic_ecommerce_data/domains/retail/scale.py --skus 20000 --out retail.jsonl` builds the
-retail catalog to a target SKU count, writes it in the standard, and prints a
+retail domain to a target SKU count, writes it in the standard, and prints a
 report:
 - the coverage (styles, SKUs per department, products per leaf, attribute fill
   per type, image ids and distinct drawings);

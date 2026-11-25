@@ -17,6 +17,8 @@ product's sizes still differ: :mod:`.breadth_rungs` draws the same shape
 smaller by its rank among them (gen#719), which says bigger or smaller and no
 dimension.
 
+A type with a drawing of its own in :mod:`.breadth_products` draws that instead (#1216).
+
 Color and section hatch still come from the record's own Material/Finish
 (:mod:`.style`), through the same :func:`.draw_sku` pipeline every other type
 uses -- only the GEOMETRY is fixed. No test pins this: each function begins

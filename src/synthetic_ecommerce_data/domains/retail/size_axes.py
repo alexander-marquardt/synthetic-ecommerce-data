@@ -95,6 +95,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Yoga Strap": ("length_cm",),
     # What holds: a volume or a capacity.
     "Air Fryer": ("capacity_l",),
+    "Microwave": ("capacity_l",),
     "Backpack": ("capacity_l",),
     "Casserole Dish": ("capacity_l",),
     "Holdall": ("capacity_l",),
@@ -110,7 +111,9 @@ AXES: dict[str, tuple[str, ...]] = {
     "Watering Can": ("capacity_l",),
     # Bags and baskets sold by a word.
     "Gift Bag": ("size", "dimensions"),
+    "Crossbody Bag": ("size",),
     "Handbag": ("size",),
+    "Shoulder Bag": ("size",),
     "Scented Candle": ("size",),
     "Storage Basket": ("size",),
     # Bedding: by bed size, or the cover's own dimensions.
@@ -147,6 +150,9 @@ AXES: dict[str, tuple[str, ...]] = {
     "Mirror": ("height_cm", "width_cm", "size"),
     "Plant": ("size",),
     "Plant Pot": ("diameter_cm",),
+    # A bouquet by its stems and a house plant by its pot (gen#1115).
+    "Bouquet": ("stem_count",),
+    "House Plant": ("pot_size_cm",),
     "Planter": ("width_cm",),
     "Garden Table": ("width_cm",),
     "Garden Storage": ("capacity_l", "width_cm"),
@@ -156,6 +162,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Ceiling Fan": ("blade_span_cm",),
     "Desk Fan": ("blade_size_in",),
     "Frying Pan": ("diameter_cm",),
+    "Brownie Tin": ("length_cm",),
     "Garden Hose": ("length_m",),
     "Bunting": ("length_m",),
     "Grass Trimmer": ("cutting_width_cm",),

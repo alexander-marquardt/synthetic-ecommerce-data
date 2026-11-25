@@ -1,4 +1,4 @@
-"""Small appliance templates for the scaled retail catalog (gen#202): data only.
+"""Small appliance templates for the scaled retail domain (gen#202): data only.
 
 The catalog had no fans, heaters, kettles or toasters, so a search for a fan found nothing
 and the fan-type, blade-size, power and noise filters could not be shown. Each type here is

@@ -14,9 +14,9 @@ a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The
 
 | Change               | Where                                                                                                      |
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| more or fewer shards | the matrix list in `ci.yaml` (nothing else: `--of` is `strategy.job-total`)                                |
+| more or fewer shards | the matrix list in `ci.yaml`, and `--of` in its `Plan the test shards` step (`tests/test_ci_plan_1035.py` holds the two equal) |
 | refresh the weights  | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
-| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 19` prints its files                                          |
+| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 20` prints its files                                          |
 | refresh the peaks    | download the `module-peaks-*` artifacts of green runs, then `python3 scripts/ci_shards.py --refresh-peaks module-peaks-*.json` |
 
 A file too heavy for one shard is split: `SPLIT_FILES` in `scripts/ci_shards.py` (now
@@ -67,6 +67,35 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   every module of a package a registry walks by dotted name), or when a changed data file is
   named in the text of its closure or is a data file of a package one of its modules belongs to.
   It over-selects on purpose: a missed test is a correctness bug, an extra test is minutes.
+- A test that scans the tree (a glob, a walk, `ls-files`, in itself or a `tests/` helper it imports)
+  is selected by a change its scan can read: a literal pattern (`rglob("*.py")`) reads the paths
+  one of whose parts it matches, and `SCAN_SCOPES` says what any other scan reads, by its source
+  line (`()` is none of the repository: it lists what the run wrote). A scan with neither, and a
+  test of `READS_WHOLE_TREE`, is selected by any change, so a new or edited scan is never dropped.
+  Add a row when a slow test is selected with `its scan reads ...` for a change it does not read.
+- Two edges are not followed because nothing runs them (#1035): `import pickle` means the standard
+  library, not the product module `type_specs/pickle.py`, and an import inside a subcommand's
+  branch of a command line (`if argv[0] == "compose":`) counts only for a test whose closure under
+  `tests/` or `scripts/` names the subcommand. A picture under `docs/` is a document: only a test
+  or script that names it reads it.
+- A script under `scripts/` imports by a computed name when its code does: a comment, a docstring or
+  a pattern that says `import_module` is no edge (a product file is still read by its text, since a
+  walked package's docstring is the edge to its modules). `IMPORTS_NAMED_BY` names the file whose
+  strings are the modules a script imports: `golden_pins.py` depends on the test modules
+  `tests/pinned.py` lists, not on every script. A retail change went from 363 files (138 min of the
+  weights) to 356 (132 min), and a module of `pinned.MODULES` now selects the tests that measure it.
+- A run plans its shards once (#1035). The ceiling leg of `ceiling-catalogue`, which `tests` needs,
+  runs `ci_shards.py --plans-out DIR --of 20` before it builds anything, and uploads
+  `test-plan-K.txt` for every shard as the `test-plans` artifact: a planner that crashes is red
+  there and no shard starts. A shard downloads the artifact before it checks out, and its `select` and `Tests`
+  steps read its own file; a file that is missing or does not start with `shards=N` is a red step,
+  never an empty plan. A shard with no file checks out nothing. A local run is the shard `all` and
+  plans for itself. The selector searches each text once per changed file, however many tests
+  reach it.
+- Measured over the 20 PRs merged up to #1173 (seconds of `ci_shard_weights.json`): the table is on
+  #1035. A documentation change went from 33% of the suite to 2%, and a retail change from 80% to
+  55%. What a retail change still selects is the retail tests, which import `retail/scale.py` or
+  `retail/kit.py` and so all of the retail domain.
 - `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
   `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector and sharding
   scripts themselves. An unreadable diff selects every test. `SMOKE` lists the guards of the
@@ -81,11 +110,12 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   (1200 s of the weights, `SHARD_BUDGET_SECONDS`), checked against the deal itself: the
   longest-first deal can leave a shard a file over the average, so the count grows until the
   heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
-  that count prints no file, and its job ends after the checkout without installing anything.
+  that count prints no file, and its job ends before the checkout.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
-  every file, for a local run. A full run deals the files to 19 shards of about 1134 s of the
-  weights each. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
-  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949); at 18 the one test file of #1052 put it at 1200.4 s, so it is 19 now (#1052); the smart home test file (#956) deals within the 19.
+  every file, for a local run. A full run deals the files to 20 shards of about 547 s of the
+  weights each, since the refresh from run 45347596547 (182 minutes of test seconds, after the
+  memo of #1227); the counts below are by the tables of their time. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
+  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949); at 18 the one test file of #1052 put it at 1200.4 s, so it is 19 now (#1052); the smart home test file (#956) deals within the 19; at 19 the two test files of #1175 put the heaviest at 1200.5 s with the next one, so it is 20 now (#1175).
   `tests/test_ci_shard_budget_704.py` deals main's files plus one unweighted file at the matrix
   count, so the shard to add is named before the pull request that would need it.
 - The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
@@ -158,19 +188,46 @@ leftovers. A figure over 1,500 MB that is below its shard's highest is therefore
 while a figure at or under 1,500 MB always is. The first table came from the logs and junit
 reports of the 18 push-to-main runs from 42182122044 to 42370021846. A module a shard's line
 named got its figure. Any other module the shard ran got the smaller of 1,500 MB and the shard's
-highest worker peak, since the line says it stayed under 1,500 MB.
+highest worker peak, since the line says it stayed under 1,500 MB. The table was refreshed
+for #1230 from the `module-peaks-*` artifacts of main's runs 45308069902, 45316258631,
+45319972788 and 45331393444.
+
+### What a shard's modules may peak at together (#1230)
+
+A shard that holds a heavy module runs two workers, each on one module at a time, so its two
+highest recorded peaks can meet. `deal()` in `scripts/ci_shards.py` puts a file only in a shard
+where that sum stays at or under `SHARD_PEAK_MB`: the 6,144 MB container less a 1,200 MB margin
+(about 360 MB for the runner and pytest's controller, read from #1172's kill, and git's cap of
+about 800 MB). A file with no recorded peak counts 1,501 MB. A spread file (`XDIST_SPREAD`, and
+the `SPLIT_FILES`) runs on both workers, so it counts twice. A change-scoped run takes one more
+shard while its deal cannot meet the bound. When no count up to the matrix does, `--plan` and
+`--shard` exit 1 and name the modules, so the step reads `the planner failed` and never an
+OOM-killed worker: lower a named module's peak, or add a shard. A full run on a few shards
+(`--of 3`) is refused too, since main's eight modules over 2,500 MB each need a shard of their
+own. `--shard all` and `--plan all` are one local run with its own memory-capped worker count
+and are not bounded. The bound holds on a hosted runner too, which has no such container.
+`tests/test_ci_shard_memory_1230.py` replays #1172's plan and #839's shard 9.
+
+What the bound does not see: memory a worker keeps from an earlier module (#839's leak, below),
+unless a recorded peak shows it.
 
 ## Random order (#539)
 
-`pytest-randomly` is a dev dependency, blocked by `-p no:randomly` in `addopts`, so an ordinary
-run keeps its file order. To put the whole suite in a random order, dispatch the workflow with
-a seed; the same seed reproduces the order, shard by shard:
+An ordinary run keeps its file order. `--order-seed=<n>`, an option of `tests/conftest.py`
+(#1107), shuffles the collected tests from the seed: the modules, then the classes in each
+module, then the tests in each class or module, so a module's tests stay together and its
+fixtures are built once. Each place comes from a hash of the seed and the test's node id, so
+every xdist worker and every shard gets the same order, and the run's header says
+`test order: shuffled by --order-seed=<n>`. It reorders only: `random`'s global state is not
+reseeded per test, as `pytest-randomly` (the plugin this replaced) did. To put the whole suite
+in a random order, dispatch the workflow with a seed; the same seed reproduces the order,
+shard by shard:
 
 ```sh
 gh workflow run ci.yaml --ref <branch> -f random_seed=<n>
 ```
 
-Run one file the same way here with `uv run pytest -p randomly --randomly-seed=<n> tests/<file>`.
+Run one file the same way here with `uv run pytest --order-seed=<n> tests/<file>`.
 
 ## No test file over 3 minutes (#1035)
 
@@ -187,6 +244,16 @@ What a heavy file most often repeats is a build the worker could share:
 
 * `templates()` in `tests/retail_templates.py` reads the retail templates once per worker. A call
   to `scale.templates()` takes 6 to 9 s, and `test_retail_scale.py` made 23 of them.
+* `tests/templates_memo.py` keeps `scale.templates()` for every caller (#1035). `tests/conftest.py`
+  installs it in a test process: the first call computes, and each call returns a list of its own,
+  unpickled in 0.15 s, so an edit is not shared. 139 test files make about 200 calls. While a
+  `MonkeyPatch` holds an edit, the call computes and nothing is kept, so a test that patches what
+  the templates are made of reads what it made. A plain assignment to a module is not seen: patch
+  with `monkeypatch`. `tests/test_templates_memo_1035.py` compares the copy with a computation in
+  another process under another hash seed, which is the determinism two calls in one process no
+  longer prove, and refuses a module that binds the function by `from ... scale import templates`.
+  Over 25 sampled retail test files on three workers, the catalogue time fell from 547 s to 254 s
+  and the `templates` share from 317 s to 29 s (a loaded machine; the sum of the calls, not wall).
 * `tests/test_type_seam.py` builds the small catalogue once per worker (`_small_build()`), and
   the 40-odd type files that compare against it share that build.
 
@@ -224,6 +291,69 @@ block and evaluates the group and `cancel-in-progress` for each kind of run.
 The VM chain (`vm_genchain.sh` in agent-ops, run on the agent VM) calls
 `bash scripts/merge_pr.sh --local-ci $n`; switching it is replacing `--local-ci` with
 `--github-ci` on that line.
+
+## A red pull request run cancels the rest of itself (#1175)
+
+A red run used to keep every runner it held until each shard ended (`fail-fast: false`, no
+cancel). Those shards cannot change the result, and they take runners from the merge path's run,
+since GitHub hands a queued job to whichever self-hosted runner asks first. Each required job
+(`REQUIRED_CI` in `scripts/merge_pr/config.sh`) now has a job of its own that cancels the run:
+
+```yaml
+cancel-on-red-lint:
+  needs: [lint]
+  if: failure() && github.event_name == 'pull_request'
+  runs-on: ubuntu-latest
+  permissions:
+    contents: read
+    actions: write
+```
+
+- It runs `scripts/ci_cancel_run.py` once the required job has **ended** red, its in-shard rerun and
+  its `always()` uploads done. The red job is recorded as `failure` and the run's other jobs end as
+  `cancelled`. There is one per required job because a single job that needs them all would start
+  only when all had ended; it is hosted, so it does not queue behind the `synth-ci` pool.
+- The cancel is **never a step of the red job**. GitHub records a job that is still running when its
+  run is cancelled as `cancelled`, even though a step of it failed: in job 137725634488 the `Tests`
+  step is `failure` and the job is `cancelled` (`tests/fixtures/cancelled_from_inside_1175.json`).
+  Nothing then reads the pull request as red: v3 re-ran that head instead of starting a fix round.
+- The `tests` and `ceiling-catalogue` matrices have `fail-fast: ${{ github.event_name ==
+  'pull_request' }}`: a red leg keeps `failure`, GitHub cancels its sibling legs, so the matrix job
+  ends and its cancel job starts. On a push or a dispatched run it is `false` and every leg ends.
+- Only a `pull_request` run cancels: a push to main, a merge-group run and a dispatched run
+  (`merge_pr.sh --github-ci`, the batch train) never do, since their result is a merged sha's
+  proof. `scripts/ci_cancel_run.py` checks the event again and cancels nothing on any other.
+- Only the cancel jobs are granted `actions: write`; the workflow's default token stays
+  `contents: read`. A fork's pull request gets a read-only token: the cancel answers 403, the
+  job says so, and the rest of the run goes on.
+- On a green run, a push and a dispatched run the cancel jobs are **skipped**. They are in no
+  `REQUIRED_CI` list, and `SKIPPED_BY_DESIGN_CI` in `scripts/merge_pr/config.sh` names them, since
+  `merge_pr.sh` refuses any other skipped check.
+- The cancelled jobs run again on the pull request's next push. `merge_pr.sh --local-ci` and the
+  prepush gate leave the cancel jobs out (`only_cancels` in `scripts/local_ci_jobs.py`): a local
+  run has no run to cancel.
+- `tests/test_ci_cancel_on_red_1175.py` pins the jobs, and that they run only on a red pull request
+  run; `tests/test_ci_cancel_run_1175.py` pins the script.
+
+**The replay.** `scripts/ci_red_run_replay.py` reads a run's jobs (`gh api
+"repos/<owner>/<repo>/actions/runs/<id>/jobs?per_page=100&filter=latest"`) and prints the
+runner-minutes a cancel at its first red required check frees. On the recorded runs
+(`tests/fixtures/red_runs_1175.json`): the three red runs of the 2026-11-23 04:56Z queue and one
+from 2026-11-22:
+
+| Run (pull request)    | First red required check | Jobs that ran on | Runner-min freed |
+| --------------------- | ------------------------ | ---------------- | ---------------- |
+| 45102749533 (#1171)   | `tests (10)` 04:26:22Z   | 8                | 39.9             |
+| 45103039265 (#1166)   | `red-commit-proof` 03:54Z | 19              | 144.2            |
+| 45106728542 (#1172)   | `red-commit-proof` 04:00Z | 19              | 128.8            |
+| 45084861912 (#1120)   | `red-commit-proof` 23:53Z | 23              | 135.5            |
+
+About 7.5 runner-hours over four red runs.
+
+**What this costs.** A fix round sees only the failures up to the first red check, not every
+shard's: run 45084861912 had `red-commit-proof` red and five `tests` shards red as well, and a
+cancel at the first would have shown only the first. Such a pull request can take one more fix
+round; count fix rounds per red pull request before and after this change.
 
 ## The metric: `gen-merge-minutes`
 
@@ -273,7 +403,7 @@ in the list: it runs only on a push to main, so a PR's head never carries it.
 | the push run on `main` | the train's wait every batch | under 15 (#790) | 22 to 37 min |
 
 The 10 and the 15 are kept, each for its mode. The push run on `main` had no target; it has the
-`--github-ci` one now, since it runs the same 19 shards on the same runners. The `Measured`
+`--github-ci` one now, since it runs the same 20 shards on the same runners. The `Measured`
 column comes from `gh run list --workflow ci.yaml --limit 40` on 11-02: 12 push runs on `main`
 from 11-01 06:16Z to 11-02 00:27Z took 22.4 to 37.3 minutes, and one took 82.0.
 
@@ -289,7 +419,7 @@ workers stays under 1.2 GB. Cutting those tests, and the worker count they hold 
 
 ## Where the jobs run (#596)
 
-Every job's `runs-on` is one expression: `[self-hosted, synth-ci]` when the repository variable
+Every job's `runs-on` (but a `cancel-on-red-*` job's, #1175) is one expression: `[self-hosted, synth-ci]` when the repository variable
 `SYNTH_CI_SELF_HOSTED` is `true` and the run is a push, a dispatched run or a pull request whose
 head branch is in this repository; `ubuntu-latest` otherwise, so a fork's pull request never runs
 on the self-hosted runner. That runner (agent-ops `vm/ci_runner/`) runs each job in its own
@@ -304,9 +434,10 @@ the merge train's batch run: a `workflow_dispatch` on a `ci/batch-*` ref (agent-
 `merge_pr.sh --github-ci` on `ci/merge-<N>`) keep `[self-hosted, synth-ci]`. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
 `vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
-full run is 25 jobs (19 of them `tests` shards) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
+full run is 28 jobs (20 of them `tests` shards; a push run is 24) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
-to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression.
+to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression, but for the `cancel-on-red-*` jobs (#1175), which are
+hosted.
 
 ## A lost xdist worker is an infra failure, rerun once (#629)
 

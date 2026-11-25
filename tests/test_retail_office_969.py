@@ -2,7 +2,7 @@
 notebooks, ring binders, document folders, calculators, school backpacks, colored pencils and
 desk organizers.
 
-The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
+The retail domain had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
 drawn by :mod:`kit_office`. Slice 2 adds the filing and desk types (``type_specs/ring_binder.py``,

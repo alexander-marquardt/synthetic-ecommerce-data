@@ -1,4 +1,4 @@
-"""Household tool sets: a homeowner tool for the general-retail catalogue (#971, slice 3).
+"""Household tool sets: a homeowner tool for the R&I catalogue (#971, slice 3).
 
 A household tool set is the kit a homeowner keeps in a cupboard: a hammer, screwdrivers, a
 few wrenches and pliers, hex keys and a run of sockets and bits, in one container. A
@@ -31,12 +31,11 @@ standard-tier set.
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
-from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
+from synthetic_ecommerce_data.domains.industrial.drawing.case_figures import EXTENT, household_set
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
 from synthetic_ecommerce_data.domains.industrial.newtypes import NO_STANDARD
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
@@ -69,7 +68,7 @@ COLORS: dict[str, str] = {
     "Green": "#3c8d4f",
     "Yellow": "#f2c230",
     "Black": "#2a2a2e",
-    "White": "#ffffff",
+    "White": "#eceff1",
 }
 
 #: Every line a brand can offer, without its color: a container and a tool steel. All 18,
@@ -160,101 +159,14 @@ def _pieces(record: dict[str, str]) -> int | None:
         return None
 
 
-def _outline(fig: Figure, container: str, wide: float, high: float, fill: str) -> None:
-    """The container's own outline, filled with the record's color, and its fittings."""
-    if container == "Canvas Tool Bag":
-        fig.poly([(0.1 * wide, 0.0), (0.9 * wide, 0.0), (wide, high), (0.0, high)], "part", fill)
-        for x in (0.25 * wide, 0.65 * wide):
-            fig.rect(x, -0.35 * high, x + 0.1 * wide, -0.25 * high, "dark")
-            fig.lines(
-                [
-                    ((x, -0.25 * high), (x, 0.0)),
-                    ((x + 0.1 * wide, -0.25 * high), (x + 0.1 * wide, 0.0)),
-                ]
-            )
-        return
-    if container in ("Blow-Molded Case", "Zippered Case"):
-        r = 0.12 * high
-        fig.poly(
-            [
-                (r, 0.0),
-                (wide - r, 0.0),
-                (wide, r),
-                (wide, high - r),
-                (wide - r, high),
-                (r, high),
-                (0.0, high - r),
-                (0.0, r),
-            ],
-            "part",
-            fill,
-        )
-    else:
-        fig.rect(0.0, 0.0, wide, high, "part", fill)
-    if container == "Blow-Molded Case":
-        for x in (0.2 * wide, 0.75 * wide):
-            fig.rect(x, high, x + 0.05 * wide, high + 0.08 * high, "dark")
-        fig.rect(0.42 * wide, -0.12 * high, 0.58 * wide, 0.0, "dark")
-    elif container == "Zippered Case":
-        inset = 0.04 * high
-        fig.lines(
-            [
-                ((inset, inset), (wide - inset, inset)),
-                ((wide - inset, inset), (wide - inset, high - inset)),
-                ((wide - inset, high - inset), (inset, high - inset)),
-                ((inset, high - inset), (inset, inset)),
-            ]
-        )
-        fig.rect(wide - 0.02 * wide, 0.45 * high, wide + 0.06 * wide, 0.55 * high, "dark")
-    elif container in ("Plastic Tool Box", "Metal Tool Box"):
-        fig.rect(0.3 * wide, -0.18 * high, 0.7 * wide, -0.1 * high, "dark")
-        fig.lines(
-            [
-                ((0.32 * wide, -0.1 * high), (0.32 * wide, 0.0)),
-                ((0.68 * wide, -0.1 * high), (0.68 * wide, 0.0)),
-            ]
-        )
-        if container == "Metal Tool Box":
-            fig.lines([((0.0, 0.3 * high), (wide, 0.3 * high))])
-            for x in (0.05 * wide, 0.9 * wide):
-                fig.rect(x, 0.25 * high, x + 0.05 * wide, 0.35 * high, "dark")
-    elif container == "Roll-Up Pouch":
-        step = wide / 8
-        fig.lines([((step * k, 0.15 * high), (step * k, high)) for k in range(1, 8)])
-        fig.rect(wide, 0.4 * high, wide + 0.15 * wide, 0.5 * high, "dark")
-
-
 def figure(record: dict[str, str]) -> Drawn:
-    """The set seen from the front, open: its container's outline filled with the record's
-    color, and inside it a tray holding one mark for each piece, laid out in rows. The
-    container grows with the piece count, so a line's siblings draw differently, and each
-    container has its own outline and fittings (a case's latches, a box's handle, a pouch's
-    pockets, a bag's handles)."""
+    """The set seen from the front, open and lit: its container in the record's color, its tools
+    and one bit for each piece. A larger set is drawn larger, and each container has its own
+    outline and fittings (``case_figures``)."""
     pieces = _pieces(record)
-    source = "record" if pieces else "partial"
-    pieces = pieces or 23
-    container = str(record.get("Container Type", ""))
-    wide = 3.0 + 0.55 * math.sqrt(pieces)
-    high = 0.6 * wide
-    fig = Figure(size_in=wide)
-    fill = COLORS.get(str(record.get("Color", "")), "#f2c230")
-    _outline(fig, container, wide, high, fill)
-    margin = 0.1 * wide
-    tray = (margin, 0.4 * high, wide - margin, high - margin)
-    fig.rect(*tray, "plain")
-    cols = max(1, math.ceil(math.sqrt(pieces * (tray[2] - tray[0]) / (tray[3] - tray[1]))))
-    rows = math.ceil(pieces / cols)
-    dx = (tray[2] - tray[0]) / cols
-    dy = (tray[3] - tray[1]) / rows
-    fig.discs(
-        [
-            (tray[0] + dx * (k % cols + 0.5), tray[1] + dy * (k // cols + 0.5))
-            for k in range(pieces)
-        ],
-        0.35 * min(dx, dy),
-        "dark",
-    )
-    return Drawn(fig, source)
+    fill = COLORS.get(str(record.get("Color", "")), COLORS["Yellow"])
+    drawn = household_set(record, fill, pieces or 23, PIECE_COUNTS)
+    return Drawn(drawn, "record" if pieces else "partial")
 
 
 SPEC = TypeSpec(
@@ -264,7 +176,7 @@ SPEC = TypeSpec(
     standards_family="hand_tool",
     vocab=VOCAB,
     figure=figure,
-    extent=(11.2, 7.9),
+    extent=EXTENT,
     make=_make,
     share=0.0055,
     price=PRICE,
