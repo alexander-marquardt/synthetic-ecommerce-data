@@ -10,6 +10,7 @@ answering the open-pull-request lookup and the Markdown render.
 
 from __future__ import annotations
 
+import importlib.util
 import os
 import re
 import shutil
@@ -82,6 +83,7 @@ def repo(tmp_path: Path) -> Path:
         "check_customer_names.py",
         "ci_run_pytest.py",
         "file_size_gate.py",
+        "hooks.py",
         "local_ci_jobs.py",
     ):
         (root / "scripts").mkdir(exist_ok=True)
@@ -563,11 +565,10 @@ def test_a_new_step_in_a_job_a_row_mirrors_is_reported(tmp_path: Path) -> None:
     assert _prepush().unaccounted(workflows) == ["lint/Types"]
 
 
-def test_a_stricter_ci_lint_is_the_command_the_gate_runs(repo: Path) -> None:
+def test_a_changed_ci_lint_line_is_the_command_the_gate_runs(repo: Path) -> None:
     ci = repo / ".github" / "workflows" / "ci.yaml"
-    ci.write_text(
-        ci.read_text("utf-8").replace("ruff check .", "ruff check . --select ALL"), "utf-8"
-    )
+    line = "hooks.py run pre-commit --all-files"
+    ci.write_text(ci.read_text("utf-8").replace(line, f"{line} --no-such-flag"), "utf-8")
     done = _gate(repo, "--only", "lint")
     out = _out(done)
     assert done.returncode == 1, out
@@ -585,7 +586,7 @@ def test_the_argv_a_row_runs_is_the_workflows_with_locked(repo: Path, tmp_path: 
     done = _gate(repo, "--only", "lint", "--only", "tree-scans")
     assert done.returncode == 0, _out(done)
     calls = log.read_text("utf-8").splitlines()
-    assert calls[0] == "run --locked ruff check .", calls
+    assert calls[0] == "run --locked python scripts/hooks.py run pre-commit --all-files", calls
     assert calls[1].startswith("run --locked pytest "), calls
 
 
@@ -637,34 +638,22 @@ def test_every_scan_test_the_gate_runs_exists() -> None:
     assert [name for name in scans if not (ROOT / name).is_file()] == []
 
 
-def _precommit() -> dict:
-    return yaml.safe_load((ROOT / ".pre-commit-config.yaml").read_text("utf-8"))
+def _hooks():
+    spec = importlib.util.spec_from_file_location("hooks", ROOT / "scripts" / "hooks.py")
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-def test_pre_commit_installs_a_pre_push_hook_that_runs_the_gate() -> None:
-    config = _precommit()
-    assert "pre-push" in config["default_install_hook_types"]
-    hooks = {
-        hook["id"]: hook for repo in config["repos"] for hook in repo["hooks"]
-    }
-    gate = hooks.get("prepush-gate", {})
-    assert gate.get("entry") == "bash scripts/prepush.sh --hook"
-    assert gate.get("stages") == ["pre-push"]
-    assert gate.get("always_run") is True
+def test_the_hook_script_installs_a_pre_push_hook_that_runs_the_gate() -> None:
+    hooks = _hooks()
+    assert "pre-push" in hooks.STAGES
+    gate = ("bash", "scripts/prepush.sh", "--hook")
+    assert hooks.COMMAND_HOOKS["prepush-gate"] == ("pre-push", gate)
 
 
 def test_the_other_hooks_stay_at_the_commit_stage() -> None:
-    """Each hook names its stage: a hook's manifest ``stages`` outranks ``default_stages``.
-
-    ``end-of-file-fixer`` and ``ruff-check`` list ``pre-push`` in their own manifests, so
-    without an explicit ``stages`` here they would run again at every push, next to the gate.
-    """
-    config = _precommit()
-    assert config.get("default_stages") == ["pre-commit"]
-    at_push = [
-        hook["id"]
-        for repo in config["repos"]
-        for hook in repo["hooks"]
-        if hook["id"] != "prepush-gate" and "pre-push" in hook.get("stages", ["pre-push"])
-    ]
-    assert at_push == []
+    """Only the gate runs at the push: the file checks there would be the same work twice."""
+    at_push = [name for name, stage in _hooks().HOOKS.items() if stage == "pre-push"]
+    assert at_push == ["prepush-gate"]
