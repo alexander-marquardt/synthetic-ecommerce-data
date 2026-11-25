@@ -54,8 +54,9 @@ everything industrial: the generator, the types, vocabularies, standards,
 taxonomy, figures, geometry, census measurement and data. The commands
 compose a domain with core, so they stay at the top level beside `prism/`:
 `generate_cli.py` (`ecom-generate`), and so does `rule_rowsets.py`, which hands the retail realism
-rules (`domains/retail/rules.py`) the industrial build's rows (#716). Some core modules still hold industrial tables next to their
-machinery; every way core reaches outside itself (an import, relative or
+rules (`domains/retail/rules.py`) the industrial build's rows (#716), and
+`clash_queries.py`, which measures the appliance clash queries over both builds (#1116). Some core
+modules still hold industrial tables next to their machinery; every way core reaches outside itself (an import, relative or
 absolute, or a module named in a string) is listed in
 `tests/test_core_extraction_125.py`, and that list only shrinks. A domain hands core its tables through `core/domain.py` (#128): importing `domains/industrial/` registers its types, brand families and figures, and emit's image-id check, `Brand.makes()` and `core/drawing` ask the registry. Old `synthetic_industrial_products.catalog.*` import paths resolve to the moved modules. `src/synthetic_ecommerce_data/domains/retail/` is the
 retail store (the former `prototypes/retail_drawings/`, #125 slice 1): its departments live
