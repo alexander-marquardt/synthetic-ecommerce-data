@@ -39,7 +39,7 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     ("XQ16", "biscuit", "Strawberries and Cream Biscuits", "Sandwich biscuits with a strawberries and cream filling.", "Pink", "strawberries", 950, ("wheat flour", "dried strawberries (3%)", "cream powder", "sugar")),
     ("XQ17", "ice_cream", "Strawberries & Cream Ice Cream", "Creamy vanilla ice cream rippled with strawberry sauce, in a 500ml tub.", "Pink", "strawberries", 930, ("milk", "cream", "strawberries (9%)", "sugar")),
     ("XQ18", "yoghurt", "Strawberries and Cream Yogurt, 4 Pack", "Four pots of creamy yogurt with strawberry puree.", "Pink", "strawberries", 910, ("yogurt", "strawberry puree (8%)", "cream")),
-    ("XQ19", "sweets", "Milk Chocolate Covered Strawberries", "Freeze-dried strawberries coated in milk chocolate, in a 120g bag.", "Pink", "strawberries", 880, ("milk chocolate", "freeze-dried strawberries (30%)")),
+    ("XQ19", "coated_strawberries", "Milk Chocolate Covered Strawberries", "Freeze-dried strawberries coated in milk chocolate, in a 120g bag.", "Pink", "strawberries", 880, ("milk chocolate", "freeze-dried strawberries (30%)")),
     # -- raspberries
     ("XQ20", "white_chocolate", "White Chocolate Raspberries Bar", "A white chocolate bar with pieces of freeze-dried raspberries.", "White", "raspberries", 940, ("sugar", "cocoa butter", "milk powder", "freeze-dried raspberries (6%)")),
     ("XQ21", "biscuit", "Raspberries and Cream Shortbread", "Shortbread biscuits filled with raspberries and cream.", "Pink", "raspberries", 910, ("wheat flour", "butter", "raspberry jam", "cream")),
@@ -65,9 +65,9 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     # -- bananas
     ("XQ37", "smoothie", "Strawberries and Bananas Smoothie", "A fruit smoothie of strawberries and bananas, in a 750ml carton.", "Pink", "bananas", 940, ("apple juice", "banana puree (20%)", "strawberry puree (18%)")),
     ("XQ38", "cereal_bar", "Bananas and Honey Oat Bars", "Chewy oat bars with dried bananas and honey, in a box of 5.", "Cream", "bananas", 910, ("oats", "dried bananas (12%)", "honey")),
-    ("XQ39", "sweets", "Milk Chocolate Covered Bananas", "Dried banana slices coated in milk chocolate, in a 130g bag.", "Brown", "bananas", 880, ("milk chocolate", "dried bananas (35%)")),
+    ("XQ39", "coated_bananas", "Milk Chocolate Covered Bananas", "Dried banana slices coated in milk chocolate, in a 130g bag.", "Brown", "bananas", 880, ("milk chocolate", "dried bananas (35%)")),
     # -- cherries
     ("XQ40", "pickle", "Morello Cherries in Syrup, 425g", "Morello cherries in a light syrup, for baking and desserts. A 425g jar.", "Red", "cherries", 940, ("morello cherries (55%)", "water", "sugar")),
     ("XQ41", "jam", "Black Cherries Conserve, 340g", "A conserve of black cherries, in a 340g jar.", "Red", "cherries", 910, ("black cherries (50%)", "sugar", "lemon juice")),
-    ("XQ42", "chocolate_box", "Dark Chocolate Covered Cherries", "Whole cherries in kirsch syrup, covered in dark chocolate. A 150g box.", "Brown", "cherries", 880, ("dark chocolate", "cherries (30%)", "sugar syrup")),
+    ("XQ42", "chocolate_cherries", "Dark Chocolate Covered Cherries", "Whole cherries in kirsch syrup, covered in dark chocolate. A 150g box.", "Brown", "cherries", 880, ("dark chocolate", "cherries (30%)", "sugar syrup")),
 )

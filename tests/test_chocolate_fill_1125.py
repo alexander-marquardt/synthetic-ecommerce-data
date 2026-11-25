@@ -70,7 +70,14 @@ def _fill(parts: list[str]) -> float:
 
 
 def test_every_bar_family_draws_the_chocolate_bar() -> None:
-    shapes = {r["product_id"][:7]: r["drawing"]["shape"] for r in _records()}
+    """Every flavour but the peanut butter cups and the coated peanuts, which draw their own
+    chocolate (``tests/test_chocolate_shapes_1125.py``)."""
+    own = tuple(name for (_, name) in grocery.SHAPES if name.startswith("Chocolate "))
+    shapes = {
+        r["product_id"][:7]: r["drawing"]["shape"]
+        for r in _records()
+        if not r["title"].endswith(own)
+    }
     assert set(shapes) == {f"GRC-{c}" for c in BAR_FAMILIES}
     assert set(shapes.values()) == {"chocolate_bar"}, shapes
 
