@@ -71,7 +71,9 @@ def test_the_type_is_a_derivable_leaf_of_its_own_under_purses_and_wallets(spec) 
         values = _values(row)
         assert row.path == PATH, row.code
         assert row.shape == SHAPE and SHAPE in kit.shapes(), row.code
-        assert dict(row.params) == {k: values[k].lower() for k in ("holder_style", "material")}, row.code
+        assert dict(row.params) == {k: values[k].lower() for k in ("holder_style", "material")}, (
+            row.code
+        )
         assert values["audience"] == audience.WOMENS, row.code
         assert values["rfid_blocking"] in {"Yes", "No"} and int(values["card_slots"]) > 0, row.code
     for row in spec.rows:  # the title shows the form and the material
@@ -101,7 +103,9 @@ def test_a_card_holder_is_no_garment_so_its_material_is_no_fabric(spec) -> None:
 
 def test_the_family_names_the_type_and_no_lead_word_is_in_any_template_text() -> None:
     assert line_grammar.family({"product_type": PTYPE}) == "card_holder"
-    family = importlib.import_module("synthetic_ecommerce_data.domains.retail.line_grammar_families.card_holder")
+    family = importlib.import_module(
+        "synthetic_ecommerce_data.domains.retail.line_grammar_families.card_holder"
+    )
     words = line_grammar.text_words(scale.templates(baseline=False))
     assert [w for w in family.LEADS if w.lower() in words] == []
 
@@ -137,11 +141,17 @@ def test_a_derived_style_keeps_the_form_and_draws_the_material_it_states(ceiling
     wrong = []
     for r in derived:
         new = {a["key"]: str(a["value"]) for a in r["attributes"]}
-        old = {a["key"]: str(a["value"]) for a in by_id[ceiling.template_of[r["product_id"]]]["attributes"]}
+        old = {
+            a["key"]: str(a["value"])
+            for a in by_id[ceiling.template_of[r["product_id"]]]["attributes"]
+        }
         params = r["drawing"]["params"]
         if any(new.get(k) != old.get(k) for k in BUILD_KEYS):
             wrong.append((r["title"], "build"))
-        if params["material"] != new["material"].lower() or params["holder_style"] != new["holder_style"].lower():
+        if (
+            params["material"] != new["material"].lower()
+            or params["holder_style"] != new["holder_style"].lower()
+        ):
             wrong.append((r["title"], "drawing"))
         if not re.search(rf"\b{new['material']}\b", r["title"]):
             wrong.append((r["title"], "title"))
@@ -159,6 +169,10 @@ def test_census_the_type_meets_the_output_standard_under_purses_and_wallets(ceil
 
 
 def test_the_demo_query_has_matching_styles_and_a_decoy_to_tell_apart(spec, ceiling) -> None:
-    match = [r for r in _mine(ceiling) if any(a["key"] == "material" and a["value"] == QUERY_MATERIAL for a in r["attributes"])]
+    match = [
+        r
+        for r in _mine(ceiling)
+        if any(a["key"] == "material" and a["value"] == QUERY_MATERIAL for a in r["attributes"])
+    ]
     assert len(match) >= 8
     assert any(d.query == QUERY for d in spec.decoys)
