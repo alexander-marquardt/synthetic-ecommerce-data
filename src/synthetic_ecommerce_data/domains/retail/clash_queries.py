@@ -127,7 +127,10 @@ def hits(index: br.Index, clash: Clash, *, policy: bool) -> list[dict]:
     scored = []
     for i in index.candidates(words):
         record = index.catalog[i]
-        scored.append((index.text_score(i, words), record))
+        if policy and clash.filter and not meets(record, clash.filter):
+            continue
+        factor = BOOST if policy and clash.boost and meets(record, clash.boost) else 1.0
+        scored.append((index.text_score(i, words) * factor, record))
     scored.sort(key=lambda s: (-s[0], s[1]["product_id"]))
     return [record for _, record in scored]
 
