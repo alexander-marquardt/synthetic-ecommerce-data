@@ -9,6 +9,7 @@ import pytest
 
 import ci_shard_split
 import templates_memo
+import type_reads
 import worker_peak
 from xdist_groups import group_for
 
@@ -22,6 +23,8 @@ def pytest_configure(config):
     """
     config.pluginmanager.register(ci_shard_split, "ci_shard_split")
     config.pluginmanager.register(worker_peak, "worker_peak")
+    if not config.pluginmanager.is_registered(type_reads):  # a test of it loads it first (#1035)
+        config.pluginmanager.register(type_reads, "type_reads")
     templates_memo.watch()
     if hasattr(config, "workerinput") or "RETAIL_FIGURES_CACHE" in os.environ:
         return
