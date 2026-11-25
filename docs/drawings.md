@@ -376,12 +376,15 @@ already a longer drawing, and a rank on top would shrink it twice.
 
 A type named in `BREADTH_PRODUCTS` (`domains/industrial/drawing/breadth_products.py`) draws the
 product it is sold as, in place of its row's `shape`: a jaw puller, a grease tub, an eye bolt.
-The second slice's drawings (hand tools, hardware and storage) are in `breadth_hardware.py`, and
-the light and the parts both share in `breadth_light.py`. The geometry is still fixed and reads
-nothing from the record (one exception: `foam_ear_plugs` draws the cord of a `Corded` pair), but
-it has the product's own parts and colors, a highlight and a shadow (the `gloss` and `shade`
-roles: translucent, unoutlined), and it is laid out to fill the figure area. Three things keep it
-large:
+The second slice's drawings (hand tools, hardware and storage) are in `breadth_hardware.py`, the
+third's (shop tools, fasteners and power transmission) in `breadth_shop.py`, and the light and the
+parts they share in `breadth_light.py`. The geometry is still fixed, but it has the product's own
+parts and colors, a highlight and a shadow (the `gloss` and `shade` roles: translucent,
+unoutlined), and it is laid out to fill the figure area. A drawing reads the record only where a
+value is a different product to look at, inside the same outline: `foam_ear_plugs` the cord of a
+`Corded` pair; `center_punches`, `hose_clamps`, `shaft_collars` and `timing_pulleys` their `Style`;
+`seal_pick_sets` and `fastener_extractors` a tool for each piece of their `Piece Count`. Three
+things keep it large:
 
 * it is `steady`, turned by 6 degrees at most (a kit is `level`);
 * its scale is fitted to its own turned outline (`product_look.OUTLINES`), not to its turned box;
@@ -392,9 +395,9 @@ figure area, measured as [the picture sweep](retail-prototype/picture-fill-1129.
 the type's own floor where its true outline cannot reach that (`FLOORS`: a rod, an open clamp). It
 also holds each type's largest drawing, over every brand, material, size and angle, under the
 8,000-byte cap: a small part (a bolt head, a bit in a set) is drawn in few points and few shapes.
-Before and after: [slice 1](images/breadth-fill-1216.png) and
-[slice 2](images/breadth-fill-1216-slice-2.png). The other breadth types under 50% follow in a
-later slice of #1216.
+Before and after: [slice 1](images/breadth-fill-1216.png),
+[slice 2](images/breadth-fill-1216-slice-2.png) and
+[slice 3](images/breadth-fill-1216-slice-3.png), the last.
 
 ### Every drawing is drawn by code (#803)
 

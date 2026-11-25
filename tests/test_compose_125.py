@@ -249,6 +249,6 @@ def test_the_release_ships_the_composed_catalog_as_its_one_catalog_asset():
         f"gzip -n -9 -c {composed} > build/release/catalog.ndjson.gz",
     ):
         assert part in step, part
-    pin_bump = _step("The pin-bump")
+    pin_bump = _step("The pins")
     assert f"--catalog {composed}" in pin_bump
     assert "build/release/catalog/provenance.json" in pin_bump.split("gh release create", 1)[1]

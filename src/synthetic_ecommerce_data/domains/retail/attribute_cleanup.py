@@ -28,10 +28,10 @@ published document, so :func:`clean` (called by ``export._product_attributes`` a
   a length (the 10-18 ruling): a Petite leg and a Short/Petite fit are Short, and on the product
   they also put Petite in the ``size_range``, whose values are title case;
 - **split**: an authored key holding two kinds of value goes out as one key per kind (the 10-18
-  ruling, "Split"): a watch's ``strap`` is ``strap_material``, any other's ``strap_style``; a
-  lampshade's ``fabric`` is ``shade_material`` and a soft toy's ``material``; a neck in a
-  ``knit_style`` (:data:`BY_VALUE`) is the ``neckline``, unless the product authors its own
-  neckline (a polo's Collared), and every neckline takes one spelling (Crew, V-neck; a roll
+  ruling, "Split"): a watch's or a Watch Strap's ``strap`` is ``strap_material``, any other's
+  ``strap_style``; a lampshade's ``fabric`` is ``shade_material`` and a soft toy's ``material``; a
+  neck in a ``knit_style`` (:data:`BY_VALUE`) is the ``neckline``, unless the product authors its
+  own neckline (a polo's Collared), and every neckline takes one spelling (Crew, V-neck; a roll
   or turtle neck is High, as ``neckline_rows.TITLE_WORDS`` reads it);
   and ``items`` or a ``contents`` that only counts ("3 items", :data:`COUNTED`) is the
   ``piece_count``, a bare number of pieces;
@@ -128,8 +128,9 @@ RENAMES: dict[str, tuple[str, str]] = {
 #: (authored key, product type) -> the (key, name) it is published under on that type alone. A
 #: Suit Jacket's Short/Regular/Long ``length`` is the height fit of a garment with no leg, a
 #: Skirt's ``fit_length`` (the 11-03 ruling): not a leg, and not the style's length. A watch's
-#: ``strap`` is what the strap is made of; every other type's is its form (the 10-18 ruling,
-#: "Split"). A lampshade's and a soft toy's cloth is a material: ``fabric`` is apparel's.
+#: ``strap``, and a Watch Strap's, is what the strap is made of; every other type's is its form
+#: (the 10-18 ruling, "Split"). A lampshade's and a soft toy's cloth is a material: ``fabric`` is
+#: apparel's.
 BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
     ("length", "Jeans"): LEG,
     ("length", "Suit Jacket"): FIT,
@@ -137,6 +138,7 @@ BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
     ("strap", "Analog Watch"): STRAP_MATERIAL,
     ("strap", "Digital Watch"): STRAP_MATERIAL,
     ("strap", "Fitness Band"): STRAP_MATERIAL,
+    ("strap", "Watch Strap"): STRAP_MATERIAL,
     ("fabric", "Lampshade"): ("shade_material", "Shade material"),
     ("fabric", "Soft Toy"): ("material", "Material"),
 }

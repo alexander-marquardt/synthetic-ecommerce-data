@@ -38,6 +38,7 @@ MOVED = {
     "analog_watch": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
     "digital_watch": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
     "fitness_band": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
+    "watch_strap": [Option("lug_mm", "lug_width", "Lug width", "MMT")],
     "dolls_house": [Option("house_style", "style", "Style")],
     "tracksuit": [Option("sold_as", "sold_as", "Sold as")],
     "sun_cream": [Option("spf", "spf", "SPF")],

@@ -27,6 +27,19 @@ FROZEN_KEYS = frozenset(
      # (gen#1115)
      "plant_kind", "light_needs", "pet_safe", "pot_material", "feed_form"}
 )  # fmt: skip
+#: A jewelry style or a watch (gen#1113) is one build too: the metal is its SKUs, and its stone,
+#: style and strap are in its drawing (a pearl stud with an amethyst title would still draw a
+#: pearl), so a derived style changes its brand, its range, its price and its hero metal or color.
+JEWELLERY_KEYS = frozenset({
+    "metal", "stone", "birthstone", "material", "hypoallergenic", "piece_count", "fastening",
+    "earring_style", "bangle_style", "bracelet_type", "necklace_type", "ring_type",
+    "cufflink_style", "pendant_style", "anklet_style", "charms", "layers", "strap", "watch_type",
+    "case_material", "display", "backlight", "strap_type", "strap_fastening",
+})  # fmt: skip
+JEWELLERY_TYPES = (
+    "Hoop Earrings", "Drop Earrings", "Stud Earrings", "Bangle", "Bracelet", "Necklace", "Pendant",
+    "Anklet", "Ring", "Cufflinks", "Analog Watch", "Digital Watch", "Watch Strap",
+)  # fmt: skip
 #: Product type -> the further keys that type's derived styles keep, where the same key varies
 #: freely on other types. A luggage style's build is one thing (gen#1114): a soft suitcase is
 #: polyester, a hard one ABS or aluminium, its lock and expansion zip are in its text, an
@@ -34,6 +47,7 @@ FROZEN_KEYS = frozenset(
 #: the hood and the organiser kind. A holdall's and a weekend bag's material and a neck pillow's
 #: cover stand alone, so they still vary.
 TYPE_FROZEN_KEYS: dict[str, frozenset[str]] = {
+    **dict.fromkeys(JEWELLERY_TYPES, JEWELLERY_KEYS),
     "Suitcase": frozenset({"shell", "wheels", "lock", "expandable", "material"}),
     "Cabin Case": frozenset({"shell", "wheels", "airline_allowance", "dimensions"}),
     "Holdall": frozenset({"wheels", "use"}),

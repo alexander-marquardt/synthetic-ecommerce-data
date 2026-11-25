@@ -120,7 +120,7 @@ def test_the_pin_bump_writes_one_image_pin(tmp_path, capsys) -> None:
     sidecar = tmp_path / "images.tar.gz.content-sha256"
     sidecar.write_text("ab" * 32 + "  12\n", encoding="utf-8")
     argv = ["--tag", "v1", "--catalog", str(catalog), "--images-sidecar", str(sidecar)]
-    assert pins.main([*argv, "--dry-run"]) == 0
+    assert pins.main(argv) == 0
     out = capsys.readouterr().out
     assert "images_release_retail" not in out
     pinned = json.loads(out.split(f"--- {pins.IMAGES_PIN}\n", 1)[1])

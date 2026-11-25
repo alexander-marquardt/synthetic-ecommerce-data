@@ -4,7 +4,7 @@ The combined catalog's drawings, industrial and retail, are one archive (gen#706
 put it on the ``v*`` generator release and its pin named ``v1.0.0``: nothing published an images
 release under the name the catalogue repository pins, ``images-<count>-<YYYYMMDD>``. The release
 now creates that release for ``images.tar.gz`` and its sidecars, keeps the catalog on the ``v*``
-release, and the pin-bump writes the one image pin with the images tag.
+release, and the pin script writes the one image pin with the images tag.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def test_the_image_pin_names_the_images_release_and_the_catalog_keeps_the_v_tag(
     tmp_path, capsys
 ) -> None:
     argv = ["--tag", "v1.0.0", "--images-tag", "images-12-20261102", *_inputs(tmp_path)]
-    assert pins.main([*argv, "--dry-run"]) == 0
+    assert pins.main(argv) == 0
     out = capsys.readouterr().out
     found = _pins(out)
     assert found[pins.CATALOG_PIN]["tag"] == "v1.0.0"
@@ -59,7 +59,7 @@ def test_with_no_images_tag_it_is_the_archives_count_and_todays_utc_date(
     tmp_path, capsys, monkeypatch
 ) -> None:
     monkeypatch.setattr(pins, "utc_day", lambda: "20261231")
-    assert pins.main(["--tag", "v1", *_inputs(tmp_path), "--dry-run"]) == 0
+    assert pins.main(["--tag", "v1", *_inputs(tmp_path)]) == 0
     assert _pins(capsys.readouterr().out)[pins.IMAGES_PIN]["tag"] == "images-12-20261231"
 
 
@@ -75,7 +75,7 @@ def test_with_no_images_tag_it_is_the_archives_count_and_todays_utc_date(
 )
 def test_an_images_tag_that_is_not_the_archives_is_refused(tmp_path, tag) -> None:
     with pytest.raises(SystemExit):
-        pins.main(["--tag", "v1", "--images-tag", tag, *_inputs(tmp_path), "--dry-run"])
+        pins.main(["--tag", "v1", "--images-tag", tag, *_inputs(tmp_path)])
 
 
 def _commands(run: str) -> list[str]:
@@ -84,7 +84,7 @@ def _commands(run: str) -> list[str]:
 
 def test_the_workflow_puts_the_archive_on_the_images_release_alone() -> None:
     steps = RELEASE["jobs"]["release"]["steps"]
-    step = next(s for s in steps if s.get("name", "").startswith("The pin-bump"))
+    step = next(s for s in steps if s.get("name", "").startswith("The pins"))
     creates = [c for c in _commands(step["run"]) if c.startswith("gh release create")]
     by_tag = {c.split()[3]: c for c in creates}
     assert set(by_tag) == {'"$TAG"', '"$IMAGES_TAG"'}
