@@ -68,7 +68,7 @@ Where it runs:
   prints every file over the cap. Its first line ends with core's "Reported,
   not gated" sizes of `CONTRIBUTING.md` and `contributing/`, which this
   repository does not have, so they read as 0 lines; nothing is gated on them.
-- The `file-size-warning` pre-commit hook names, at commit time, each line the
+- The `file-size-warning` commit hook (`scripts/hooks.py`) names, at commit time, each line the
   body will need. It refuses an agent commit (`AGENT_TMP` set) that grows an
   over-cap file with no body named by `PRISM_PR_BODY_FILE`. During a merge
   that stops before its commit (a conflict, `--no-commit`) it measures from the
