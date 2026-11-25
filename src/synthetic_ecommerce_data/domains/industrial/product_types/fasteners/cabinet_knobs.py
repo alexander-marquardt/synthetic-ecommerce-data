@@ -1,4 +1,4 @@
-"""Cabinet knobs: home hardware for the general-retail catalogue (#958, slice 3).
+"""Cabinet knobs: home hardware for the R&I catalogue (#958, slice 3).
 
 A cabinet knob is the single-screw handle on a kitchen cabinet door, a drawer or a dresser.
 A hardware listing sells it by its diameter and names its style, its metal and its color.

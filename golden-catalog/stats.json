@@ -4763,14 +4763,14 @@
   },
   "drawings": {
    "count": 15281,
-   "bytes": 39573802,
+   "bytes": 41041630,
    "geometry": {
     "nominal": 187,
-    "partial": 2982,
-    "record": 12112
+    "partial": 2764,
+    "record": 12330
    },
-   "largest_bytes": 7409,
-   "largest_product_type": "household_tool_sets"
+   "largest_bytes": 7650,
+   "largest_product_type": "bearing_pullers"
   },
   "dispersion": {
    "quantitative_attributes": 66,

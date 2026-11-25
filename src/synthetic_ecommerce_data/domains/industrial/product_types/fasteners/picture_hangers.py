@@ -1,4 +1,4 @@
-"""Picture hangers: home hardware for the general-retail catalogue (#958, slice 1).
+"""Picture hangers: home hardware for the R&I catalogue (#958, slice 1).
 
 A picture hanger is the small piece of hardware that holds a frame on a wall: a hook driven
 in with a nail, a sawtooth strip or a D-ring fixed to the back of the frame, or a kit of
@@ -33,13 +33,12 @@ about its rating to the 0.45 power, anchored at 6 USD for a 30 lb standard-tier 
 
 from __future__ import annotations
 
-import math
 from typing import Any
 
-from synthetic_ecommerce_data.core.drawing.model import Figure
 from synthetic_ecommerce_data.core.price import PriceModel
 from synthetic_ecommerce_data.core.typespec import TypeSpec
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn
+from synthetic_ecommerce_data.domains.industrial.drawing.hanger_figures import EXTENT, hanger
 from synthetic_ecommerce_data.domains.industrial.newtypes import NO_STANDARD
 from synthetic_ecommerce_data.domains.industrial.vocab import AttrSpec
 
@@ -70,7 +69,7 @@ COLORS: dict[str, str] = {
     "Green": "#3c8d4f",
     "Yellow": "#f2c230",
     "Black": "#2a2a2e",
-    "White": "#ffffff",
+    "White": "#eceff1",
 }
 
 #: Every line a brand can offer, without its color: a style and a material. All 12, in an
@@ -171,67 +170,12 @@ def _pounds(record: dict[str, str]) -> float | None:
 
 
 def figure(record: dict[str, str]) -> Drawn:
-    """The hanger face on, filled with the record's color and sized to its rating (a heavier
-    rating is a bigger piece). A nail hook is a bent hook with its nail through the top, a
-    sawtooth hanger a toothed strip with two nail holes, a D-ring a ring on a strap plate, and
-    a kit a hook beside a coil of wire."""
+    """The hanger face on and lit, in the record's color and sized to its rating: a heavier one is
+    larger, and is held by more nails or screws (``hanger_figures``)."""
     pounds = _pounds(record)
-    source = "record" if pounds else "partial"
-    pounds = pounds or 30.0
-    side = 0.8 + 0.25 * math.sqrt(pounds)
-    fig = Figure(size_in=side)
-    fill = COLORS.get(str(record.get("Color", "")), "#2a2a2e")
-    style = str(record.get("Style", ""))
-    if style == "Sawtooth Hanger":
-        teeth = 7
-        step = side / teeth
-        top = [(i * step + step / 2, 0.32 * side) for i in range(teeth)]
-        points = [(0.0, 0.0), (side, 0.0), (side, 0.22 * side)]
-        for i in reversed(range(teeth)):
-            points += [top[i], (i * step, 0.22 * side)]
-        fig.poly(points, "part", fill)
-        fig.discs([(0.12 * side, 0.1 * side), (0.88 * side, 0.1 * side)], 0.04 * side, "dark")
-    elif style == "D-Ring Hanger":
-        fig.rect(0.3 * side, 0.0, 0.7 * side, 0.3 * side, "part", fill)
-        fig.disc((0.5 * side, 0.15 * side), 0.05 * side, "dark")
-        fig.poly(
-            [
-                (0.25 * side, 0.3 * side),
-                (0.75 * side, 0.3 * side),
-                (0.75 * side, 0.55 * side),
-                (0.5 * side, 0.8 * side),
-                (0.25 * side, 0.55 * side),
-            ],
-            "part",
-            fill,
-        )
-        fig.poly(
-            [
-                (0.33 * side, 0.34 * side),
-                (0.67 * side, 0.34 * side),
-                (0.67 * side, 0.52 * side),
-                (0.5 * side, 0.7 * side),
-                (0.33 * side, 0.52 * side),
-            ],
-            "plain",
-        )
-    else:
-        hook = [
-            (0.2 * side, side),
-            (0.45 * side, side),
-            (0.45 * side, 0.3 * side),
-            (0.7 * side, 0.15 * side),
-            (0.7 * side, 0.3 * side),
-            (0.55 * side, 0.4 * side),
-            (0.55 * side, 0.0),
-            (0.2 * side, 0.0),
-        ]
-        fig.poly(hook, "part", fill)
-        fig.rect(0.0, 0.78 * side, 0.6 * side, 0.84 * side, "dark")
-        if style == "Hanging Kit":
-            loops = [(1.0 * side, (0.25 + 0.15 * i) * side) for i in range(4)]
-            fig.discs(loops, 0.18 * side, "dark")
-    return Drawn(fig, source)
+    fill = COLORS.get(str(record.get("Color", "")), COLORS["Black"])
+    drawn = hanger(str(record.get("Style", "")), fill, pounds or 30.0)
+    return Drawn(drawn, "record" if pounds else "partial")
 
 
 SPEC = TypeSpec(
@@ -241,7 +185,7 @@ SPEC = TypeSpec(
     standards_family="fastener",
     vocab=VOCAB,
     figure=figure,
-    extent=(4.0, 4.0),
+    extent=EXTENT,
     make=_make,
     share=0.0055,
     price=PRICE,

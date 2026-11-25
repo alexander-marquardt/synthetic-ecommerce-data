@@ -19,8 +19,10 @@ flavor and pack:
   traces) over the seven allergens of :data:`grocery_rows.ALLERGENS`. "Free from X" is a
   query over these two, not a fact, so there is no ``free_from``;
 - ``dietary``: Vegan (no milk, no egg, no animal ingredient), Vegetarian (no meat or
-  fish), Gluten Free and Nut Free (the allergen neither contained nor traced), and
-  Organic (the style's flag, which its title also states);
+  fish), Gluten Free and Nut Free (the allergen neither contained nor traced),
+  Organic (the style's flag, which its title also states), and Halal and Kosher (a
+  certification drawn per product, :func:`certified`, kept by each variant that passes
+  their rules: gen#1131);
 - ``pack_size``, ``units_per_pack`` and the net weight or volume.
 
 At product level, ``contains`` and ``may_contain`` are the union over the variants
@@ -52,6 +54,7 @@ from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.retail import (
     food_title_words,
     grocery_rows,
+    kit_beer,  # noqa: E402 -- registers beer (gen#1127)
     kit_biscuits,  # noqa: E402,F401 -- registers sleeve
     kit_bread,  # noqa: E402,F401 -- registers loaf
     kit_chocolate,  # noqa: E402,F401 -- registers chocolate_box
@@ -82,6 +85,7 @@ from synthetic_ecommerce_data.domains.retail.grocery_ingredients import (
     unmapped,
     with_nuts,
 )
+from synthetic_ecommerce_data.domains.retail.grocery_model import CERTIFICATION
 from synthetic_ecommerce_data.domains.retail.grocery_rows import (
     ALLERGENS,
     ANCHORS,
@@ -170,7 +174,9 @@ SHAPES = {
     ("BUT", "Plant Spread"): "lidded_tub",
 }
 #: The chocolate shapes a SKU draws at its own weight, in its own chocolate (gen#1125).
-CHOCOLATE_SHAPES = frozenset({"chocolate_bar", "chocolate_box", "chocolate_bag"})
+CHOCOLATE_SHAPES = frozenset(
+    {"chocolate_bar", "chocolate_box", "chocolate_bag", "hot_chocolate", "chocolate_orange"}
+)
 #: What a punnet holds, by the VEG variety (``kit_punnet.PRODUCE``).
 PUNNET = {
     "Cherry Tomatoes": "tomato",
@@ -189,6 +195,14 @@ WINE_STYLES = {
 #: What a soft drink family's 330ml single is sold in (``kit_soft_drinks.container``): a brewed
 #: ginger beer in a glass bottle; any other line's 330ml in a can (gen#1127).
 SMALL_DRINK = {"GNB": "glass"}
+#: A beer family's line (``kit_beer.container``): whether it is sold in cans or bottles, and its
+#: bottles' glass: a pale ale in brown glass, a fruit beer in clear, a cider or perry in green
+#: (its 2L a PET bottle; gen#1127).
+BEER_LINES = {
+    "BLG": ("can", "brown"), "BSO": ("can", "brown"), "BAF": ("can", "brown"),
+    "BPA": ("bottle", "brown"), "BFR": ("bottle", "clear"),
+    "CDR": ("bottle", "green"), "PRY": ("bottle", "green"),
+}  # fmt: skip
 #: Where a title's noun phrase ends (the honesty test's rule: "Tuna in Spring Water" is tuna).
 _CUT = re.compile(r",|\d| for | with | of | in | to ")
 LABEL_CHARS = 14
@@ -257,11 +271,45 @@ def allergens(fam: Family, flavor: F, may_codes: str) -> dict[str, list[str]]:
     }
 
 
-def dietary(flavor: F, facts: dict[str, list[str]], organic: bool) -> list[str]:
-    """One variant's dietary labels, from its allergens and its animal flags."""
+#: An alcohol an ingredient names: a drink, or a food made with one. A vinegar is none (gen#1131).
+_ALCOHOL = re.compile(
+    r"\b(?:wine|beer|lager|stout|cider|perry|mead|rum|brandy|cognac|whisky|whiskey|bourbon"
+    r"|vodka|gin|liqueur|sherry|port wine|champagne|prosecco|kirsch|sake)\b(?! vinegar)",
+    re.IGNORECASE,
+)
+
+
+def certified(fam: Family, pid: str) -> frozenset[str]:
+    """The certifications product ``pid`` holds as a line: Halal and Kosher, each drawn once from
+    the product id at its category's :data:`CERTIFICATION` share, so every SKU of the line holds
+    the same draw. A variant then keeps only what :func:`dietary`'s rules allow (gen#1131)."""
+    shares = CERTIFICATION.get((fam.path[1], fam.path[2]) if len(fam.path) > 2 else (), (0, 0))
+    return frozenset(
+        name
+        for name, share in zip(("Halal", "Kosher"), shares, strict=True)
+        if zlib.crc32(f"{name}:{pid}".encode()) % 100 < share
+    )
+
+
+def alcoholic(fam: Family, flavor: F, listed: list[str] | None) -> bool:
+    """A drink of the Beer, Wine & Spirits aisle, one with a strength, or a food whose
+    ingredients name an alcohol (gen#1131)."""
+    return (
+        fam.path[1] == "Beer, Wine & Spirits"
+        or flavor.abv is not None
+        or any(_ALCOHOL.search(i) for i in listed or ())
+    )
+
+
+def dietary(flavor: F, facts: dict[str, list[str]], organic: bool,
+            certs: frozenset[str] = frozenset(), alcohol: bool = False) -> list[str]:  # fmt: skip
+    """One variant's dietary labels, from its allergens, its animal flags and the line's
+    certifications ``certs``: never Halal on pork (``p``) or alcohol, never Kosher on pork,
+    shellfish (``s``) or meat (``x``, not fish) with milk (gen#1131)."""
     have, traced = set(facts["contains"]), set(facts["contains"]) | set(facts["may_contain"])
+    flags = set(flavor.codes)
     out = []
-    if not {"Milk", "Egg"} & have and not {"h", "x"} & set(flavor.codes):
+    if not {"Milk", "Egg"} & have and not {"h", "x"} & flags:
         out.append("Vegan")
     if "x" not in flavor.codes:
         out.append("Vegetarian")
@@ -273,6 +321,11 @@ def dietary(flavor: F, facts: dict[str, list[str]], organic: bool) -> list[str]:
         out.append("Nut Free")
     if organic:
         out.append("Organic")
+    if "Halal" in certs and "p" not in flags and not alcohol:
+        out.append("Halal")
+    meat = "x" in flags and "Fish" not in have
+    if "Kosher" in certs and not {"p", "s"} & flags and not (meat and "Milk" in have):
+        out.append("Kosher")
     return out
 
 
@@ -390,6 +443,13 @@ def _drawing(
         largest = max(singles, key=_size)["pack_size"]
         marks |= {"flavor": flavor.name, "pack_size": pack["pack_size"], "largest": largest,
                   "small": SMALL_DRINK.get(fam.code, "can")}  # fmt: skip
+    if shape == "beer":  # each SKU its own pack, in its line's cans or bottles (gen#1127)
+        sold_in, glass = BEER_LINES[fam.code]
+        singles = [p for p in packs if kit_beer.container(p["pack_size"], sold_in)[1] == 1]
+        bottles = [p for p in singles if kit_beer.container(p["pack_size"], sold_in)[0] != "can"]
+        largest = max(bottles, key=_size)["pack_size"] if bottles else ""
+        marks |= {"pack_size": pack["pack_size"], "largest": largest, "sold_in": sold_in,
+                  "glass": glass}  # fmt: skip
     return drawing(shape, color, label, **marks)
 
 
@@ -412,15 +472,18 @@ def style(fam: Family, pid: str, line: str, brand: str, flavors: list[F], packs:
     parsed = [parse_pack(p) for p in packs]
     first = parse_pack(fam.packs[0])
     skus = []
+    certs = certified(fam, pid) if fam.food else frozenset()
     for flavor in flavors:
         fi = fam.flavors.index(flavor)
         food: dict[str, list[str]] = {}
+        listed = ingredients(fam.code, flavor.name, pid) if fam.food else None
         if fam.food:
             facts = allergens(fam, flavor, may_codes)
-            food = {**facts, "dietary": dietary(flavor, facts, organic)}
+            drink = alcoholic(fam, flavor, listed)
+            food = {**facts, "dietary": dietary(flavor, facts, organic, certs, drink)}
         for pack in parsed:
             sku = {fam.axis: flavor.name, **pack, **{k: v for k, v in food.items() if v}}
-            if listed := ingredients(fam.code, flavor.name, pid) if fam.food else None:
+            if listed:
                 sku["ingredients"] = listed
             skus.append(sku | {"price": _price(fam, pack, first, fi, brand), "in_stock": True})
     # Two in three food styles lead with the brand, then the model (gen#665); the rest keep the

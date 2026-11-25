@@ -17,7 +17,6 @@ import re
 import subprocess
 import sys
 import threading
-import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -191,7 +190,11 @@ def test_a_real_build_survives_the_pickle() -> None:
 
 def test_every_shard_with_a_file_to_run_downloads_the_catalogue() -> None:
     assert TESTS.get("needs") == "ceiling-catalogue"
-    download = _step("actions/download-artifact")
+    download = next(
+        s for s in TESTS["steps"]
+        if s.get("uses", "").startswith("actions/download-artifact")
+        and s["with"]["name"] == "ceiling-catalogue"
+    )  # fmt: skip
     assert download.get("if") == "steps.select.outputs.run == 'true'"
     upload = next(
         s for s in CI["jobs"]["ceiling-catalogue"]["steps"]
@@ -262,31 +265,10 @@ def test_no_test_builds_past_the_ceiling_itself() -> None:
     assert found == [], "take the build from tests/retail_ceiling.py (ceiling_build())"
 
 
-def test_random_order_is_off_unless_a_run_asks() -> None:
-    config = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))
-    assert "-p no:randomly" in config["tool"]["pytest"]["ini_options"]["addopts"]
-
-
-def test_a_child_run_that_clears_addopts_keeps_random_order_blocked() -> None:
-    """``-o addopts=`` drops the block, and an installed pytest-randomly then shuffles the child."""
-    tracked = subprocess.run(
-        ["git", "ls-files", "tests/*.py"], cwd=REPO, capture_output=True, text=True, check=True
-    ).stdout.split()
-    own = Path(__file__).relative_to(REPO).as_posix()
-    bare = []
-    for path in tracked:
-        lines = (REPO / path).read_text(encoding="utf-8").splitlines()
-        for number, line in enumerate(lines):
-            near = "\n".join(lines[number : number + 4])
-            if path != own and '"addopts="' in line and "no:randomly" not in near:
-                bare.append(f"{path}:{number + 1}")
-    assert bare == []
-
-
 def test_a_dispatched_seed_turns_random_order_on() -> None:
     assert "random_seed" in CI[True]["workflow_dispatch"]["inputs"]  # YAML reads `on:` as True
     addopts = next(s for s in TESTS["steps"] if s.get("name") == "Tests")["env"]["PYTEST_ADDOPTS"]
-    assert "format('-p randomly --randomly-seed={0}', inputs.random_seed)" in addopts
+    assert "format('--order-seed={0}', inputs.random_seed)" in addopts
 
 
 def _child_pytest(tmp_path: Path, *options: str, env: dict[str, str] | None = None) -> str:
@@ -308,13 +290,6 @@ def _child_pytest(tmp_path: Path, *options: str, env: dict[str, str] | None = No
     )  # fmt: skip
     assert env is not None or done.returncode == 0, done.stdout + done.stderr
     return done.stdout
-
-
-def test_the_seed_option_comes_after_the_block_and_undoes_it(tmp_path) -> None:
-    """``-p randomly`` after ``-p no:randomly``: the order ``addopts`` then ``PYTEST_ADDOPTS``."""
-    assert "randomly-seed" not in _child_pytest(tmp_path, "-p", "no:randomly")
-    on = _child_pytest(tmp_path, "-p", "no:randomly", "-p", "randomly", "--randomly-seed=7")
-    assert "--randomly-seed=7" in on
 
 
 def test_a_run_on_workers_prints_their_peak(tmp_path) -> None:
@@ -344,7 +319,7 @@ def test_a_worker_s_peak_is_its_whole_run_not_its_last_module(tmp_path) -> None:
     (tmp_path / "test_heavy.py").write_text(HEAVY_MODULE, encoding="utf-8")
     (tmp_path / "test_light.py").write_text("def test_light():\n    pass\n", encoding="utf-8")
     modules = ("test_heavy.py", "test_light.py")
-    printed = _child_pytest(tmp_path, "-n", "1", "-p", "no:randomly", *modules)
+    printed = _child_pytest(tmp_path, "-n", "1", *modules)
     peak = re.search(r"^peak worker memory: \d+ MB \(gw0 (\d+)\)$", printed, re.M)
     assert peak, printed
     assert int(peak.group(1)) >= 200, peak.group(0)
@@ -368,7 +343,7 @@ def test_a_killed_worker_leaves_its_modules_peaks_and_the_module_it_was_in(tmp_p
     peaks = tmp_path / "peaks"
     peaks.mkdir()
     env = {"WORKER_PEAK_DIR": str(peaks)}
-    printed = _child_pytest(tmp_path, "-n", "1", "-p", "no:randomly", "test_three.py", env=env)
+    printed = _child_pytest(tmp_path, "-n", "1", "test_three.py", env=env)
     assert "[gw0] node down: Not properly terminated" in printed
     assert (peaks / "gw0.peaks").exists(), "the killed worker left no peak file"
     lines = (peaks / "gw0.peaks").read_text(encoding="utf-8").splitlines()

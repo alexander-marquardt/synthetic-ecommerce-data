@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import appliance_lineups as lineups
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
@@ -47,30 +48,44 @@ _FRIDGE_KINDS = (
     ("FIN", "integrated", "Integrated Fridge Freezer", "Integrated Fridge",
      "A fridge freezer that fits behind a kitchen cabinet door",
      ((220, 54, 499), (250, 54, 549), (270, 56, 599), (290, 56, 649), (250, 54, 579), (280, 56, 699))),
+    # Freezer depth (#1116): models built for an unheated garage, the other place a freezer is kept.
+    ("FCG", "chest", "Garage-Ready Chest Freezer", "Chest Freezer",
+     "A chest freezer that runs in an unheated garage, with a lid on top and one deep space",
+     ((99, 55, 219), (145, 71, 259), (200, 85, 299), (255, 106, 339), (295, 125, 389), (380, 142, 449))),
+    ("FUG", "upright_freezer", "Garage-Ready Upright Freezer", "Upright Freezer",
+     "A tall freezer with drawers that runs in an unheated garage",
+     ((90, 55, 259), (125, 55, 299), (172, 60, 339), (195, 60, 379), (215, 60, 409), (245, 70, 459))),
 )  # fmt: skip
 
+#: The kinds with no defrost choice: a side-by-side and a chest are always frost free.
+_FROST_FREE = {"FSS", "FCH", "FCG"}
+#: The 50/50 models with the retro shape.
+_RETRO = (4, 5)
 
-def _kind(kind, n: int = 6, brands: tuple[str, ...] = lar.BRANDS, code: str = "") -> tuple[Row, ...]:
+
+def _kind(kind, n: int = 24, brands: tuple[str, ...] = lar.BRANDS, code: str = "") -> tuple[Row, ...]:
     """``n`` models of a row of :data:`_FRIDGE_KINDS`; ``code`` replaces its product id prefix."""
-    pre, shape, title, kind_name, lead, models = kind
+    pre, shape, title, kind_name, lead, table = kind
+    models = lineups.line_up(pre, table, 2, lineups.litres_off)
 
     def make(i):
         cap, width, price = models[i]
-        frost_free = i % 3 != 2 or pre in {"FSS", "FCH"}
-        retro = pre == "FFB" and i >= 4
+        frost_free = i % 3 != 2 or pre in _FROST_FREE
+        retro = pre == "FFB" and i in _RETRO
         rating = lar.RATINGS[(i + len(pre)) % 5]
+        says, sold_on = lineups.feature(_PTYPE, i)
         desc = (f"{lead}. {cap} litres in all, {width} cm wide, energy rating {rating}"
                 f"{', frost free' if frost_free else ', manual defrost'}"
-                f"{'. A retro shape with rounded corners' if retro else ''}.")
+                f"{'. A retro shape with rounded corners' if retro else ''}.{says}")
         colors = lar.SIX if retro else lar.PALETTES[i % 3]
         attrs = (a("appliance_type", "Type", kind_name), lar.litres(cap), lar.cm(width),
-                 a("energy_rating", "Energy rating", rating), lar.yn("frost_free", "Frost free", frost_free))
+                 a("energy_rating", "Energy rating", rating), lar.yn("frost_free", "Frost free", frost_free), *sold_on)
         return float(price), desc, colors, attrs
 
     rows = lar.kind_rows(code or pre, n, lar.FRIDGES, _PTYPE, "fridge", (("kind", shape),), title, make, brands)
     if pre == "FFB":
         rows = tuple(
-            r if i < 4 else replace(r, title=r.title.replace(title, f"Retro {title}"))
+            r if i not in _RETRO else replace(r, title=r.title.replace(title, f"Retro {title}"))
             for i, r in enumerate(rows)
         )
     return rows

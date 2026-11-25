@@ -1,4 +1,4 @@
-"""One attribute key per concept across the retail catalog (gen#227).
+"""One attribute key per concept across the retail domain (gen#227).
 
 Two concepts were each exported under two keys, so one facet or range filter missed part of the
 catalog: a height in centimetres was ``item_height`` on the furniture and ``height`` on a lamp and

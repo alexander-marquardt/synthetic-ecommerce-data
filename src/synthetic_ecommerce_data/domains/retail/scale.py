@@ -1,4 +1,4 @@
-"""The retail catalog at any size: a target SKU count, reached from the templates (gen#125).
+"""The retail domain at any size: a target SKU count, reached from the templates (gen#125).
 
 Usage::
 
@@ -24,9 +24,10 @@ A derived style copies one template and changes, deterministically from the seed
 - its **attribute values**, each drawn from the values the same leaf's templates
   carry (:func:`value_pools`). A value never changes when it names the leaf, the
   path or the type ("Skinny" in "Skinny Jeans"), when its key is
-  :data:`FROZEN_KEYS`, when it has a unit, or when the title or description holds
-  it inside a longer word ("5" in "5pk"). A changed value is rewritten in the
-  title, the description, the drawing params, the same-named top-level field and
+  :data:`FROZEN_KEYS` or its product type's ``TYPE_FROZEN_KEYS``, when it has a
+  unit, or when the title or description holds it inside a longer word ("5" in
+  "5pk"). A changed value is rewritten in the title, the description, the drawing
+  params, the same-named top-level field and
   every SKU that carries its key (a shoe's ``upper_material``, :func:`_sku_values`).
   A changed ``motif`` is redrawn: the drawing takes the motif and inks of a
   template that draws it ("Cherry" -> ``cherries``, :func:`_redraw_motif`), the

@@ -1,4 +1,4 @@
-"""Stud finders: a homeowner tool for the general-retail catalogue (#971, slice 2).
+"""Stud finders: a homeowner tool for the R&I catalogue (#971, slice 2).
 
 A stud finder is a palm-sized scanner slid along a wall to find the wood or metal stud
 behind the drywall before a shelf or a picture is hung. A hardware listing sells it by

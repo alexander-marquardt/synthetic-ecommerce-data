@@ -1,4 +1,4 @@
-"""Levels: a homeowner tool for the general-retail catalogue (#971, slice 2).
+"""Levels: a homeowner tool for the R&I catalogue (#971, slice 2).
 
 A spirit level is a straight frame with bubble vials set in it: one reads level, one
 plumb. A hardware listing sells it by length, and names its frame shape, its frame

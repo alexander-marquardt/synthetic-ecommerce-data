@@ -19,7 +19,7 @@ claimed by a row nor named in `LEFT_TO_CI` in `scripts/prepush.py`.
 | `customer-names` | `customer-name-check` | no customer name in the tree (every file's path and content), in the commit messages since the merge base, or in the draft PR body (`--pr-body-file`); [customer-name-check.md](customer-name-check.md) |
 | `lint` | `lint` | `uv run --locked ruff check .` |
 | `file-size` | `file-size` | no file over the cap grew; a growth needs the PR body (`--pr-body-file`), else the row is a `WARN` and the review packet says it was not judged |
-| `tree-scans` | `tests` (Tests step, without its shard files) | the tests that read every tracked file: US spelling, the `.ignore` patterns, the vendored core pin (`python3 scripts/prepush.py --list-scans`) |
+| `tree-scans` | `tests` (Tests step, without its shard files) | the tests that read every tracked file: US spelling, the one demo catalog, the `.ignore` patterns, the vendored core pin (`python3 scripts/prepush.py --list-scans`) |
 
 Left to CI, by name: the whole suite (about 27 minutes), and the golden catalog and the
 merged-tree checks (the `main-merged-tree` job), which `scripts/merge_pr.sh` runs on the

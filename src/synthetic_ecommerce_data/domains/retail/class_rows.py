@@ -11,7 +11,9 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from synthetic_ecommerce_data.domains.retail import (
+    kit_beer,  # noqa: F401 -- registers beer, which the cans and bottles of beer are drawn as
     kit_cups,  # noqa: F401 -- registers the cup drawings (tumbler, tea_cup, travel_cup, ...)
+    kit_soft_drinks,  # noqa: F401 -- registers soft_drink, the ginger beer and root beer
     kit_suits,  # noqa: F401 -- registers suit_jacket, which the check suit jacket is drawn as
 )
 from synthetic_ecommerce_data.domains.retail.class_model import (
@@ -67,15 +69,19 @@ BEERS = (
     Style("BRTROP", "4.8% Tropical Pineapple Sour Beer", "Lanternby", FOOD,
           (*BEER_NODE, "Sour Beer"), 2.6,
           "A tart sour beer brewed with pineapple and passion fruit.",
-          "Beer", "tin", pack("#f2c14e", 30), unit=(440.0, "ml"), abv=4.8,
-          multibuy=True, colorless=True),
+          "Beer", "beer", pack("#f2c14e", 30), unit=(440.0, "ml"), abv=4.8,
+          multibuy=True, colorless=True,
+          params=(("label", "Sour Beer"), ("pack_size", "440ml"))),
     Style("BRTABL", "Golden Table Beer", "Lanternby", FOOD, (*BEER_NODE, "Lager"), 2.2,
           "A light, low strength table beer brewed with English hops.",
-          "Beer", "tin", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colorless=True),
+          "Beer", "beer", pack("#d9a441", 25), unit=(330.0, "ml"), abv=2.8, colorless=True,
+          params=(("label", "Table Beer"), ("pack_size", "330ml"))),
     Style("BRWHET", "5.5% Hazy Wheat Beer", "Lanternby", FOOD, (*BEER_NODE, "Wheat Beer"), 2.8,
           "An unfiltered wheat beer with notes of banana and clove.",
-          "Beer", "bottle", pack("#e8b04a", 20),
-          volumes=((500.0, 2.8), (330.0, 2.1), (750.0, 3.9)), abv=5.5, colorless=True),
+          "Beer", "beer", pack("#e8b04a", 20),
+          volumes=((500.0, 2.8), (330.0, 2.1), (750.0, 3.9)), abv=5.5, colorless=True,
+          params=(("label", "Wheat Beer"), ("net_volume_ml", "500.0"), ("largest", "750ml"),
+                  ("sold_in", "bottle"), ("glass", "brown"))),
 )  # fmt: skip
 
 _ROUTE_BEER = "route: Beer node boosted; a soft drink or a battered food is outside it"
@@ -83,14 +89,19 @@ NOT_BEER = (
     (Style("GNGBER", "Fiery Ginger Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Mixers"), 1.1,
            "An alcohol-free ginger beer brewed with root ginger and a little chilli.",
-           "Ginger Beer", "bottle", pack("#c98b2b", 640),
+           "Ginger Beer", "soft_drink", pack("#c98b2b", 640),
            volumes=((330.0, 1.1), (200.0, 0.8), (1000.0, 2.2)), trending=True,
-           colorless=True), _ROUTE_BEER),
+           colorless=True,
+           params=(("label", "Ginger Beer"), ("flavor", "Fiery Ginger Beer"),
+                   ("net_volume_ml", "330.0"), ("largest", "1L"), ("small", "glass"))),
+     _ROUTE_BEER),
     (Style("RTBEER", "Cloudy Root Beer", "Pantry Mill", FOOD,
            (*DRINKS, "Soft Drinks", "Fizzy Drinks"), 1.0,
            "An old fashioned root beer with vanilla and sarsaparilla.",
-           "Root Beer", "tin", pack("#5a3020", 420),
-           volumes=((330.0, 1.0), (500.0, 1.4), (1500.0, 2.6)), colorless=True),
+           "Root Beer", "soft_drink", pack("#5a3020", 420),
+           volumes=((330.0, 1.0), (500.0, 1.4), (1500.0, 2.6)), colorless=True,
+           params=(("label", "Root Beer"), ("flavor", "Root Beer"), ("net_volume_ml", "330.0"),
+                   ("largest", "1.5L"))),
      _ROUTE_BEER),
     (Style("BBHADD", "Beer Battered Haddock Fillets", "Saltmarsh", FOOD,
            ("Food & Drink", "Frozen", "Battered Fish"), 4.5,
@@ -147,7 +158,7 @@ NOT_ORANGES = (
     (Style("HCORNG", "Orange Hot Chocolate", "Pantry Mill", FOOD,
            (*DRINKS, "Hot Chocolate"), 3.5,
            "A rich hot chocolate flavoured with orange.",
-           "Hot Chocolate", "tin", pack("#5a3020", 480), unit=(250.0, "g"),
+           "Hot Chocolate", "hot_chocolate", pack("#5a3020", 480), unit=(250.0, "g"),
            colorless=True), _ROUTE_ORANGE),
     (Style("XPCHOR", "Cherry & Orange Christmas Pudding", "Hearth & Table", FOOD,
            ("Food & Drink", "Desserts", "Christmas Puddings"), 9.0,

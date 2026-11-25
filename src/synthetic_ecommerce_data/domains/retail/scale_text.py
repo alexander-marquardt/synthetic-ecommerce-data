@@ -22,8 +22,30 @@ FROZEN_KEYS = frozenset(
     {"audience", "line", "size_range", "pattern", "motif_count", "print_placement",
      "ip_rating", "fitting", "matter", "works_with", "hub_required",
      "plate_type", "bowl_type", "cutlery_type", "knife_type", "glass_type", "utensil_type",
-     "age_range", "play_time", "finished_size"}
+     "age_range", "play_time", "finished_size",
+     # a house plant's kind, the facts of that kind and its pot, and a plant food's form
+     # (gen#1115)
+     "plant_kind", "light_needs", "pet_safe", "pot_material", "feed_form"}
 )  # fmt: skip
+#: Product type -> the further keys that type's derived styles keep, where the same key varies
+#: freely on other types. A luggage style's build is one thing (gen#1114): a soft suitcase is
+#: polyester, a hard one ABS or aluminium, its lock and expansion zip are in its text, an
+#: under-seat cabin case is the small one with no wheels, and the drawing follows the wheels,
+#: the hood and the organiser kind. A holdall's and a weekend bag's material and a neck pillow's
+#: cover stand alone, so they still vary.
+TYPE_FROZEN_KEYS: dict[str, frozenset[str]] = {
+    "Suitcase": frozenset({"shell", "wheels", "lock", "expandable", "material"}),
+    "Cabin Case": frozenset({"shell", "wheels", "airline_allowance", "dimensions"}),
+    "Holdall": frozenset({"wheels", "use"}),
+    "Weekend Bag": frozenset({"trolley_sleeve"}),
+    "Luggage Set": frozenset({"shell", "wheels", "sizes_included"}),
+    "Travel Organizer": frozenset({"organizer_type", "material"}),
+    "Neck Pillow": frozenset({"fill", "hood"}),
+    # A women's bag keeps its form, its closure and any strap; its material may vary.
+    "Crossbody Bag": frozenset({"bag_shape", "closure", "strap"}),
+    "Shoulder Bag": frozenset({"bag_shape", "closure"}),
+    "Clutch Bag": frozenset({"bag_shape", "closure"}),
+}
 
 
 #: The plural nouns a template's text counts its colorways in ("in 12 washes", "in three
@@ -66,10 +88,11 @@ def variable_keys(rec: dict, pools: dict[tuple[str, str], tuple[str, ...]]) -> l
     names = " ".join([*rec["category_path"], rec["category_leaf"], rec["product_type"]])
     counts = collections.Counter(a["key"] for a in rec["attributes"])
     shared = collections.Counter(str(a["value"]).lower() for a in rec["attributes"])
+    frozen = FROZEN_KEYS | TYPE_FROZEN_KEYS.get(rec["product_type"], frozenset())
     out = []
     for a in rec["attributes"]:
         key, value = a["key"], str(a["value"])
-        if key in FROZEN_KEYS or "unit_code" in a or counts[key] > 1 or shared[value.lower()] > 1:
+        if key in frozen or "unit_code" in a or counts[key] > 1 or shared[value.lower()] > 1:
             continue
         if len(pools.get((rec["category_leaf"], key), ())) < 2 or _has_word(names, value):
             continue

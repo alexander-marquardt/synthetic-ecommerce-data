@@ -101,10 +101,12 @@ FANS = {
 
 #: The params a shape draws its own count from, and the shapes that always draw their own.
 OWN_COUNT = ("count", "pieces", "units")
-#: A soft drink's multipack draws its own cans, in two rows under a card carrier (gen#1127).
+#: A soft drink's multipack draws its own cans, in two rows under a card carrier, and a beer's
+#: 4-pack its own cans or bottles (gen#1127).
 SELF_DRAWN_SHAPES = frozenset(
     {
         "anti_vibration_mat",
+        "beer",
         "chocolate_bar",
         "produce_pile",
         "side_table",
@@ -113,12 +115,13 @@ SELF_DRAWN_SHAPES = frozenset(
     }
 )
 #: The shapes whose kind draws a set of a fixed count: four pads, a nest of three tables, a knife
-#: block's five knives and the block, four utensils and their holder.
+#: block's five knives and the block, four utensils and their holder, a bangle stack of three.
 KIND_COUNT = {
     ("anti_vibration_mat", None): 4,
     ("side_table", "nest"): 3,
     ("kitchen_knife", "block"): 6,
     ("kitchen_utensil", "set"): 5,
+    ("bangle", "stacked"): 3,
 }
 #: The shapes whose "N Piece" set is N of the one item drawn (gen#728).
 PIECE_COPIES = frozenset({"chopping_board", "dinosaur", "screwdriver"})
@@ -203,8 +206,9 @@ def shown(rec: dict[str, Any]) -> int | None:
     drawing = rec["drawing"]
     params = drawing.get("params") or {}
     shape = drawing["shape"]
-    if (shape, params.get("kind")) in KIND_COUNT:
-        return KIND_COUNT[shape, params.get("kind")]
+    kind = params.get("kind") or params.get("style")  # a bangle's stack is its style (gen#1113)
+    if (shape, kind) in KIND_COUNT:
+        return KIND_COUNT[shape, kind]
     if shape == "drill_bit_set":
         return min(int(params["bits"]), MOST_BITS) + 1
     for key in OWN_COUNT:

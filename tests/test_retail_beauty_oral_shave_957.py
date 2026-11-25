@@ -138,7 +138,7 @@ GOLDEN: dict[str, list[tuple]] = {
     ],
     "Razor": [
         ("BRD-01F28475B2DB", "Brackbrook Ergonomic 3-Blade Razor", 18, 9.0),
-        ("BRD-04CB51D2C187", "Ingborough Weighted 2-Blade Razor", 15, 14.5),
+        ("BRD-04CB51D2C187", "Warburn Weighted 2-Blade Razor", 15, 14.5),
         ("BRD-0A0D84A23618", "Cressing Rubber Grip 4-Blade Razor", 18, 4.0),
     ],
 }

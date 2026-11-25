@@ -1,11 +1,12 @@
 """Large appliance helpers (gen#334): what the fridge, dishwasher and laundry specs share.
 
-Each spec (``type_specs/fridge_freezer.py``, ``dishwasher.py``, ``laundry_appliance.py``) holds
+Each spec (``type_specs/fridge_freezer.py``, ``dishwasher.py``, ``laundry_appliance.py``, and the
+cooking ``range_cooker.py``, ``built_in_oven.py``, ``hob.py`` and ``cooker_hood.py`` of #1116) holds
 its own family's table and builder, so a change to one family touches one file (gen#659). Here
 are the brands, the palettes, the attribute makers, :func:`kind_rows` and :func:`decoy_row`. A
 style is one product (a model with its own capacity, width and rating); its color is the SKU
-variant. Each kind is six models, so a kind has depth and the whole range is more than sixty
-products. Every brand is invented (README, gen#334); the description states the numbers the
+variant. Each kind is six authored models, and three more a brand (``appliance_lineups.py``,
+#1116). Every brand is invented (README, gen#334); the description states the numbers the
 structured entries state, and no more.
 """
 
@@ -15,6 +16,7 @@ from __future__ import annotations
 
 from synthetic_ecommerce_data.domains.retail import appliance_model_numbers as amn
 from synthetic_ecommerce_data.domains.retail import (
+    kit_cooking,  # noqa: F401 -- registers range_cooker, built_in_oven, hob, cooker_hood
     kit_large_appliances,  # noqa: F401 -- registers fridge, dishwasher, washing_machine, ...
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
@@ -25,6 +27,10 @@ ROOT = ("Home", "Large Appliances")
 FRIDGES = (*ROOT, "Fridges & Freezers")
 DISHWASHERS = (*ROOT, "Dishwashers")
 LAUNDRY = (*ROOT, "Laundry")
+RANGE_COOKERS = (*ROOT, "Range Cookers")
+OVENS = (*ROOT, "Built-in Ovens")
+HOBS = (*ROOT, "Hobs")
+COOKER_HOODS = (*ROOT, "Cooker Hoods")
 BRANDS = ("Frostholm", "Brimwell", "Tavorne", "Hollinmere", "Cleavewick", "Lunden & Voss")
 #: Brands that also sell outside this range (#721): a few models each, in the specs that name them.
 GOODLOOK, SINGINGSAM = "GoodLook", "SingingSam"
@@ -77,7 +83,8 @@ def _row(pre: str, i: int, title: str, brand: str, path: tuple[str, ...], ptype:
                attrs, params=params, product_line=series, color_codes=codes)  # fmt: skip
 
 
-_CAPACITY_KEYS = ("load", "capacity", "place_settings")
+#: The attribute a model number's digits read, first found; a width only when no other holds (#1116).
+_CAPACITY_KEYS = ("load", "capacity", "place_settings", "item_width")
 
 
 def identify(brand: str, attrs, color: str, generation: str) -> tuple[str, str, tuple, str]:

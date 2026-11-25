@@ -30,7 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 STEAK = ("Food & Drink", "Meat & Fish", "Fresh Meat", "Steak")
 GRAPES = ("Food & Drink", "Fruit & Vegetables", "Fresh Fruit", "Grapes")
 CUTS = ("Sirloin", "Ribeye", "Rump", "Fillet", "Chuck", "T-Bone", "Flank", "Skirt")
-DIETARY = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic")
+DIETARY = ("Vegan", "Vegetarian", "Gluten Free", "Dairy Free", "Nut Free", "Organic",
+           "Halal", "Kosher")  # fmt: skip
 
 
 @cache

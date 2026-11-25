@@ -2,7 +2,7 @@
 notebooks, ring binders, document folders, calculators, school backpacks, colored pencils and
 desk organizers.
 
-The retail catalogue had no office or school department, so a search for ``gel pens`` or ``A4
+The retail domain had no office or school department, so a search for ``gel pens`` or ``A4
 notebook`` found nothing. Slice 1 adds the department (``core/departments.RETAIL``) and its first
 three types, each a spec of its own (``type_specs/pen.py``, ``pencil.py``, ``spiral_notebook.py``)
 drawn by :mod:`kit_office`. Slice 2 adds the filing and desk types (``type_specs/ring_binder.py``,
@@ -27,7 +27,7 @@ from synthetic_ecommerce_data.domains.retail import kit, office_rows, scale, typ
 SLICE_3 = ("School Backpack", "Colored Pencils", "Desk Organizer")
 TYPES = (
     "Pen", "Pencil", "Spiral Notebook", "Ring Binder", "Document Folder", "Calculator", *SLICE_3
-)
+)  # fmt: skip
 KEYS = {
     "Pen": "pen", "Pencil": "pencil", "Spiral Notebook": "spiral_notebook",
     "Ring Binder": "ring_binder", "Document Folder": "document_folder", "Calculator": "calculator",
@@ -44,7 +44,10 @@ FLOOR = 1_400 + 1_450 + SLICE_3_SHARE
 
 @pytest.fixture(scope="module")
 def office() -> list[dict]:
-    return [r for r in ceiling_build().records if r["category_path"][0] == office_rows.ROOT]
+    """The slice's own types in Office & School: the sewing range (gen#1118) has its own file."""
+    records = ceiling_build().records
+    mine = [r for r in records if r["product_type"] in TYPES]
+    return [r for r in mine if r["category_path"][0] == office_rows.ROOT]
 
 
 def test_the_department_is_on_the_closed_list() -> None:

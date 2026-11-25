@@ -24,7 +24,7 @@ from synthetic_ecommerce_data.domains.retail import scale
 
 ROOT = ["Home", "Large Appliances"]
 #: the attribute holding each kind's capacity: a load, litres, or place settings
-CAPACITY_KEYS = ("load", "capacity", "place_settings")
+CAPACITY_KEYS = ("load", "capacity", "place_settings", "item_width")
 FROM_FORM = re.compile(r"^(?P<kind>.+) from (?P<brand>.+), Model (?P<code>[A-Z0-9-]+)$")
 
 
@@ -113,7 +113,7 @@ def test_a_few_washing_machines_use_the_from_brand_title_form(appliances):
     assert 1 <= len(forms) <= 4, [r["title"] for r in forms]
     for r in forms:
         m = FROM_FORM.match(r["title"])
-        assert m["kind"] == "Washing Machine"
+        assert m["kind"] in {"Washing Machine", "Washer"}  # "Washer" is the US word (#1116)
         assert m["code"] == _attrs(r)["model_number"]
         assert r["product_type"] == "Laundry Appliance"
 

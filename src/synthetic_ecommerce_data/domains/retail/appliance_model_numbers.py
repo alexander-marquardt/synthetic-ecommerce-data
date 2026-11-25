@@ -51,7 +51,8 @@ SERIES = {
 
 #: The ``appliance_type`` value of each kind: (its base letter, what its digits hold).
 #: ``wash`` is a load in kg then the spin speed in hundreds of rpm, ``dry`` a load in kg,
-#: ``litres`` the capacity in litres and ``places`` the number of place settings.
+#: ``litres`` the capacity in litres, ``places`` the number of place settings and ``width`` the
+#: width in cm, three digits (a 90 cm range cooker is ``090``, #1116).
 KINDS = {
     "Washing Machine": ("W", "wash"),
     "Washer Dryer": ("R", "wash"),
@@ -70,6 +71,15 @@ KINDS = {
     "Slimline": ("M", "places"),
     "Integrated": ("J", "places"),
     "Table-Top": ("T", "places"),
+    "Range Cooker (Dual Fuel)": ("G", "width"),
+    "Range Cooker (Induction)": ("N", "width"),
+    "Single Oven": ("O", "litres"),
+    "Double Oven": ("E", "litres"),
+    "Induction Hob": ("X", "width"),
+    "Ceramic Hob": ("Y", "width"),
+    "Gas Hob": ("Z", "width"),
+    "Chimney Cooker Hood": ("F", "width"),
+    "Integrated Cooker Hood": ("Q", "width"),
 }  # fmt: skip
 
 COLORS = {"White": "W", "Black": "B", "Silver": "S", "Red": "R", "Blue": "U", "Green": "G",
@@ -93,7 +103,7 @@ def _digits(kind: str, capacity: int, spin: int) -> str:
     group = KINDS[kind][1]
     if group == "wash":
         return f"{capacity}{spin // 100:02d}"
-    if group == "litres":
+    if group in {"litres", "width"}:
         return f"{capacity:03d}"
     if group == "places":
         return f"{capacity:02d}"
@@ -152,4 +162,6 @@ def spec(kind: str, capacity: int, spin: int) -> str:
         return f"{capacity}kg"
     if group == "litres":
         return f"{capacity}L"
+    if group == "width":
+        return f"{capacity}cm"
     return f"{capacity} Place"

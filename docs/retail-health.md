@@ -1,6 +1,6 @@
 # Health: over-the-counter vitamins, first aid, monitors, eye care, incontinence and mobility aids (gen#968)
 
-`Health` is the retail catalogue's thirteenth department, on the closed list in
+`Health` is the retail domain's thirteenth department, on the closed list in
 `core/departments.RETAIL` and the build's `domains/retail/departments.RETAIL`. The 500K mix
 (`docs/catalogue-mix-837.md`) plans 5,000 SKUs for it: vitamins and supplements, first aid,
 thermometers and blood-pressure monitors, eye care, incontinence and mobility aids. Before gen#968
@@ -88,6 +88,38 @@ brands and `row` helper. Each type has its own spec (`eye_drops.py`, `incontinen
 
 Each value of these params draws a different figure too (`tests/test_retail_health_care_968.py`).
 No walking stick is white: a white cane signals sight loss and is not a product color.
+
+## Feminine care (gen#1112)
+
+`Health > Feminine Care > {Sanitary Pads, Tampons, Panty Liners}` (gen#1112 slice 1) share
+`domains/retail/feminine_care_rows.py`: the path, four pack colors and a `row` helper that makes
+each attribute's lower-cased value a drawing param. Each type has its own spec
+(`sanitary_pads.py`, `tampons.py`, `panty_liners.py`) and its own shape in
+`domains/retail/kit_health_feminine.py`. The title shows every axis, so the scaled build draws
+more packs by swapping them, and each value draws a different figure:
+
+| Type | Shape | Axes the title shows | SKUs | At the ceiling |
+|---|---|---|---|---:|
+| Sanitary Pads | `sanitary_pad_pack`: a soft pack with a pad on its front, its wings out or not, a thin or a thick edge, one drop per absorbency step and a moon for overnight | `pad_thickness` (Ultra Thin, Maxi), `pad_absorbency` (Light, Regular, Long, Super, Overnight), `pad_wings` (With Wings, Without Wings) | a pack of 10 to 42 (`piece_count`) | 299 |
+| Tampons | `tampon_box`: a carton with one tampon in front, in its plastic or cardboard applicator or bare with its cord | `tampon_absorbency` (Light, Regular, Super, Super Plus), `tampon_applicator` (Plastic Applicator, Cardboard Applicator, Non-Applicator) | a box of 16 to 48 | 212 |
+| Panty Liners | `liner_pack`: a flat box with one liner in front drawn to its length, a sprig for a fresh scent, a leaf for aloe | `liner_length` (Regular, Long, Extra Long), `scent` (Unscented, Fresh Scent, Aloe) | a pack of 16 to 60 | 128 |
+
+The 639 SKUs take the ceiling build's Health to 6,128, past the issue's 600 for the three
+(`tests/test_retail_feminine_care_1112.py`). The templates carry slice 2's four brands; derived
+styles may also carry slice 4's six chemist's labels. The department's rate was recomputed for the
+three types (`department_rates/health.py`).
+
+Each type plants two class 6 decoys: a range name holds the query's word while the fields say
+another value. `overnight sanitary pads` meets "Overnight Glow Ultra Thin Regular Sanitary Pads
+With Wings", `maxi sanitary pads` meets "Maxi Daisy Ultra Thin Light Sanitary Pads Without Wings",
+`super tampons` meets "Super Soft Light Non-Applicator Tampons", `plastic applicator tampons`
+meets "Plastic Free Super Cardboard Applicator Tampons", `long panty liners` meets "Long Weekend
+Regular Unscented Panty Liners" and `fresh scent panty liners` meets "Fresh Start Long Unscented
+Panty Liners".
+
+In Health, the query 'pads' now finds two families, sanitary pads and incontinence pads (cotton
+pads, slice 2 of gen#1112, make it three). 'sanitary pads', 'tampons' and 'panty liners' each find
+their own type only.
 
 ## Over the counter only, and no claims
 

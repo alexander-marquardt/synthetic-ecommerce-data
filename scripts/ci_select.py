@@ -32,7 +32,13 @@ The selection is built to over-select, never to drop. A test file is selected wh
 * a package-walk registry (``typespec.discover``) pulls in every module of the package its
   file names by dotted string, and ``resources.files("pkg.data")`` imports that package;
 * it scans the tree (a glob, a walk, ``ls-files``, in itself or a ``tests/`` helper it
-  imports) or is in ``READS_WHOLE_TREE``: any change selects it.
+  imports) and a changed path can be read by that scan: the scan's literal pattern
+  (``rglob("*.py")``) matches a part of the path, or ``SCAN_SCOPES`` places the scan over it.
+  A scan neither places, and a test of ``READS_WHOLE_TREE``, is selected by any change.
+
+Two edges are not followed, because nothing runs them (#1035): ``import pickle`` is the standard
+library's module, not a product module of that name, and an import inside a subcommand's branch
+(``if argv[0] == "compose":``) runs only for a closure that holds the subcommand's word.
 
 A change to the workflow, the project file, the lock file, the vendored core or a test
 fixture module every test uses (``FULL_RUN``), or a diff that cannot be read, selects every
@@ -47,6 +53,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import fnmatch
 import re
 import subprocess
 import sys
@@ -66,6 +73,10 @@ SMOKE: tuple[str, ...] = (
     "tests/test_ci_select_495.py",
     "tests/test_ci_shards_348.py",
     "tests/test_ci_tests_job_parallel_348.py",
+    # These read the list of test files, so a new one can break them: 1.3 s together (#1035).
+    "tests/test_ci_run_order_348.py",
+    "tests/test_ci_shard_budget_704.py",
+    "tests/test_ci_workers_790.py",
 )
 
 #: A change to one of these (path prefix or exact path) selects every test: the CI definition,
@@ -76,6 +87,7 @@ FULL_RUN: tuple[str, ...] = (
     "uv.lock",
     "vendor/",
     "tests/conftest.py",
+    "tests/templates_memo.py",
     "tests/ci_shard_split.py",
     "tests/xdist_groups.py",
     "scripts/ci_select.py",
@@ -127,16 +139,88 @@ READS_WHOLE_TREE: tuple[str, ...] = (
     "tests/test_customer_name_check_393.py",
 )
 _SCANS = re.compile(r"\.r?glob\(|ls-files|os\.walk|\.iterdir\(")
+#: A glob of a plain literal (no f-string, no escape): what it finds, it finds by that pattern.
+_LITERAL_GLOB = re.compile(r"""\.r?glob\(\s*(["'])([^"'\\]+)\1\s*\)""")
+
+#: The scans whose pattern does not say what they read: the scan's source line (stripped), and
+#: the repository paths it can read (a path, or a prefix ending in ``/``; ``()`` is none: it
+#: lists what the run itself wrote). A scan with no literal pattern and no row here selects its
+#: test on any change, so a new or edited scan is never dropped (#1035).
+SCAN_SCOPES: dict[str, dict[str, tuple[str, ...]]] = {
+    "tests/shared_builds.py": {
+        # the key of the build cache: what a build runs is in the closure of its test
+        'files = [root] if root.is_file() else sorted(root.rglob("*"))': (),
+        'for old in path.parent.glob(f"{name}-*.pickle"):': (),
+    },
+    "tests/test_build_refusal_writes_nothing.py": {
+        'for p in sorted(root.rglob("*"))': (),
+    },
+    "tests/test_build_streams_by_type_952.py": {
+        'assert [p.name for p in tmp_path.iterdir()] == ["catalog"]': (),
+        'for p in sorted(root.rglob("*"))': (),
+        "return {path.name: path.read_bytes() for path in sorted(root.iterdir())}": (),
+    },
+    "tests/test_catalog_golden.py": {
+        "committed = {path.name for path in GOLDEN_DIR.iterdir()}": ("golden-catalog/",),
+        "written = {path.name for path in fresh_build.iterdir()}": (),
+    },
+    "tests/test_ceiling_artifact_539.py": {
+        '["git", "ls-files", "tests/*.py"], cwd=REPO, capture_output=True, text=True, check=True': (
+            "tests/",
+        ),
+    },
+    "tests/test_merge_pr_product_pins_1035.py": {
+        'golden = _git(REPO, "ls-files", "golden-catalog").splitlines()': ("golden-catalog/",),
+    },
+    "tests/test_picture_products_1022.py": {
+        'names = sorted(f.name for f in (tmp_path / "images").iterdir())': (),
+    },
+    "tests/test_prism_field_map_drift.py": {
+        "assert [path.name for path in target.parent.iterdir()] == [FIELD_MAP_PATH.name], (": (),
+    },
+    "tests/test_red_commit_proof_11680.py": {
+        # the installed packages of the interpreter
+        "for entry in home.iterdir():": (),
+    },
+    "tests/test_retail_type_specs_351.py": {
+        'assert not list(out.iterdir()), "the scaffold wrote a file for a refused code"': (),
+        'assert not list(tmp_path.iterdir()), "the scaffold wrote a file for a bad key"': (),
+    },
+    "tests/test_shoppers_1131.py": {
+        'names = sorted(p.name for p in (first / "users").iterdir())': (),
+    },
+    "tests/test_stress_catalog_948.py": {
+        "return {path.name: path.read_bytes() for path in sorted(directory.iterdir())}": (),
+    },
+}
+
+#: One scan: the globs its literal pattern is, or the paths its row names.
+Scan = tuple[str, tuple[str, ...]]
+_ANYTHING: Scan = ("name", ("*",))
 
 #: A document names code and data; it does not change what they do. A changed ``.md`` file
 #: selects the tests that name it in their own text (the test files, their helpers under
 #: ``tests/``, and the scripts they load), not every test that imports a module whose prose
-#: or output names the page.
+#: or output names the page. A picture under ``docs/`` is the same: its directory's name
+#: (``images``) is a word of the product code, which reads no page (#1035).
 _DOC_SUFFIXES = (".md",)
+_DOC_DIR = "docs/"
 _DOC_READERS = ("tests/", "scripts/")
 
 #: A file that imports by a computed name depends on every Python file under its directory.
+#: Read from the text of a product file: the docstring of a walked package's ``__init__`` says
+#: that its modules are walked, and is the one place that does (``product_types``).
 _DYNAMIC = re.compile(r"\b(import_module|walk_packages|iter_modules|__import__)\b|glob\([^)]*\.py")
+#: Read from a script's code, not its comments and docstrings: a sentence about ``import_module``
+#: imports nothing, and the pattern above made this file, and each test that reads it, depend on
+#: every script and so on the retail package (#1035). A string that holds such a call is code
+#: another interpreter may run.
+_DYNAMIC_NAMES = frozenset({"import_module", "walk_packages", "iter_modules", "__import__"})
+_GLOBS = frozenset({"glob", "rglob", "iglob"})
+_PY_GLOB = re.compile(r"\.py(?!\w)")
+_DYNAMIC_STRING = re.compile(
+    r"\b(import_module|walk_packages|iter_modules|__import__)\s*\(|glob\([^)]*\.py(?!\w)"
+)
 _GENERIC_DIRS = frozenset({"tests", "scripts", "src", "docs"})
 _PY_NAME = re.compile(r"[\w.-]+\.py\b")
 #: A call that runs or loads what it is given: a ``.py`` file named inside its arguments is
@@ -161,9 +245,66 @@ def _callee(node: ast.Call) -> str:
     return node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
 
 
+#: A file that imports by a computed name, and the file whose strings are the names: it depends on
+#: the modules so named, not on its own directory (#1035). ``golden_pins.measure_figures`` imports
+#: each test module of ``pinned.MODULES``; the directory rule gave it every script instead, and so
+#: gave the five industrial tests that import it the whole retail package.
+IMPORTS_NAMED_BY: dict[str, str] = {"scripts/golden_pins.py": "tests/pinned.py"}
+
+
+def _imports_by_name(nodes: list[ast.AST], strings: list[str]) -> bool:
+    """Whether a script imports by a computed name, or globs Python files (``_DYNAMIC_NAMES``)."""
+    for node in nodes:
+        if isinstance(node, ast.Name):
+            named = node.id
+        elif isinstance(node, ast.Attribute):
+            named = node.attr
+        elif isinstance(node, ast.alias):
+            named = node.name
+        elif isinstance(node, ast.Call) and _callee(node) in _GLOBS:
+            for arg in [*node.args, *(k.value for k in node.keywords)]:
+                for inner in ast.walk(arg):
+                    if isinstance(inner, ast.Constant) and _PY_GLOB.search(str(inner.value)):
+                        return True
+            continue
+        else:
+            continue
+        if named in _DYNAMIC_NAMES:
+            return True
+    return any(_DYNAMIC_STRING.search(value) for value in strings)
+
+
 def _listed(path: str, entries: Collection[str]) -> bool:
     """Whether ``path`` is one of ``entries``: an exact path, or under a prefix ending in ``/``."""
     return any(path == f or (f.endswith("/") and path.startswith(f)) for f in entries)
+
+
+def _import_roots(dotted: str) -> set[str]:
+    """Where a bare ``import dotted`` finds a repository file: a directory of ``sys.path``."""
+    rel = dotted.replace(".", "/")
+    return {
+        f"{root}{rel}{tail}"
+        for root in ("", "src/", "tests/", "scripts/")
+        for tail in (".py", "/__init__.py")
+    }
+
+
+def _subcommand(node: ast.If) -> str | None:
+    """The word of ``if argv and argv[0] == "word":``, or None."""
+    tests = node.test.values if isinstance(node.test, ast.BoolOp) else [node.test]
+    if isinstance(node.test, ast.BoolOp) and not isinstance(node.test.op, ast.And):
+        return None
+    for test in tests:
+        if (
+            isinstance(test, ast.Compare)
+            and len(test.ops) == 1
+            and isinstance(test.ops[0], ast.Eq)
+            and ast.unparse(test.left) == "argv[0]"
+            and isinstance(test.comparators[0], ast.Constant)
+            and isinstance(test.comparators[0].value, str)
+        ):
+            return test.comparators[0].value
+    return None
 
 
 def tracked_files(root: Path) -> list[str]:
@@ -244,9 +385,13 @@ class Tree:
         self._collect_aliases()
         self.edges: dict[str, set[str]] = {}
         self.leaves: dict[str, set[str]] = {}
+        #: file -> subcommand word -> what only that subcommand's branch imports
+        self.gated: dict[str, dict[str, set[str]]] = {}
+        self._scans: dict[str, frozenset[Scan]] = {}
         for path in self.py:
             self.edges[path], self.leaves[path] = self._edges(path)
         self._closure: dict[str, tuple[frozenset[str], frozenset[str]]] = {}
+        self._named: dict[str, tuple[tuple[re.Pattern[str], ...], dict[str, bool]]] = {}
 
     def _console_scripts(self) -> dict[str, set[str]]:
         """``[project.scripts]`` of pyproject.toml (read as text: tomllib needs Python 3.11)."""
@@ -271,11 +416,23 @@ class Tree:
             found |= self.by_name.get(".".join(parts[:end]), set())
         return found
 
+    def _resolve_import(self, name: str) -> set[str]:
+        """``_resolve`` for an absolute import: a name of the standard library is the standard
+        library's unless a directory of ``sys.path`` holds a file of that name."""
+        found = self._resolve(name)
+        if name.split(".")[0] not in sys.stdlib_module_names:
+            return found
+        parts = name.split(".")
+        here: set[str] = set()
+        for end in range(1, len(parts) + 1):
+            here |= _import_roots(".".join(parts[:end]))
+        return found & here
+
     @staticmethod
-    def _strings(module: ast.Module) -> list[str]:
+    def _strings(nodes: list[ast.AST]) -> list[str]:
         """Every string constant that is not a docstring (a docstring names files in prose)."""
         docstrings: set[int] = set()
-        for node in ast.walk(module):
+        for node in nodes:
             if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 first = node.body[0] if node.body else None
                 if (
@@ -286,7 +443,7 @@ class Tree:
                     docstrings.add(id(first.value))
         return [
             n.value
-            for n in ast.walk(module)
+            for n in nodes
             if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docstrings
         ]
 
@@ -306,12 +463,12 @@ class Tree:
                         if isinstance(target, ast.Name):
                             self.aliases[target.id] |= named
 
-    def _executed_names(self, module: ast.Module) -> set[str]:
+    def _executed_names(self, nodes: list[ast.AST]) -> set[str]:
         """The ``.py`` base names a file passes to a call that runs them."""
         found: set[str] = set()
-        calls = [n for n in ast.walk(module) if isinstance(n, ast.Call)]
+        calls = [n for n in nodes if isinstance(n, ast.Call)]
         if any(_callee(n) in _LOADERS for n in calls):
-            for node in ast.walk(module):
+            for node in nodes:
                 if isinstance(node, ast.Constant) and isinstance(node.value, str):
                     found.update(Path(n).name for n in _PY_NAME.findall(node.value))
         for node in calls:
@@ -332,13 +489,26 @@ class Tree:
         leaves: set[str] = set()
         module = self.trees.get(path)
         here = Path(path).parent
-        strings = self._strings(module) if module is not None else []
+        # One walk of the file, read by every rule below: a plan parses 2000 files (#1035).
+        nodes = list(ast.walk(module)) if module is not None else []
+        strings = self._strings(nodes)
         self.strings[path] = "\n".join(strings)
         if module is not None:
-            for node in ast.walk(module):
+            branches = {
+                id(inner): word
+                for node in nodes
+                if isinstance(node, ast.If) and (word := _subcommand(node)) is not None
+                for statement in node.body
+                for inner in ast.walk(statement)
+            }
+            always = edges
+            gated: dict[str, set[str]] = defaultdict(set)
+            for node in nodes:
+                word = branches.get(id(node))
+                edges = always if word is None else gated[word]
                 if isinstance(node, ast.Import):
                     for alias in node.names:
-                        edges |= self._resolve(alias.name)
+                        edges |= self._resolve_import(alias.name)
                 elif isinstance(node, ast.ImportFrom):
                     if node.level:
                         base = here
@@ -355,9 +525,11 @@ class Tree:
                                 f"{name}.{alias.name}" if name else alias.name, set()
                             )
                     else:
-                        edges |= self._resolve(node.module or "")
+                        edges |= self._resolve_import(node.module or "")
                         for alias in node.names:
-                            edges |= self._resolve(f"{node.module}.{alias.name}")
+                            edges |= self._resolve_import(f"{node.module}.{alias.name}")
+            edges = always
+            self.gated[path] = {w: found - always for w, found in gated.items() if found - always}
         # A package a file names whole in a string (``resources.files("pkg.data")``) is imported
         # by that call, in product code too.
         for value in strings:
@@ -368,7 +540,7 @@ class Tree:
         # What a file names in a string is a dependency of the file that names it; its prose
         # (comments, docstrings) is not. Product code under src/ takes its dependencies by import.
         if not path.startswith("src/"):
-            executed = self._executed_names(module) if module is not None else set()
+            executed = self._executed_names(nodes)
             for value in strings:
                 for name in _PY_NAME.findall(value):
                     # A test file named in a string is named, not run (a row of the mutation
@@ -384,7 +556,15 @@ class Tree:
                 for script, targets in self.scripts.items():
                     if re.search(rf"(?<![\w-]){re.escape(script)}(?![\w-])", value):
                         edges |= targets
-        if _DYNAMIC.search(text) and not path.startswith("tests/"):
+        if path.startswith("scripts/") and module is not None:
+            dynamic = _imports_by_name(nodes, strings)
+        else:
+            dynamic = _DYNAMIC.search(text) is not None
+        if dynamic and path in IMPORTS_NAMED_BY:
+            named_by = self.trees.get(IMPORTS_NAMED_BY[path])
+            for value in self._strings(list(ast.walk(named_by))) if named_by else []:
+                edges |= self.by_name.get(value, set())
+        elif dynamic and not path.startswith("tests/"):
             prefix = str(here) + "/"
             edges |= {p for p in self.py if p.startswith(prefix)}
             # A package-walk registry (``typespec.discover``) loads every module of the package
@@ -408,14 +588,30 @@ class Tree:
             leaves: set[str] = set()
             stack = [path]
             while stack:
-                node = stack.pop()
-                leaves |= self.leaves.get(node, set())
-                for nxt in self.edges.get(node, ()):
-                    if nxt not in seen:
-                        seen.add(nxt)
-                        stack.append(nxt)
+                while stack:
+                    node = stack.pop()
+                    leaves |= self.leaves.get(node, set())
+                    for nxt in self.edges.get(node, ()):
+                        if nxt not in seen:
+                            seen.add(nxt)
+                            stack.append(nxt)
+                # What a subcommand imports, once a file besides its own holds the word.
+                for node in [n for n in seen if self.gated.get(n)]:
+                    for word, targets in self.gated[node].items():
+                        new = targets - seen
+                        if new and self._says(word, seen - {node}):
+                            seen |= new
+                            stack.extend(new)
             self._closure[path] = (frozenset(seen), frozenset(leaves - seen))
         return self._closure[path]
+
+    def _says(self, word: str, members: Collection[str]) -> bool:
+        """Whether a string of ``members`` outside product code holds ``word``: the tests and
+        scripts name the subcommand they run."""
+        pattern = re.compile(rf"(?<![\w-]){re.escape(word)}(?![\w-])")
+        return any(
+            pattern.search(self.strings.get(m, "")) for m in members if not m.startswith("src/")
+        )
 
     def _tokens(self, changed: str) -> tuple[re.Pattern[str], ...]:
         """The patterns that name a changed non-Python file in some text."""
@@ -440,16 +636,46 @@ class Tree:
             patterns.append(rf"(?<![\w-]){re.escape(parent)}/[*{{]")
         return tuple(re.compile(p) for p in patterns)
 
-    def reads_whole_tree(self, test: str) -> bool:
-        """Whether ``test`` scans the repository: a listed gate, or a glob or walk in its own
-        text or in a helper under ``tests/`` it imports. A test of ``SELECTED_ONLY_BY`` is
+    def scans(self, path: str) -> frozenset[Scan]:
+        """What each scan in the text of one file can read."""
+        if path not in self._scans:
+            text = self.text.get(path, "")
+            rows = SCAN_SCOPES.get(path, {})
+            found: set[Scan] = set()
+            for hit in _SCANS.finditer(text):
+                start = text.rfind("\n", 0, hit.start()) + 1
+                line = text[start:].split("\n", 1)[0].strip()
+                literal = _LITERAL_GLOB.match(text, hit.start())
+                if line in rows:
+                    found.add(("paths", rows[line]))
+                elif literal:
+                    # The last part: a directory it matches is walked by what follows it.
+                    found.add(("name", (literal.group(2).rsplit("/", 1)[-1] or "*",)))
+                else:
+                    found.add(_ANYTHING)
+            self._scans[path] = frozenset(found)
+        return self._scans[path]
+
+    def scan_reads(self, test: str, changed: str) -> bool:
+        """Whether a scan of ``test`` (its own, or one of a helper under ``tests/`` it imports)
+        can read ``changed``; a listed gate reads every file. A test of ``SELECTED_ONLY_BY`` is
         governed by that table alone."""
         if test in SELECTED_ONLY_BY:
             return False
         if test in READS_WHOLE_TREE:
             return True
         members, _ = self.closure(test)
-        return any(_SCANS.search(self.text.get(m, "")) for m in members if m.startswith("tests/"))
+        parts = Path(changed).parts
+        for member in members:
+            if not member.startswith("tests/"):
+                continue
+            for kind, entries in self.scans(member):
+                if kind == "paths":
+                    if _listed(changed, entries):
+                        return True
+                elif any(fnmatch.fnmatchcase(part, entries[0]) for part in parts):
+                    return True
+        return False
 
     def reaches(self, test: str, changed: str) -> bool:
         members, leaves = self.closure(test)
@@ -459,13 +685,20 @@ class Tree:
             return False if changed in self.text else self._unresolved_import(members, changed)
         if self._owner_module_in(members, changed):
             return True
-        patterns = self._tokens(changed)
-        readers = _DOC_READERS if changed.endswith(_DOC_SUFFIXES) else ("",)
-        return any(
-            any(p.search(self.strings.get(m, "")) for p in patterns)
-            for m in members
-            if m.startswith(readers)
-        )
+        document = changed.endswith(_DOC_SUFFIXES) or changed.startswith(_DOC_DIR)
+        readers = _DOC_READERS if document else ("",)
+        return any(self._named_in(m, changed) for m in members if m.startswith(readers))
+
+    def _named_in(self, member: str, changed: str) -> bool:
+        """Whether the text of ``member`` names the changed file: each text is searched once for
+        it, however many tests reach the member (#1035)."""
+        if changed not in self._named:
+            self._named[changed] = (self._tokens(changed), {})
+        patterns, found = self._named[changed]
+        if member not in found:
+            text = self.strings.get(member, "")
+            found[member] = any(p.search(text) for p in patterns)
+        return found[member]
 
     def _package_dir(self, changed: str) -> str | None:
         """The directory of the package that owns a non-Python file under ``src/``: the nearest
@@ -535,8 +768,11 @@ def select(
         if test in tests and test not in held:
             reasons[test] = "smoke"
     for test in tests:
-        if test not in reasons and test not in held and tree.reads_whole_tree(test):
-            reasons[test] = "reads the whole tree"
+        if test in reasons or test in held:
+            continue
+        hit = [p for p in changed if tree.scan_reads(test, p)]
+        if hit:
+            reasons[test] = f"its scan reads {hit[0]}"
     for path in changed:
         for test in tests:
             if test in reasons or test in held:

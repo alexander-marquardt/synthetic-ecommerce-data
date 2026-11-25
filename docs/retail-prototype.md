@@ -141,7 +141,18 @@ standard. Its styles, SKUs and each family's share are `templates.grocery` and
 kitchen-cleaner leaf and a body-lotion leaf for the overlaps. Each SKU states
 `contains` and `may_contain` over seven allergens (peanuts, tree nuts,
 milk, gluten, soy, egg, fish), its `dietary` labels (Vegan, Vegetarian, Gluten Free,
-Nut Free, Organic), `pack_size`, `units_per_pack` and its net weight or volume.
+Dairy Free, Nut Free, Organic, Halal, Kosher), `pack_size`, `units_per_pack` and its net weight or volume.
+
+Halal and Kosher are certifications of a product line, not facts of its allergens (gen#1131).
+Each one is drawn once per product, from its id, at its category's share in
+`grocery_model.CERTIFICATION`, and every other category holds neither. The shares (Halal / Kosher) are:
+Fresh and Packaged Meat 30% / 15%, Fish 20% / 25%, Ready Meals and Pizza 20% / 10%, and
+Chocolate and Sweets 25% / 30%. A variant keeps a certification only when it passes the rules:
+no Halal on pork (the `p` flavour flag) or on alcohol (a drink, or an ingredient that names one);
+no Kosher on pork, shellfish (the `s` flag) or meat with milk. `p` and `s` each imply `x`.
+`tests/test_grocery_halal_kosher_1131.py` pins each rule over every SKU. The 14 cohort shoppers
+who buy them, and their seeded purchases, are written by `shoppers.py`:
+[retail-prototype/shoppers-1131.md](retail-prototype/shoppers-1131.md).
 
 The 50K tier (gen#376): a build of more than the 10K target is the tier, `python3 -m synthetic_ecommerce_data.domains.retail.grocery --skus 50000 --out DIR`. A title is a range name plus a
 flavor, so the 10K build's range names ran out for a family at this size and it stopped short
@@ -190,7 +201,7 @@ strict), not data.
 The flat file exposes four food facts as facets, because a hard filter can only
 target a facet: `facets.ingredients` (the SKU's label list), `facets.contains` (the
 allergens its ingredients name), `facets.may_contain` (factory traces) and
-`facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Nut Free, Organic),
+`facets.dietary` (pack claims: Vegan, Vegetarian, Gluten Free, Dairy Free, Nut Free, Organic, Halal, Kosher),
 each a keyword list (`facets.ingredient_base` is the normalised head of each: [docs/retail-catalog-batch-1.md](retail-catalog-batch-1.md)). `contains`, `may_contain` and `dietary` are warnings and claims,
 not description, so they stay out of the flat `text`: a "peanut" query cannot match a
 product only through an allergen warning
@@ -249,9 +260,13 @@ paper cups on the tray, in `kit_chocolate.py`; a 150g box draws itself smaller t
 one; `tests/test_chocolate_box_drawn_609.py`, the flat box it replaced is
 `docs/images/chocolate-box-drawn-609.svg`); the chocolate bars and multipacks draw a
 `chocolate_bar` (an opened, glossy bar or a stack of a multipack's bars, its block the
-chocolate it is made of) and the sharing bags a `chocolate_bag` (a stand-up bag, its
-buttons or bites in a window and spilled in front;
-[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)). The build makes
+chocolate it is made of), the sharing bags a `chocolate_bag` (a stand-up bag, its
+buttons or bites in a window and spilled in front), hot chocolate a `hot_chocolate` (a
+lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
+ball of segments in its opened foil;
+[chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)); tables, chairs, bookcases,
+wardrobes and mirrors fill their picture too
+([furniture-fill-1214](retail-prototype/furniture-fill-1214.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza
 style draws one picture per flavour and size (`tests/test_pizza_drawn_604.py`;
@@ -566,7 +581,7 @@ SKU. `tests/test_variant_axes_47.py` pins the issue's five invariants on both bu
 planted failure. Not every combination exists, so a consumer limits a dropdown to the
 combinations the product's SKUs offer.
 
-### The retail catalog at a size: `scale.py --skus N`
+### The retail domain at a size: `scale.py --skus N`
 
 **The audience facet and the spelling of a facet**. The tree keeps its Womens, Mens
 and Kids roots, and every SKU of a worn department (Clothing, Footwear, Lingerie & Nightwear),
@@ -700,7 +715,7 @@ a comma-joined fibre list or a fibre alone, a jean without a `leg_fit` or a
 bra without a `bra_shape`, and a facet with two values that differ only in case or hyphenation.
 
 `src/synthetic_ecommerce_data/domains/retail/scale.py --skus 20000 --out retail.jsonl` builds the
-retail catalog to a target SKU count, writes it in the standard, and prints a
+retail domain to a target SKU count, writes it in the standard, and prints a
 report:
 - the coverage (styles, SKUs per department, products per leaf, attribute fill
   per type, image ids and distinct drawings);
@@ -751,7 +766,7 @@ derived from them, deterministically by `--seed`, and a smaller build is a prefi
 The ten beauty depth types (mascara to sun cream, gen#214) are specs under `type_specs/` and are not derived from; see [retail-beauty-depth.md](retail-beauty-depth.md). The false nails (`type_specs/false_nails.py`, gen#751) are a spec on the same page.
 Lingerie and swimwear that name their cups in the plural (`cups_plural_rows.py` and `swimwear_rows.py`, gen#508): thirteen bras (bralettes, sports bras, T-shirt bras) titled "... with Removable Cups", "Padded Cups" or "Moulded Cups", and four swimsuits and four bikini tops "with Padded Cups", so a bare *cups* with the policy off meets lingerie as well as drinkware (class 15). Each title is true to its record (`padding` for a bra, `padded` Yes for swimwear), none names drinkware, and none is copied by a derived style; `tests/test_retail_plural_cups_508.py`. The eight swimwear rows are in type specs; the thirteen bras are not, because `Bra` is one product type whose rows sit in `class_rows.py`, `variants.py` and the lingerie rows, and `test_a_spec_type_has_no_row_outside_its_spec_file` refuses a spec for a type with a row outside it: a spec for the thirteen alone fails, and moving every bra into one spec is a migration of its own.
 Every top, dress and knit states a `neckline`, and boat and slash tops are held in depth with the neighbouring necklines (`neckline_rows.py`, gen#181; none is derived); see [retail-neckline-depth.md](retail-neckline-depth.md). A style word in a title (coat, shirt, maxi, polo) agrees with the neckline, length, sleeves and material; see [retail-garment-styles.md](retail-garment-styles.md).
-The seven luggage and travel types (suitcase to neck pillow, gen#209) are specs under `type_specs/` too, likewise not derived from; see [retail-luggage-209.md](retail-luggage-209.md).
+The seven luggage and travel types (suitcase to neck pillow, gen#209) are specs under `type_specs/` too, filed under Home > Luggage & Travel and derived from since gen#1114; see [retail-luggage-209.md](retail-luggage-209.md).
 Cleaning and beauty styles take a model from a family grammar, not a range name (gen#666, the `cleaning` and `beauty` modules of `line_grammar_families/`, after the sport, dress and appliance families of gen#662). The nine cleaning kinds (laundry detergent to toilet cleaner) and the seventeen beauty kinds (hand wash to perfume) lead their title with the brand and a model: a lead word of public listings (`cleaning.LEADS`: Keen, Total, Intense; `beauty.LEADS`: Lasting, Perfect, Renew), then the scent or shade and the kind: `Soapwell Keen Lemon Floor Cleaner`. A model is the lead word alone in both builds, with no sub-model or number: `Clearbrook Household Total Lemon Multi-Surface Cleaner` ([#851](retail-prototype/range-names-851.md)). A grocery care style is one scent, so the grocery build deals each family's `GROCERY_LEADS` too, and its brands reach their budgets on words alone. No lead word is a coined or place-like name, a first name or a brand word. The lead words are dealt over the brands that sell the family, so a word has one brand; the scale build deals the even words and the grocery build (`grocery.care_names`) the odd ones and `GROCERY_LEADS`, so the two never share one. The grocery cleaning and beauty families carry the same titles and a `Line` attribute for the model. The guards are in `tests/test_retail_scale_care_666.py` and `tests/test_care_words_666.py` and the mutants in `tests/review_662_mutants.py.txt`.
 A kind of Home, Gifts, Garden or Toys names its model in a plain grammar (gen#664, one module per family in `line_grammar_families/`, found by walk, beside gen#662's sport, dress and appliance families): the brand, a plain lead word, then the kind, "Beam Fabric Shade Floor Lamp" (an authored model may add a sub-model word and a number; a derived one is the word alone, [#851](retail-prototype/range-names-851.md)). Each family has 20 lead words, none shared with another family, a first name, a place word or a brand, and `Deal` hands each brand its own, so a model belongs to one brand (gen#642). An authored row whose title opens on its model is put after its brand (`line_grammar.lead_with_brand`). `tests/test_retail_scale.py` holds the guards: every kind of the four departments has a family, and no title leads with its range name.
 Each derived style gets a new range name and a brand from its type's pool. A range name has one

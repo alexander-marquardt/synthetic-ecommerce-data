@@ -237,7 +237,7 @@ GitHub Actions is billing-blocked here, so run CI locally: `scripts/merge_pr.sh
 log path, and refuses the merge unless all pass; no GitHub check is read. A red job
 prints its FAILED/ERROR lines (up to 20) and its log is copied to
 `<the directory the script says it left>/.git/ci-logs/`, so the failing test is named
-without a re-run. A pull request passes the `review-verdict` check only on a reviewer's ARM verdict bound to its head commit: [docs/review-verdict.md](docs/review-verdict.md).
+without a re-run. A pull request passes the `review-verdict` check only on a reviewer's ARM verdict bound to its head commit: [docs/review-verdict.md](docs/review-verdict.md). `vuln-gate` fails a high or critical pip-audit finding in `uv.lock`: [docs/vulnerability-gate.md](docs/vulnerability-gate.md). `dependency-allowlist` fails a direct dependency that is not on the checked-in list: [docs/dependency-allowlist.md](docs/dependency-allowlist.md).
 
 Install the hooks once per clone: `python3 scripts/hooks.py install` writes the pre-commit, commit-msg and pre-push hooks, each of which runs `scripts/hooks.py` (no pre-commit tool, #1108; the pre-push gate runs the cheap CI jobs before review, [docs/pre-push-gate.md](docs/pre-push-gate.md)). The commit-msg hook
 (`scripts/check_commit_msg.py`) refuses a message that credits an AI tool or a
@@ -758,7 +758,7 @@ requirement-query before/after tables are the industrial side
 
 ## The retail prototype
 
-The retail prototype's reference (planted distractors, footwear, grocery, the failure-class proofs, the output standard and the retail export, the merchandising score, variant axes, and the retail catalog at a size with the per-type listing) is in [docs/retail-prototype.md](docs/retail-prototype.md).
+The retail prototype's reference (planted distractors, footwear, grocery, the failure-class proofs, the output standard and the retail export, the merchandising score, variant axes, and the retail domain of the R&I catalogue (`catalog_combined`) at a size with the per-type listing) is in [docs/retail-prototype.md](docs/retail-prototype.md).
 
 ## The built catalog is committed, in `golden-catalog/`
 
@@ -1183,7 +1183,7 @@ is published twice (`parent repeats a (name, value) pair` in the `comparisons`
 of `stats.json`, with its numerator and denominator).
 The target, `GeneratorConfig.defect_repeated_pair`, is set so the share of ALL
 parents (about 0.43%) matches the 87 in 20,000 documents measured on a live
-retail catalog. It is a defect class, so `--defects 0.0` removes it and
+retailer's catalog. It is a defect class, so `--defects 0.0` removes it and
 `--defects N` scales it; the draw has its own stream per product, so changing
 it moves no other value in the catalog.
 
