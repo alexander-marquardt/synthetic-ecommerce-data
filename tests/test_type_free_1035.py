@@ -21,6 +21,10 @@ REPO = Path(__file__).resolve().parent.parent
 
 
 def _load(name: str):
+    # the module another test file loaded, not a second copy: ``ci_shards`` imports ``ci_select``
+    # by name, and a test that patches one copy would miss the other (#1035)
+    if name in sys.modules:
+        return sys.modules[name]
     spec = importlib.util.spec_from_file_location(name, REPO / "scripts" / f"{name}.py")
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
