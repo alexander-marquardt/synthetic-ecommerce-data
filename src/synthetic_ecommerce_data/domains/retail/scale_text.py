@@ -62,6 +62,8 @@ TYPE_FROZEN_KEYS: dict[str, frozenset[str]] = {
     "Belt Bag": frozenset({"bag_shape", "closure", "strap"}),
     "Messenger Bag": frozenset({"bag_shape", "closure", "strap"}),
     "Laptop Bag": frozenset({"bag_shape", "closure"}),
+    # A card holder keeps its form, its closure, its card slots and its RFID blocking.
+    "Card Holder": frozenset({"holder_style", "closure", "card_slots", "rfid_blocking"}),
 }
 
 
