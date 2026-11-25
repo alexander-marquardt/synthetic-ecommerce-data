@@ -1,0 +1,11 @@
+{
+  "source": "elastic/prism",
+  "commit": "53f966dd2e433eede407ebab3309be1b81b68133",
+  "sha256": {
+    "prism_engine/strict_yaml.py": "0e10a56e6cc68b806cd8b0f06147e04e8c095ca6524e0cc300eb709dff907eff",
+    "scripts/bounded_process.py": "39dc5703ea5b7bc423b7fe32f01115fdfd0729e7a00cf75eda5d2b25dacc9fd6",
+    "scripts/dependency_review.py": "c9ddf7e1c152e69de059d274a7f37a43ef8c5bd656925eee75862c7009068db1",
+    "scripts/dependency_review_images.py": "2e8eeb5451bb31465c8c0e6f5cb841375b5746dfbe1401967cea2e809df7c8cc",
+    "scripts/docs_index_comment.py": "83ba100d8add67c1678baa4b57a195b15dedf2ed4515f6a163be6c093ad7323f"
+  }
+}
