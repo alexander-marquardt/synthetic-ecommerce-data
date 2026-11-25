@@ -40,7 +40,7 @@ def _row(code: str, head: str, use: str, pins: int, brand: str, colors: tuple, d
          price: float):  # fmt: skip
     attrs = (
         a("head", "Head", head),
-        a("pin_use", "Use", use),
+        a("use", "Use", use),
         a("pin_count", "Pins on the card", str(pins)),
     )
     params = (("head", head.lower()),)
