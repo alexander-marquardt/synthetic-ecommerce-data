@@ -45,11 +45,11 @@ Step by step:
    `drill`, `tap`, `fastener`, `washer` and `flapdisc`). That package parses
    and checks a record and draws nothing; `drawing/` is the only renderer.
    The hammers, the five types added under #103 (`hex_nut`, `bearing`,
-   `depressed_wheel`, `hex_key`, `kit`) and the breadth shapes have no
+   `depressed_wheel`, `hex_key`, and the kit, now in `case_figures.py`) and the breadth shapes have no
    `domains/industrial/geometry/` module. The nut, bearing, wheel and hex key read their lengths
    inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
    wrapper). A hammer reads its overall length
-   ([Hammers](#hammers-the-real-kind-large-and-lit-1215)), the kit draws one slot per size it counts, and the breadth shapes
+   ([Hammers](#hammers-the-real-kind-large-and-lit-1215)), the kit draws one item per size it counts, and the breadth shapes
    read nothing (see [Breadth types](#breadth-types-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
@@ -94,7 +94,7 @@ that draws through core registers its own figures there.
 * `_FIGURES` holds eleven of the original twelve types. The screw and bolt
   types go through `_broken(width, height)`, which wraps `fastener()` with the
   type's extent height so an overlong part is drawn broken (below).
-* `FIGURES.update(...)` below `kit()` adds the five types from #103:
+* `FIGURES.update(...)` adds the five types from #103:
   `kit_assortment`, `nut_hex`, `bearing_radial_ball`,
   `wheel_depressed_center` and `hex_key`.
 * A type declared in its own module (`domains/industrial/product_types/`) is **not written in
@@ -332,6 +332,22 @@ A hammer is `steady`, and its scale is fitted to its turned outline
 every handle, grip and face, at every angle, and holds each to 50% of the figure area, or to the
 kind's own floor where its true outline cannot reach that (`FLOORS`: the ball pein, the claw and
 the framing hammer). Before and after: [the sheet](images/hammers-fill-1215.png).
+
+## Tool sets, assortment kits and picture hangers: open, large and lit (#1215)
+
+A household tool set and an assortment kit (`domains/industrial/drawing/case_figures.py`) are drawn
+as their `Container Type`, open, with what they hold in it. The set's container is in its `Color`
+and holds a hammer, pliers, screwdrivers and a wrench in its `Material`, and one bit for each piece
+it counts. The kit's holds one item for each listed size, up to 15, each drawn as its `Type`: hex
+keys, drills, taps, or compartments of screws. A picture hanger (`hanger_figures.py`) is drawn face on as its `Style`, in
+its `Color`; a higher `Load Capacity` is larger and has more nails or screws, and it is `steady`.
+
+Every body carries a highlight and a shadow (`lit.py`). The smallest set and the lightest hanger
+are drawn at 0.95 of the largest, so siblings draw apart. `tests/test_fill_tool_sets_1215.py` draws
+every container, style, color, count and rating at every angle and holds each to 50% of the figure
+area, and the largest to the byte budget of a drawing. The Sawtooth Hanger is the one named
+exception (`FLOORS`): a strip over twice as long as it is deep fills the width of the portrait area
+only. Before and after: [the sheet](images/tool-sets-fill-1215.png).
 
 ## Breadth types: fixed shapes
 
