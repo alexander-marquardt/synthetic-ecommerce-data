@@ -38,5 +38,6 @@ first. The bare `range` meets range cookers and the signal-range products both i
 category policy, not the data, picks the intent.
 
 Steam irons, vacuum cleaners and microwaves came next: see
-[clash-appliances-1116.md](clash-appliances-1116.md). The cooker hood, the deeper laundry and
-freezer kinds and the department's SKU count are still to come.
+[clash-appliances-1116.md](clash-appliances-1116.md). The cooker hood and
+the deeper laundry and freezer kinds followed in [hood-washer-1116.md](hood-washer-1116.md). The
+department's SKU count is still to come.
