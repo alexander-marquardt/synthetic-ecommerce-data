@@ -33,6 +33,7 @@ order, so an alphabetical list left a late-sorting heavy module as the tail of t
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import math
 import os
@@ -40,6 +41,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -183,7 +185,7 @@ def run_order(
 
 
 def deal(
-    files: list[str],
+    files: Sequence[str],
     count: int,
     weights: dict[str, float],
     split: frozenset[str] | None = None,
@@ -208,17 +210,21 @@ def deal(
     return [sorted(shard) for shard in shards]
 
 
-def scoped_files(base: str, head: str, root: Path = REPO) -> list[str] | None:
+@functools.lru_cache(
+    maxsize=1
+)  # the plans of one range, of every shard, read the tree once (#1035)
+def scoped_files(base: str, head: str, root: Path = REPO) -> tuple[str, ...] | None:
     """The test files the change ``base..head`` reaches (scripts/ci_select.py), or None for
-    every test file: no range (a push to main, a manual run) or a diff git cannot read."""
+    every test file: no range (a push to main, a manual run) or a diff git cannot read.
+    A tuple: the selection is kept, and no caller may change it for the next."""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import ci_select
 
     chosen = ci_select.selection_for_range(base, head, root)
-    return None if chosen is None else sorted(chosen)
+    return None if chosen is None else tuple(sorted(chosen))
 
 
-def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
+def shards_needed(files: Sequence[str], of: int, weights: dict[str, float]) -> int:
     """How many of the ``of`` shards a selection is dealt to: enough that none holds more than
     ``SCOPED_SHARD_SECONDS`` of work, at least one, at most ``of``.
 
@@ -233,7 +239,7 @@ def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
     return count
 
 
-def _dealt_loads(files: list[str], count: int, weights: dict[str, float]) -> list[float]:
+def _dealt_loads(files: Sequence[str], count: int, weights: dict[str, float]) -> list[float]:
     """The seconds of work each of ``count`` shards holds when ``files`` are dealt to them."""
     return [
         sum(
@@ -292,12 +298,26 @@ def refresh(reports: list[Path]) -> dict[str, float]:
     return {name: round(total, 1) for name, total in sorted(seconds.items())}
 
 
+def plan_text(number: int, of: int, base: str = "", head: str = "") -> str:
+    """Shard ``number``'s plan as ``--plan`` prints it: ``shards=<n>``, then its files in the
+    order they run."""
+    shards, files = plan(number, of, base, head)
+    files = run_order(files, load_weights(), spread_files(files))
+    return "\n".join([f"shards={shards}", *files])
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--shard", help="1..N, or 'all' for every test file")
     parser.add_argument("--of", type=int, default=0, help="the number of shards (N)")
     parser.add_argument("--refresh", nargs="+", type=Path, metavar="JUNIT")
     parser.add_argument("--plan", help="shard K: print `shards=<n>`, then its files")
+    parser.add_argument(
+        "--plans-out",
+        type=Path,
+        metavar="DIR",
+        help="write every shard's plan, as --plan K --of N prints it, to DIR/test-plan-K.txt",
+    )
     parser.add_argument(
         "--base", default="", help="base of the change; with --head, scope the files"
     )
@@ -319,6 +339,17 @@ def main(argv: list[str] | None = None) -> int:
         args.peaks.write_text(json.dumps(table, indent=1) + "\n", encoding="utf-8")
         print(f"wrote {args.peaks}")
         return 0
+    if args.plans_out:
+        if args.of < 1:
+            parser.error("give --plans-out DIR --of N")
+        # Every plan before any file: a plan that fails leaves no directory to upload.
+        texts = [plan_text(k, args.of, args.base, args.head) for k in range(1, args.of + 1)]
+        args.plans_out.mkdir(parents=True, exist_ok=True)
+        for number, text in enumerate(texts, 1):
+            path = args.plans_out / f"test-plan-{number}.txt"
+            path.write_text(text + "\n", encoding="utf-8")
+        print(f"wrote {len(texts)} plans to {args.plans_out}; {texts[0].splitlines()[0]}")
+        return 0
     if args.plan == "all":  # a local run: every test file, one shard
         every = collected_test_files()
         ordered = run_order(every, load_weights(), spread_files(every))
@@ -327,9 +358,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.plan:
         if not args.plan.isdigit() or not 1 <= int(args.plan) <= max(args.of, 0):
             parser.error("give --plan K --of N with K in 1..N")
-        shards, files = plan(int(args.plan), args.of, args.base, args.head)
-        files = run_order(files, load_weights(), spread_files(files))
-        print("\n".join([f"shards={shards}", *files]))
+        print(plan_text(int(args.plan), args.of, args.base, args.head))
         return 0
     if args.refresh:
         WEIGHTS.write_text(json.dumps(refresh(args.refresh), indent=1) + "\n", encoding="utf-8")
