@@ -4,10 +4,10 @@ Before gen#1125 every chocolate bar was the grocery kit's generic `bar`: a flat 
 flavour's color covering about a fifth of the product area at 100g, with the chocolate seen
 only in a torn corner. A chocolate box was a closed, shallow box low in the frame (18% of the
 product area at 150g), and a sharing bag the generic grocery bag (33% at 150g); neither showed
-a chocolate. Slice 1 draws the bars and the multipacks, slice 2 the boxes and the sharing bags.
-Hot chocolate, the chocolate orange, peanut butter cups, the advent calendar and the decoy
-chocolate box and coated fruit follow in slice 3, and each brand's mark and colors with a before
-and after contact sheet in slice 4.
+a chocolate. Slice 1 draws the bars and the multipacks, slice 2 the boxes and the sharing bags,
+slice 3 hot chocolate and the chocolate orange, and slice 4 the peanut butter cups, the coated
+peanuts, the advent calendar, the box of cherries and the bags of coated fruit. Each brand's
+mark and colors, with a before and after contact sheet, follow in the next slice.
 
 **`kit_chocolate.chocolate_bar`** draws a bar seen from a little above: its wrapper torn back
 over gold foil to show the segmented block, the block glossed (a `choc-gloss-<hex>` gradient, a
@@ -110,3 +110,48 @@ on its sheet, the wrapper's contrast, the chocolate of each style, the bag's pie
 each SKU draws its own pack size. It pins the same over every hot chocolate and chocolate orange
 flavour and pack, and PLT-HCORNG, together with the mug and its lid, and a dark orange drawn in
 dark chocolate and a milk one in milk.
+
+## Peanut butter cups, coated peanuts, the advent calendar, cherries and coated fruit (slice 4)
+
+Before this slice the peanut butter cups and the coated peanuts (GRC-PNT) were drawn as a bar,
+the chocolate advent calendar (BRD-SEAADV) and the dark chocolate covered cherries (PLT-DXQ42)
+as the generic closed `box` (52% of the product area, no chocolate in sight), and the chocolate
+covered strawberries and bananas (PLT-DXQ19, PLT-DXQ39) as the generic grocery `bag` (47%).
+
+**`kit_chocolate.peanut_butter_cups`** (the PNT flavour Chocolate Peanut Butter Cups, through
+`grocery.SHAPES`) draws the opened wrapper lying behind, in the flavour's color with its
+crimped ends and label panel, two fluted cups standing before it and a third in front, cut to
+show its peanut butter filling. Each cup's top is the chocolate it is made of, glossed. A pack
+under 200g draws itself smaller, never under 0.9; `pack_scale.SELF_SIZED` gives it no factor.
+
+**`chocolate_bag`** takes three more pieces: `peanuts` (the PNT flavour Chocolate Coated
+Peanuts, whose bag `grocery` gives that piece by its name), `strawberries` (a coated berry, its
+red tip and leaves showing) and `bananas` (coated banana coins, one broken open on its cream
+face). The decoy rows draw them through new kinds in `decoy_rows.KINDS`:
+`coated_strawberries` and `coated_bananas` (milk chocolate, in the Sweets aisle as before) and
+`chocolate_cherries` (dark chocolate, a Chocolate Box). The boiled sweets keep `sweets` (the
+grocery bag) and the tablet gift box keeps `chocolate_box` (the closed box).
+
+**`chocolate_box`** with `piece="cherries"` (PLT-DXQ42) puts a coated cherry in each paper cup,
+the dark red of the fruit where its stalk leaves the coat and the stalk rising from it.
+
+**`kit_chocolate.advent_calendar`** (BRD-SEAADV) draws the board front on, in the flavour's
+color with its edge in shade, the label panel between two stars, and 24 numbered doors in four
+rows of six. Doors 1 and 2 stand open in the first column, so each flap swings out over the
+board's edge and covers no other door; behind each is a glossed chocolate star on a gold tray.
+
+| row | floor | before | measured |
+|---|---|---|---|
+| peanut butter cups 100g, or no pack size | 0.50 | 0.60 (a bar) | 0.56 |
+| peanut butter cups 200g | 0.50 | 0.72 (a bar) | 0.69 |
+| coated peanuts 100g, or no pack size | 0.50 | (a bar) | 0.59 |
+| coated peanuts 200g | 0.50 | (a bar) | 0.62 |
+| PLT-DXQ19 strawberries, PLT-DXQ39 bananas | 0.50 | 0.47 | 0.72 |
+| PLT-DXQ42 cherries | 0.50 | 0.52 | 0.79 |
+| BRD-SEAADV advent calendar | 0.50 | 0.52 | 0.81 |
+
+`tests/test_chocolate_shapes_1125.py` pins each row's shape and piece, the floor over every
+pack, that a 200g pack of cups draws larger than a 100g one, the gloss and the least number of
+chocolates each shows, that every pack stays on its sheet, the three cups and the cut filling,
+the 24 numbered doors with two open, a stalk on each cherry, the fruit in each coated-fruit bag,
+and that each SKU draws its own pack size with no pack factor.

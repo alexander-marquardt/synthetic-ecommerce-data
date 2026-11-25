@@ -33,6 +33,7 @@ SELF_SIZED_BEFORE = frozenset(
         "yogurt",
         "chocolate_bar",
         "chocolate_box",
+        "peanut_butter_cups",
         "chocolate_bag",
         "hot_chocolate",
         "chocolate_orange",

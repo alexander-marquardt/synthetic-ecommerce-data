@@ -1,4 +1,5 @@
-"""A chocolate bar, box, bag, hot chocolate or orange takes no pack factor (gen#1125).
+"""A chocolate bar, box, bag, hot chocolate, orange or pack of cups takes no pack factor
+(gen#1125).
 
 A bar draws its weight and its multipack itself, so a 100g bar keeps half its product area; a
 box, sharing bag, hot chocolate or chocolate orange draws by its weight.
@@ -12,4 +13,5 @@ SELF_SIZED = (
     "chocolate_bag",
     "hot_chocolate",
     "chocolate_orange",
+    "peanut_butter_cups",
 )
