@@ -72,6 +72,8 @@ LIQUIDS = {
     "Root Beer": "#4a2414",
     "Elderflower Presse": "#e9edc4",
     "Sparkling Mint Water": "#d4eedf",
+    "Sparkling Lemon Water": "#f1f0d2",
+    "Sparkling Lime Water": "#dfeccb",
 }
 #: A clear wall's tint, and how much of the drink's color it hides.
 CLEAR, CLEAR_HIDES = "#eef3f5", 0.12
