@@ -17,10 +17,11 @@ measured as a smaller box than it has.
 
 from __future__ import annotations
 
+import functools
 import math
 import re
 import xml.etree.ElementTree as ET
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 
 NS = "{http://www.w3.org/2000/svg}"
 
@@ -147,6 +148,13 @@ def _arc_points(
     return pts
 
 
+@functools.lru_cache(maxsize=8192)
+def _local_points(d: str) -> tuple[Point, ...]:
+    """:func:`_path_points` of ``d``, read once: a drawing measured at many leans (gen#1182), and
+    every size and colorway of one shape, reach the same paths, only placed by another matrix."""
+    return tuple(_path_points(d))
+
+
 def _path_points(d: str) -> Iterator[Point]:
     """Every point a path's ``d`` reaches: its vertices and the extremes of its curves."""
     cur = start = (0.0, 0.0)
@@ -228,7 +236,7 @@ def _boxes(el: ET.Element, m: Matrix, named: dict[str, ET.Element]) -> Iterator[
     if tag in _DEFINITIONS:
         return  # a definition paints nothing until something uses it
     if tag == "path":
-        pts = [_apply(here, p) for p in _path_points(el.get("d", ""))]
+        pts = [_apply(here, p) for p in _local_points(el.get("d", ""))]
         if pts:
             xs, ys = [p[0] for p in pts], [p[1] for p in pts]
             yield _clipped((min(xs), min(ys), max(xs), max(ys)), el, here, named)
@@ -272,6 +280,12 @@ def _clipped(box: Box, el: ET.Element, m: Matrix, named: dict[str, ET.Element]) 
 
 def reach(svg: str | bytes) -> Box | None:
     """``(x0, y0, x1, y1)``: the box the SVG's drawn elements cover, or ``None`` when none is."""
+    return reaches(svg, (0.0,))[0]
+
+
+def reaches(svg: str | bytes, angles: Sequence[float]) -> list[Box | None]:
+    """:func:`reach` of the SVG turned by each of ``angles`` (degrees, about the origin), read
+    once: :mod:`.ground_shadow` measures one drawing leaned twenty ways for each shadow."""
     root = ET.fromstring(svg)
     if any(el is not root for el in root.iter(f"{NS}svg")):
         raise ValueError("a nested <svg> (its x, y and viewBox) is not read by sheet_extent")
@@ -279,11 +293,15 @@ def reach(svg: str | bytes) -> Box | None:
     for clip in root.iter(f"{NS}clipPath"):
         if clip.get("transform") or clip.get("clipPathUnits"):
             raise ValueError("a <clipPath> transform or clipPathUnits is not read by sheet_extent")
-    boxes = list(_boxes(root, IDENTITY, named))
-    if not boxes:
-        return None
-    return (min(b[0] for b in boxes), min(b[1] for b in boxes),
-            max(b[2] for b in boxes), max(b[3] for b in boxes))  # fmt: skip
+    out: list[Box | None] = []
+    for angle in angles:
+        turn = _transform(f"rotate({angle})") if angle else IDENTITY
+        boxes = list(_boxes(root, turn, named))
+        out.append(
+            (min(b[0] for b in boxes), min(b[1] for b in boxes),
+             max(b[2] for b in boxes), max(b[3] for b in boxes)) if boxes else None
+        )  # fmt: skip
+    return out
 
 
 def overrun(svg: str | bytes, sheet: float = 400.0, slack: float = 0.5) -> float:
