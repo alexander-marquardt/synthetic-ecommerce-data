@@ -184,11 +184,11 @@ def test_every_look_has_one_outline(key):
     fn = BREADTH_PRODUCTS[key]
     base = {name: values[0] for name, values in row.attributes.items()}
     box = pytest.approx(fn({}).figure.bounds())
-    for name, values in row.attributes.items():
+    for name, values in {**row.attributes, row.size_attr: row.size_values}.items():
         for value in values:
             figure = fn({**base, name: value}).figure
             assert figure.bounds() == box, (name, value)
-            if name not in READ.get(key, ()):
+            if name not in READ.get(key, ()) and name != row.size_attr:
                 assert figure == fn(base).figure, (name, value)
 
 

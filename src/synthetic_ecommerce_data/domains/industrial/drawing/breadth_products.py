@@ -1,15 +1,18 @@
 """Breadth types drawn as the product they are sold as, lit and large (#1216).
 
 A breadth type draws one of the shared shapes of :mod:`.breadth_shapes` until it has a drawing of
-its own here. A drawing here is still fixed geometry, the same whatever the record (a breadth SKU's
-sizes are cheap filler, so nothing is drawn to scale; only foam ear plugs read their ``Type``, for
-the cord), but it is the real product: its own parts,
-its own colors, a highlight and a shadow (the ``gloss`` and ``shade`` overlays), filling
-the figure area. :data:`BREADTH_PRODUCTS` maps a type key to its drawing; the key's row keeps its
-``shape`` for the day it has none.
+its own here. A drawing here is still fixed geometry, and nothing is drawn to scale (a breadth
+SKU's sizes are cheap filler), but it is the real product: its own parts, its own colors, a
+highlight and a shadow (the ``gloss`` and ``shade`` overlays), filling the figure area. It reads a
+record only where a value is a different product to look at, inside the same outline: the ``Type``
+of foam ear plugs (the cord), the ``Style`` of center punches, hose clamps, shaft collars and
+timing pulleys, and the ``Piece Count`` of seal pick and fastener extractor sets.
+:data:`BREADTH_PRODUCTS` maps a type key to its drawing; the key's row keeps its ``shape`` for the
+day it has none.
 
 The light and the shared parts are in :mod:`.breadth_light`, and the second slice's drawings, of
-hand tools, hardware and storage, in :mod:`.breadth_hardware`.
+hand tools, hardware and storage, in :mod:`.breadth_hardware`; the third's, of shop tools, fasteners
+and power transmission, in :mod:`.breadth_shop`.
 """
 
 from __future__ import annotations

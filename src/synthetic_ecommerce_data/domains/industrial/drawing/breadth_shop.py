@@ -37,6 +37,8 @@ from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, R
 
 BIRCH = "#d8b789"
 POUCH = "#5d6a56"
+POCKET = "#748068"
+RUBBER_LIT = "#565a61"
 NYLON = "#f0ece0"
 MACHINE = "#4f6b84"
 
@@ -68,7 +70,7 @@ def seal_pick_set(record: Record) -> Drawn:
                   (x + 0.04, 0.4), (x + 0.04, 1.0)], "handle", NYLON)  # fmt: skip
         col(fig, x - 0.11, 0.8, x + 0.11, 1.8, "handle", NYLON)
         fig.lines(((x - 0.11, y), (x + 0.11, y)) for y in (0.9, 0.97, 1.04))
-    fig.rect(0.0, 1.3, 1.64, 2.0, "handle", POUCH)
+    fig.rect(0.0, 1.3, 1.64, 2.0, "handle", POCKET)
     light(fig, (0.0, 1.3, 1.64, 2.0), across=True)
     fig.lines(((0.1 + step * k, 1.3), (0.1 + step * k, 2.0)) for k in range(count + 1))
     return done(fig)
@@ -188,8 +190,10 @@ def pitch_gage(record: Record) -> Drawn:
             for k in range(4):
                 edge += [(0.79 - 0.08 * k, 0.08), (0.75 - 0.08 * k, 0.15)]
             edge += [(0.2, 0.15)]
-            fig.poly([(base[0] + u[0] * p + v[0] * q, base[1] + u[1] * p + v[1] * q)
-                      for p, q in edge], "plain")  # fmt: skip
+            lit = ((0.2, -0.15), (0.78, -0.15), (0.78, -0.05), (0.2, -0.05))
+            for pts, role in ((edge, "plain"), (lit, "gloss" if degrees <= 0 else "shade")):
+                fig.poly([(base[0] + u[0] * p + v[0] * q, base[1] + u[1] * p + v[1] * q)
+                          for p, q in pts], role)  # fmt: skip
     slab(fig, [(0.34, 0.62), (0.46, 0.5), (1.18, 0.5), (1.3, 0.62), (1.3, 1.38), (1.18, 1.5),
                (0.46, 1.5), (0.34, 1.38)], t=0.07)  # fmt: skip
     fig.rect(0.52, 0.86, 1.12, 1.14, "handle", PAPER_LABEL)
@@ -391,7 +395,8 @@ def fluted_dowels(record: Record) -> Drawn:
                   (x + 0.45, 2.0), (x + 0.07, 2.0), (x, 1.9), (x, 0.1)],
                  "handle", BIRCH)  # fmt: skip
         light(fig, (x, 0.1, x + 0.52, 1.9))
-        fig.lines(((x + 0.06 + 0.1 * k, 0.08), (x + 0.06 + 0.1 * k, 1.92)) for k in range(5))
+        for k in range(4):
+            fig.rect(x + 0.08 + 0.1 * k, 0.08, x + 0.14 + 0.1 * k, 1.92, "shade")
         fig.lines([((x, 0.1), (x + 0.52, 0.1)), ((x, 1.9), (x + 0.52, 1.9))])
     return done(fig)
 
@@ -493,15 +498,16 @@ def t_slot_nut(record: Record) -> Drawn:
 
 
 def flat_gasket(record: Record) -> Drawn:
-    """A flat rubber flange gasket: the bore and four bolt holes, cut from sheet."""
+    """A flat rubber flange gasket: four bolt holes, and a raised sealing face round the bore."""
     del record
     fig = new()
     r, edge = 0.3, []
     for cx, cy, start in ((1.34, 1.34, 0), (0.3, 1.34, 90), (0.3, 0.3, 180), (1.34, 0.3, 270)):
         edge += arc((cx, cy), r, start, start + 90, 6)
     slab(fig, edge, "handle", RUBBER, t=0.06)
-    fig.disc((0.82, 0.82), 0.28, "hole")
     c = (0.82, 0.82)
+    fig.disc(c, 0.62, "handle", RUBBER_LIT)
+    fig.disc(c, 0.28, "hole")
     fig.poly([*arc(c, 0.36, 150, 300, 12), *arc(c, 0.29, 300, 150, 12)], "shade")
     fig.poly([*arc(c, 0.36, -30, 120, 12), *arc(c, 0.29, 120, -30, 12)], "gloss")
     for x in (0.28, 1.36):
@@ -535,10 +541,13 @@ def compression_spring(record: Record) -> Drawn:
     return done(fig)
 
 
-def _ball(fig: Figure, role: str, fill: str | None) -> None:
-    """A ball: two shadow crescents, the darker at the rim, and a highlight up left."""
+def _ball(fig: Figure, role: str, fill: str | None, matte: bool = False) -> None:
+    """A ball: two shadow crescents, the darker at the rim, and a highlight up left. A matte one
+    is in shadow all round its lit side."""
     c = (0.82, 0.82)
     fig.disc(c, 0.82, role, fill)
+    if matte:
+        fig.poly([*arc(c, 0.82, 0, 360, 36), *arc((0.7, 0.68), 0.58, 360, 0, 30)], "shade")
     for start, end, depth in ((-50, 140, 0.3), (-30, 120, 0.16)):
         rim = arc(c, 0.82, start, end, 24)
         span = len(rim) - 1
@@ -568,7 +577,7 @@ def rubber_ball(record: Record) -> Drawn:
     """A solid rubber ball: matte, with the seam its mold leaves."""
     del record
     fig = new()
-    _ball(fig, "handle", RUBBER)
+    _ball(fig, "handle", RUBBER_LIT, matte=True)
     fig.poly(ell((0.5, 0.48), 0.2, 0.14), "gloss")
     seam = ell((0.82, 0.82), 0.82, 0.24, 8, 172, 16)
     fig.lines(zip(seam, seam[1:], strict=False))

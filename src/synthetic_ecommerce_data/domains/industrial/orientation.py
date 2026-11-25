@@ -5,12 +5,11 @@ drawn type missing from this table, so a new type cannot forget it. The sets are
 :data:`...core.drawing.product_look.ORIENTATIONS`:
 
 * ``any`` (the 24 clock positions): a part with no natural up. Screws, bolts, nuts, washers,
-  nails, pins, rivets, bar and ball stock, discs and wheels, collets and cutters, chain, belts,
-  springs, small fittings, and gloves, which read at any angle (the maintainer's ruling on #860).
-* ``upright`` (+-36 degrees): a product with a natural up, or one nobody was sure of. Tools with
-  a working end and a handle (pliers, wrenches, files, punches), vises and clamps,
-  racks, cases and kits, containers of grease or fluid, casters, pulleys and bearings on a
-  base, guards and padlocks.
+  nails, pins, bar stock, discs and wheels, collets and cutters, chain, small fittings, and
+  gloves, which read at any angle (the maintainer's ruling on #860).
+* ``upright`` (+-36 degrees): a product with a natural up, or one nobody was sure of. Wrenches,
+  files, knives, levels and tape measures, hinges, knobs, hooks and shelf brackets, rigid casters
+  and bearings on a base.
 * ``slight`` (+-15 degrees): clothing. No industrial type wears it; gloves are ``any``.
 * ``diagonal`` (+-54 to 66 degrees, #1217): a wide, low product, laid across the portrait sheet
   so it is drawn large. Safety glasses.
