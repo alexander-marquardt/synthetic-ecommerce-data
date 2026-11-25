@@ -222,6 +222,21 @@ highest worker peak, since the line says it stayed under 1,500 MB. The table was
 for #1230 from the `module-peaks-*` artifacts of main's runs 45308069902, 45316258631,
 45319972788 and 45331393444.
 
+On Linux, a shard also prints a `module over its recorded peak:` line when a module measured more
+than 10% above its figure in the table (`OVER_SHARE` in `tests/worker_peak.py`, #1230); a module
+with no figure is held to the 1,501 MB the deal counts for it. The deal below keeps modules apart
+by the table, so a figure that is too low is a pair it no longer separates. At 10% a pair dealt
+at the 4,944 MB bound is at most 5,438 MB, still inside the container. Only a figure over 1,500 MB
+that is the highest of its worker is named, since a lower one can be an earlier module's leftovers:
+on main's runs 45519803068, 45527704354 and 45535377381, 129 to 156 modules read more than 10%
+over, and 2 to 5 of them were over 1,500 MB and the highest of their shard. The line fails
+nothing. To act on it, download the `module-peaks-*` artifacts of several green runs, one directory
+a run (`gh run download <run> -p 'module-peaks-*' -D <dir>`), and pass all the files to
+`python3 scripts/ci_shards.py --refresh-peaks` in one call: it rewrites the whole table from them,
+and a heavy module counts only where it is its shard's highest, so one run leaves some out.
+Commit the table in a pull request. A peak that grew on a change of yours is first a leak to look
+for (see "A lost xdist worker").
+
 ### What a shard's modules may peak at together (#1230)
 
 A shard that holds a heavy module runs two workers, each on one module at a time, so its two
