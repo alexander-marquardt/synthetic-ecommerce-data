@@ -1,0 +1,94 @@
+{
+  "dependencies": {
+    "PyPI:hatchling": {
+      "fetched": {
+        "latest": "1.33.0",
+        "licence": "MIT",
+        "released": "2026-10-28",
+        "version": "1.32.4",
+        "vulnerabilities": []
+      },
+      "rule": "import-tool",
+      "use": "The build backend (`[build-system]` names it too); `tests/test_wheel_builds.py` drives its builder (run by module name, no import)",
+      "verdict": "keep"
+    },
+    "PyPI:numpy": {
+      "fetched": {
+        "latest": "2.5.5",
+        "licence": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+        "released": "2026-11-15",
+        "version": "2.5.3",
+        "vulnerabilities": []
+      },
+      "note": "the one declared runtime dependency",
+      "rule": "import-large",
+      "use": "Pixel and array arithmetic in the drawings and the sheet cover, and the price-model fit",
+      "verdict": "keep"
+    },
+    "PyPI:pytest": {
+      "fetched": {
+        "latest": "9.2.0",
+        "licence": "MIT",
+        "released": "2026-10-27",
+        "version": "9.1.1",
+        "vulnerabilities": []
+      },
+      "rule": "import-large",
+      "use": "Test runner",
+      "verdict": "keep"
+    },
+    "PyPI:pytest-timeout": {
+      "fetched": {
+        "latest": "2.4.0",
+        "licence": "MIT License",
+        "released": "2025-05-05",
+        "version": "2.4.0",
+        "vulnerabilities": []
+      },
+      "note": "the latest release, 2.4.0, is of 2025-05-05, over 18 months ago, so `import-tool` does not keep it; tracked by #1103",
+      "rule": "gate-maintained",
+      "use": "The per-test limit, `timeout` in `pyproject.toml` (pytest plugin, no import)",
+      "verdict": "replace"
+    },
+    "PyPI:pytest-xdist": {
+      "fetched": {
+        "latest": "3.8.0",
+        "licence": "MIT",
+        "released": "2025-07-01",
+        "version": "3.8.0",
+        "vulnerabilities": []
+      },
+      "note": "its latest release, 3.8.0, is of 2025-07-01: it fails `gate-maintained` from 2027-01-01 without a newer one",
+      "rule": "import-tool",
+      "use": "Parallel test runs, `pytest -n` (pytest plugin, no import)",
+      "verdict": "keep"
+    },
+    "PyPI:pyyaml": {
+      "fetched": {
+        "latest": "6.0.4",
+        "licence": "MIT License",
+        "released": "2026-11-20",
+        "version": "6.0.3",
+        "vulnerabilities": []
+      },
+      "note": "parses YAML. The reach column follows the manifest, which declares it in `dev` only, but shipped code imports it: without PyYAML `ecom-generate` stops at `ModuleNotFoundError`",
+      "rule": "import-security-critical",
+      "use": "Reads the industrial product-type and breadth YAML files, and the workflows and configs in scripts and tests",
+      "verdict": "keep"
+    },
+    "PyPI:ruff": {
+      "fetched": {
+        "latest": "0.17.6",
+        "licence": "MIT",
+        "released": "2026-11-19",
+        "version": "0.16.8",
+        "vulnerabilities": []
+      },
+      "rule": "import-tool",
+      "use": "Lint (CLI, no import)",
+      "verdict": "keep"
+    }
+  },
+  "fetched_on": "2026-11-25",
+  "images": {}
+}
