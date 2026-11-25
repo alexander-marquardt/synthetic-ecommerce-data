@@ -14,7 +14,7 @@ sewing_pins     a pin card with two rows of steel pins, the    head (ball head, 
                 larger round heads that shine (glass), or
                 flat discs
 embroidery_kit  a wooden hoop holding the fabric, its motif    kit_type (cross stitch,
-                worked in the SKU's floss color: a grid of     stamped), motif (floral,
+                worked in the SKU's floss color: a grid of     stamped), design (floral,
                 crosses (cross stitch) or a filled satin       heart)
                 stitch shape (stamped); a flower or a heart,
                 and two skeins of the floss below
@@ -166,20 +166,21 @@ def embroidery_kit(
     fill: Fill,
     label: str | None,
     kit_type: str = "cross stitch",
-    motif: str = "floral",
+    design: str = "floral",
 ) -> list[str]:
     """An embroidery kit: a wooden hoop with its brass screw holding the linen, and the motif
     worked on it in the SKU's floss color, a grid of crosses (``cross stitch``) or a satin
-    stitched shape (``stamped``); ``motif`` is a flower or a heart. Two skeins of the floss lie
+    stitched shape (``stamped``); ``design`` is a flower or a heart. Two skeins of the floss lie
     below the hoop."""
     out = [
         _rect(186, 14, 28, 26, STEEL, 3, LW_DETAIL),
         _ell(200, 180, 156, 156, WOOD),
         _ell(200, 180, 140, 140, LINEN, LW_DETAIL),
     ]
-    out += (
-        _cross_stitch(paint, motif) if kit_type == "cross stitch" else _stamped(paint, fill, motif)
-    )
+    if kit_type == "cross stitch":
+        out += _cross_stitch(paint, design)
+    else:
+        out += _stamped(paint, fill, design)
     for x in (96, 220):
         out.append(_rect(x, 330, 84, 30, paint, 12))
         out.append(_rect(x + 30, 328, 24, 34, PAPER, 3, LW_DETAIL))

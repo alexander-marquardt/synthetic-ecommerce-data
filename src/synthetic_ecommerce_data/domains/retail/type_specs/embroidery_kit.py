@@ -32,8 +32,8 @@ from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpe
 
 
 def _row(code: str, motif: str, kit_type: str, brand: str, description: str, price: float):
-    attrs = (a("motif", "Motif", motif), a("kit_type", "Kit type", kit_type))
-    params = (("kit_type", kit_type.lower()), ("motif", motif.lower()))
+    attrs = (a("design", "Design", motif), a("kit_type", "Kit type", kit_type))
+    params = (("kit_type", kit_type.lower()), ("design", motif.lower()))
     return row(code, f"{motif} {kit_type} Embroidery Kit", brand, EMBROIDERY, "Embroidery Kit", "embroidery_kit",
                description, attrs, packs((1, price)), params)  # fmt: skip
 

@@ -110,7 +110,7 @@ READINGS = {
         ("needle_kind", "tapestry", "quilting"),
     ],  # fmt: skip
     "sewing_pins": [("head", "ball head", "glass head"), ("head", "ball head", "flat head")],
-    "embroidery_kit": [("kit_type", "cross stitch", "stamped"), ("motif", "floral", "heart")],
+    "embroidery_kit": [("kit_type", "cross stitch", "stamped"), ("design", "floral", "heart")],
 }
 
 
@@ -128,8 +128,8 @@ def test_a_param_changes_the_drawing(key) -> None:
 
 def test_a_stamped_kit_draws_both_motifs_apart() -> None:
     fill = kit.Fill("solid", "#2f6fb3")
-    heart = kit.render("embroidery_kit", fill, params={"kit_type": "stamped", "motif": "heart"})
-    floral = kit.render("embroidery_kit", fill, params={"kit_type": "stamped", "motif": "floral"})
+    heart = kit.render("embroidery_kit", fill, params={"kit_type": "stamped", "design": "heart"})
+    floral = kit.render("embroidery_kit", fill, params={"kit_type": "stamped", "design": "floral"})
     assert heart != floral
 
 
