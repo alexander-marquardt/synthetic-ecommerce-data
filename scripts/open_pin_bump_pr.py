@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Open the pin-bump pull request a generator release asks of the catalogue repository (gen#536).
+"""Print the pins a generator release gives the catalogue repository, and their body (gen#536).
 
     python3 scripts/open_pin_bump_pr.py --tag v1.2.3 \\
         --catalog build/release/catalog/catalog.ndjson \\
-        --images-sidecar build/release/images.tar.gz.content-sha256 --dry-run
+        --images-sidecar build/release/images.tar.gz.content-sha256
 
 The catalogue repository (``elastic/prism-retail-and-industrial``) pins the generator's output by
 digest in two files, ``catalog_release.json`` (the ONE catalog asset ``ecom-generate compose``
@@ -14,25 +14,18 @@ catalog, industrial and retail drawings together, gen#706: the content digest an
 the catalogue only by hand. ``.github/workflows/release.yaml`` builds both assets on a ``v*`` tag,
 uploads the catalog to that release and the image archive to its own release, tagged
 ``images-<count>-<YYYYMMDD>`` (the archive's file count and the UTC day, gen#804), and runs this
-script, which writes the two pin files with the new digests and opens a pull request that carries
-them.
-
-``--dry-run`` prints the pull request body and the two files and touches no network. Without it
-the script needs ``PIN_BUMP_TOKEN`` in the environment: a token scoped to pull requests and
-contents of the target repository only. It is read from the environment and never printed.
+script, which prints the two pin files with the new digests and a pull request body that names
+them. It touches no network, opens nothing and reads no token: v3's catalogue load publishes and
+pins the images (agent-ops#917, gen#1246).
 """
 
 from __future__ import annotations
 
 import argparse
-import base64
 import hashlib
 import json
 import os
 import re
-import sys
-import urllib.error
-import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -44,7 +37,6 @@ IMAGES_PIN = "src/prism_retail_and_industrial/data/images_release.json"
 
 CATALOG_ASSET = "catalog.ndjson.gz"
 IMAGES_ASSET = "images.tar.gz"
-TOKEN_ENV = "PIN_BUMP_TOKEN"
 #: The image release's tag: the archive's file count and the UTC day it was built (gen#804).
 IMAGES_TAG = re.compile(r"images-(\d+)-(\d{8})")
 
@@ -125,55 +117,6 @@ def body(tag: str, repository: str, catalog: dict, images: dict) -> str:
     )
 
 
-def _api(method: str, url: str, token: str, payload: dict | None = None) -> dict:
-    request = urllib.request.Request(  # noqa: S310 -- an https GitHub API URL built below
-        url,
-        data=None if payload is None else json.dumps(payload).encode(),
-        method=method,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
-            return json.loads(response.read() or b"{}")
-    except urllib.error.HTTPError as error:
-        raise SystemExit(f"open_pin_bump_pr: {method} {url}: HTTP {error.code}") from error
-
-
-def open_pull_request(
-    token: str, target: str, branch: str, tag: str, text: str, files: dict
-) -> str:
-    """Push ``files`` (path -> text) to ``branch`` of ``target`` and open a PR; return its URL."""
-    api = f"https://api.github.com/repos/{target}"
-    default = _api("GET", api, token)["default_branch"]
-    head = _api("GET", f"{api}/git/ref/heads/{default}", token)["object"]["sha"]
-    _api("POST", f"{api}/git/refs", token, {"ref": f"refs/heads/{branch}", "sha": head})
-    for path, content in files.items():
-        current = _api("GET", f"{api}/contents/{path}?ref={default}", token)
-        _api(
-            "PUT",
-            f"{api}/contents/{path}",
-            token,
-            {
-                "message": f"chore(pins): bump {path.rsplit('/', 1)[-1]} to release {tag}",
-                "content": base64.b64encode(content.encode()).decode(),
-                "sha": current["sha"],
-                "branch": branch,
-            },
-        )
-    made = _api(
-        "POST",
-        f"{api}/pulls",
-        token,
-        {"title": f"chore(pins): bump the generator pins to {tag}", "head": branch,
-         "base": default, "body": text},
-    )  # fmt: skip
-    return made["html_url"]
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--tag", required=True, help="the release tag the assets are uploaded to")
@@ -190,10 +133,6 @@ def main(argv: list[str] | None = None) -> int:
         default=os.environ.get("GITHUB_REPOSITORY", "alexander-marquardt/synthetic-ecommerce-data"),
         help="the repository the release is in",
     )
-    parser.add_argument("--target", default=TARGET_REPO, help="the repository that holds the pins")
-    parser.add_argument(
-        "--dry-run", action="store_true", help="print the body and the pins; no network"
-    )
     args = parser.parse_args(argv)
 
     catalog = catalog_pin(args.catalog, args.repository, args.tag)
@@ -201,21 +140,10 @@ def main(argv: list[str] | None = None) -> int:
     images["tag"] = images_tag(images, args.images_tag)
     text = body(args.tag, args.repository, catalog, images)
     files = {CATALOG_PIN: render(catalog), IMAGES_PIN: render(images)}
-    if args.dry_run:
-        print(f"DRY RUN: would open a pull request in {args.target} with this body:\n")
-        print(text)
-        for path, content in files.items():
-            print(f"--- {path}\n{content}", end="")
-        return 0
-    token = os.environ.get(TOKEN_ENV, "")
-    if not token:
-        print(
-            f"open_pin_bump_pr: {TOKEN_ENV} is not set; use --dry-run to print the body",
-            file=sys.stderr,
-        )
-        return 2
-    branch = f"pins/generator-{args.tag}"
-    print(open_pull_request(token, args.target, branch, args.tag, text, files))
+    print(f"The pins of {args.tag} for {TARGET_REPO}, and the body that names them:\n")
+    print(text)
+    for path, content in files.items():
+        print(f"--- {path}\n{content}", end="")
     return 0
 
 

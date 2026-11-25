@@ -421,8 +421,8 @@ count names the images release. `tests/test_drawing_manifest_924.py` pins that a
 re-renders its image byte for byte and that an industrial row redraws the recorded sha256.
 
 A `v*` tag builds the retail ceiling and the industrial large build, composes them into one catalog, builds this bundle, uploads them to a release with their
-`.content-sha256`, and opens the pin-bump pull request in the catalogue repository
-([docs/releasing.md](releasing.md), gen#536); a manual run of the workflow is the dry run.
+`.content-sha256`, and prints their pins. It opens no pull request and needs no secret: v3's
+catalogue load publishes and pins the images ([docs/releasing.md](releasing.md), gen#536, gen#1246); a manual run of the workflow is the dry run.
 
 ### One renderer
 
