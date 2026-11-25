@@ -26,6 +26,9 @@ from dataclasses import dataclass
 from synthetic_ecommerce_data.domains.retail import (
     color_word_brand_styles,  # noqa: F401 -- registers the six house styles
     dark_blues,
+    kit_beer,  # noqa: F401 -- registers beer, the wheat beer's can
+    kit_drinks,  # noqa: F401 -- registers wine_bottle
+    kit_soft_drinks,  # noqa: F401 -- registers soft_drink, the sparkling water
 )
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row, _a1, _in, _volts
 from synthetic_ecommerce_data.domains.retail.variants import cw
@@ -194,11 +197,12 @@ ROWS = (
         _WINE,
         "Wine",
         7.5,
-        "bottle",
+        "wine_bottle",
         "A soft, plummy red with ripe berries and a smooth finish.",
         (cw("Burgundy", "#6a1f3a", "solid", "#efe8d8"),),
         _w("Merlot", "Chile", 13.0),
         label="Merlot",
+        params=(("wine", "red"), ("pack_size", "750ml")),
         colorless=True,
         color_word="Yellow",
         true_color="Red",
@@ -212,11 +216,12 @@ ROWS = (
         _WINE,
         "Wine",
         11.0,
-        "bottle",
+        "wine_bottle",
         "An oak-aged red from old vines, with cherry, vanilla and a long finish.",
         (cw("Burgundy", "#5a1a2a", "solid", "#efe8d8"),),
         _w("Tempranillo", "Spain", 13.5),
         label="Rioja Reserva",
+        params=(("wine", "red"), ("pack_size", "750ml")),
         colorless=True,
         color_word="Yellow",
         true_color="Red",
@@ -287,11 +292,12 @@ ROWS = (
         _WATER,
         "Soft Drink",
         0.9,
-        "bottle",
+        "soft_drink",
         "Clear sparkling water with a touch of cherry flavour. No sugar. 500 ml.",
         (cw("Clear", "#dbeaf0", "solid", "#efe8d8"),),
         (("line", "Line", "Black Cherry"), ("flavor", "Flavor", "Cherry")),
         label="Water",
+        params=(("pack_size", "500ml"),),
         colorless=True,
         color_word="Black",
         true_color="Clear",
@@ -306,11 +312,12 @@ ROWS = (
         _BEER,
         "Beer",
         1.9,
-        "tin",
+        "beer",
         "A cloudy orange-gold wheat beer brewed with coriander and orange peel. 4.8%.",
         (cw("Gold", "#e0a040", "solid", "#efe8d8"),),
         (("line", "Line", "Belgian White"), ("abv", "ABV (%)", "4.8")),
         label="Beer",
+        params=(("pack_size", "330ml"), ("sold_in", "can")),
         colorless=True,
         color_word="White",
         true_color="Gold",
