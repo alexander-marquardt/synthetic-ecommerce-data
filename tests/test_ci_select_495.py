@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import ast
 import importlib.util
+import json
 import os
 import subprocess
 import sys
@@ -554,6 +555,20 @@ _CLI = "src/synthetic_ecommerce_data/generate_cli.py"
 _COMPOSE = "src/synthetic_ecommerce_data/compose.py"
 
 
+#: Imported inside functions that run only when a type table is read, which no file of
+#: ``scripts/ci_type_free.json`` does (``tests/type_reads.py`` fails it if it does, #1035): for
+#: those the oracle follows ``_figures`` alone.
+_INDUSTRIAL = "src/synthetic_ecommerce_data/domains/industrial/__init__.py"
+_INDUSTRIAL_AT_IMPORT = {
+    "src/synthetic_ecommerce_data/__init__.py",
+    "src/synthetic_ecommerce_data/core/__init__.py",
+    "src/synthetic_ecommerce_data/core/domain.py",
+    "src/synthetic_ecommerce_data/domains/__init__.py",
+    "src/synthetic_ecommerce_data/domains/industrial/drawing/__init__.py",
+    "src/synthetic_ecommerce_data/domains/industrial/drawing/figures.py",
+}
+
+
 def _import_closure(path: str, cache: dict[str, set[str]]) -> set[str]:
     seen: set[str] = set()
     stack = [path]
@@ -574,6 +589,9 @@ def test_every_test_that_imports_a_module_is_selected_when_that_module_changes(
     real: ci_select.Tree,
 ) -> None:
     cache: dict[str, set[str]] = {}
+    unread: dict[str, set[str]] = {_INDUSTRIAL: _INDUSTRIAL_AT_IMPORT}
+    assert _direct_imports(_INDUSTRIAL) > _INDUSTRIAL_AT_IMPORT, "a loader's import moved"
+    listed = set(json.loads((REPO / ci_select.TYPE_FREE_FILE).read_text(encoding="utf-8")))
     # One selection per changed module, not per (test, module) pair: ``select`` walks every test,
     # and 7000 pairs name about 100 modules (a 100 s test that hit the 300 s limit on a loaded
     # runner once a PR grew the tree).
@@ -581,7 +599,7 @@ def test_every_test_that_imports_a_module_is_selected_when_that_module_changes(
     tests = _test_files(real)
     assert len(tests) > 100
     for test in tests:
-        for module in sorted(_import_closure(test, cache)):
+        for module in sorted(_import_closure(test, unread if test in listed else cache)):
             if module.startswith(("vendor/", "tests/conftest")) or module == test:
                 continue
             if test in ci_select.SELECTED_ONLY_BY:

@@ -5,8 +5,9 @@
 
 ``scripts/ci_select.py`` does not select a listed file for a change only a type table's reader can
 see. ``tests/type_reads.py`` writes what each run saw (the ``type-reads-*`` artifacts) and fails a
-listed file that reads a table. A file that starts a process, or that asks the registry by name, is
-never listed: the plugin cannot see into a process, nor past ``typespec.registered``'s cache.
+listed file that reads a table. A file that starts a process, takes a build from
+``tests/shared_builds.py`` or asks the registry by name is never listed: the plugin cannot
+see into a process, nor past ``typespec.registered``'s cache.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ TABLE = REPO / "scripts" / "ci_type_free.json"
 
 #: A word in a test file, or in a ``tests/`` helper it imports, that keeps it off the list.
 BLIND = re.compile(
-    r"\b(subprocess|multiprocessing|ProcessPoolExecutor|popen|Popen|os\.system|pexpect|typespec)\b"
+    r"\b(subprocess|multiprocessing|ProcessPoolExecutor|popen|Popen|os\.system|pexpect|typespec|shared_builds)\b"
 )
 _HELPER = re.compile(r"^\s*(?:from|import)\s+([\w.]+)", re.MULTILINE)
 

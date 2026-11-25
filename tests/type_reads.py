@@ -9,9 +9,11 @@ one fails. ``TYPE_READS_OUT`` names a file for what the run saw, which
 ``scripts/ci_type_free.py --refresh`` reads.
 
 ``sys.monitoring`` sees the call itself, so a read counts whether or not an earlier file of the
-worker already loaded the types. It does not see another process: a file that starts one is never
-listed (``scripts/ci_type_free.py``). A read while a product module is imported counts only for the
-file that imported it first, so ``tests/test_type_free_1035.py`` refuses such a read.
+worker already loaded the types. A ``functools`` cache that a read filled is followed too: a hit
+on it is a read of the file that hit it. It does not see another process: a file that starts one,
+or is handed another's build, is never listed (``scripts/ci_type_free.py``). A read while a product
+module is imported counts only for the file that imported it first, so
+``tests/test_type_free_1035.py`` refuses such a read.
 """
 
 from __future__ import annotations
@@ -37,7 +39,12 @@ OUT_ENV = "TYPE_READS_OUT"
 TABLE = Path(__file__).resolve().parent.parent / "scripts" / "ci_type_free.json"
 
 _TOOL = 4
-_state: dict = {"file": None, "ran": set(), "read": set(), "told": set()}
+_state: dict = {"file": None, "ran": set(), "read": set(), "told": set(), "count": 0}
+#: code of a cached function -> its wrapper, the read count when its running call began, and the
+#: hits already attributed once it is known to read.
+_cached: dict = {}
+_began: dict = {}
+_hits: dict = {}
 
 
 def _is_reader(code) -> bool:
@@ -47,12 +54,43 @@ def _is_reader(code) -> bool:
     )
 
 
-def _called(code, _offset):
-    if not _is_reader(code):
-        return sys.monitoring.DISABLE
-    if _state["file"] is not None:
-        _state["read"].add(_state["file"])
+def _wrapper(code, frame):
+    """The ``functools`` cache around the running function, or None."""
+    held = frame.f_globals.get(code.co_name) if frame is not None else None
+    inner = getattr(held, "__wrapped__", None)
+    if getattr(inner, "__code__", None) is code and hasattr(held, "cache_info"):
+        return held
     return None
+
+
+def _called(code, _offset):
+    if _is_reader(code):
+        _state["count"] += 1
+        if _state["file"] is not None:
+            _state["read"].add(_state["file"])
+        return None
+    if code not in _cached:
+        held = _wrapper(code, sys._getframe(1))
+        if held is None:
+            return sys.monitoring.DISABLE
+        _cached[code] = held
+        sys.monitoring.set_local_events(_TOOL, code, sys.monitoring.events.PY_RETURN)
+    _began.setdefault(code, _state["count"])
+    return None
+
+
+def _returned(code, _offset, _value):
+    if _state["count"] > _began.pop(code, 0) and code not in _hits:
+        _hits[code] = _cached[code].cache_info().hits
+
+
+def _note_hits() -> None:
+    """Charge the file that ran with the hits made on a cache a read filled."""
+    for code, known in _hits.items():
+        now = _cached[code].cache_info().hits
+        if now > known and _state["file"] is not None:
+            _state["read"].add(_state["file"])
+        _hits[code] = now
 
 
 def watch() -> None:
@@ -62,6 +100,7 @@ def watch() -> None:
         return
     monitoring.use_tool_id(_TOOL, "type_reads")
     monitoring.register_callback(_TOOL, monitoring.events.PY_START, _called)
+    monitoring.register_callback(_TOOL, monitoring.events.PY_RETURN, _returned)
     monitoring.set_events(_TOOL, monitoring.events.PY_START)
 
 
@@ -78,8 +117,10 @@ def pytest_configure(config) -> None:
 @pytest.hookimpl(hookwrapper=True)
 def pytest_make_collect_report(collector):
     if isinstance(collector, pytest.Module):
+        _note_hits()
         _state["file"] = collector.nodeid.split("::")[0]
         yield
+        _note_hits()
         _state["file"] = None
     else:
         yield
@@ -87,6 +128,7 @@ def pytest_make_collect_report(collector):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item):
+    _note_hits()
     _state["file"] = item.nodeid.split("::")[0]
     _state["ran"].add(_state["file"])
     yield
@@ -96,6 +138,7 @@ def pytest_runtest_protocol(item):
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_teardown(item):
     yield
+    _note_hits()
     file = item.nodeid.split("::")[0]
     if file in item.config._type_free and file in _state["read"] and file not in _state["told"]:
         _state["told"].add(file)
