@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import appliance_lineups as lineups
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
@@ -40,13 +41,16 @@ def _attrs(kind_name: str, fuel: str, width: int, ovens: int, rating: str) -> tu
 
 def range_cooker_rows() -> tuple[Row, ...]:
     out: list[Row] = []
-    for pre, shape, title, kind_name, fuel, lead, models in _RANGE_KINDS:
+    for pre, shape, title, kind_name, fuel, lead, table in _RANGE_KINDS:
+        models = lineups.line_up(pre, table, 2)
+
         def make(i, models=models, lead=lead, kind_name=kind_name, fuel=fuel, pre=pre):
             width, ovens, price = models[i]
             rating = lar.RATINGS[(i + len(pre)) % 3]
-            desc = f"{lead}. It is {width} cm wide with {_WORDS[ovens]} ovens and a storage drawer, energy rating {rating}."
-            return float(price), desc, _PALETTES[i % 3], _attrs(kind_name, fuel, width, ovens, rating)
-        rows = lar.kind_rows(pre, 6, lar.RANGE_COOKERS, "Range Cooker", "range_cooker", (), title, make)
+            says, sold_on = lineups.feature("Range Cooker", i)
+            desc = f"{lead}. It is {width} cm wide with {_WORDS[ovens]} ovens and a storage drawer, energy rating {rating}.{says}"
+            return float(price), desc, _PALETTES[i % 3], (*_attrs(kind_name, fuel, width, ovens, rating), *sold_on)
+        rows = lar.kind_rows(pre, len(models), lar.RANGE_COOKERS, "Range Cooker", "range_cooker", (), title, make)
         out += [replace(r, params=(("kind", shape), ("width", str(w)), ("ovens", str(n))))
                 for r, (w, n, _) in zip(rows, models, strict=True)]
     return tuple(out)
