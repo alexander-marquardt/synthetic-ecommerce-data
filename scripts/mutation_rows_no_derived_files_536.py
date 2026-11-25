@@ -13,6 +13,9 @@ PREFIX = "no derived files"
 
 _T = "tests/test_no_derived_files_536.py"
 _RE_ADD = f"{_T}::test_a_re_added_derived_file_fails_the_check_and_is_named"
+_NO_CROSSING = (
+    f"{_T}::test_the_release_reads_no_secret_and_opens_no_pull_request_in_another_repository"
+)
 _GUARD = "check_no_derived_files.py"
 
 
@@ -93,15 +96,43 @@ def rows() -> list[Row]:
             "open_pin_bump_pr.py",
             '        "documents": data.count(b"\\n"),',
             '        "documents": data.count(b"\\n") + 1,',
-            f"{_T}::test_the_pin_bump_dry_run_prints_the_body_and_both_pins",
+            f"{_T}::test_the_pin_bump_prints_the_body_and_both_pins",
             "the catalog pin counts its documents",
         ),
         _row(
-            "the pin bump runs without its token",
+            "the release reads a repository secret again",
+            "release.yaml",
+            "          GH_TOKEN: ${{ github.token }}\n",
+            "          GH_TOKEN: ${{ secrets.PIN_BUMP_TOKEN }}\n",
+            _NO_CROSSING,
+            "a tag needs no repository secret",
+            ".github/workflows",
+        ),
+        _row(
+            "the release opens a pull request in another repository",
+            "release.yaml",
+            "            | tee build/release/pin-bump-body.txt\n",
+            "            | tee build/release/pin-bump-body.txt\n"
+            "          gh pr create -R elastic/prism-retail-and-industrial --fill\n",
+            _NO_CROSSING,
+            "a tag opens no pull request elsewhere",
+            ".github/workflows",
+        ),
+        _row(
+            "a refused pin is hidden by tee",
+            "release.yaml",
+            "          set -o pipefail  # a refused pin",
+            "          true  # a refused pin",
+            f"{_T}::test_a_pin_the_script_refuses_stops_the_tag_before_anything_is_uploaded",
+            "a refused pin stops the tag before it uploads",
+            ".github/workflows",
+        ),
+        _row(
+            "the pin script can open a connection again",
             "open_pin_bump_pr.py",
-            "    if not token:",
-            "    if False:",
-            f"{_T}::test_the_pin_bump_needs_its_token_unless_it_is_a_dry_run",
-            "a real run needs its scoped token",
+            "import re\n",
+            "import re\nimport urllib.request  # noqa: F401\n",
+            f"{_T}::test_the_pin_script_prints_without_a_token_and_imports_no_network",
+            "the pin script imports no network module",
         ),
     ]
