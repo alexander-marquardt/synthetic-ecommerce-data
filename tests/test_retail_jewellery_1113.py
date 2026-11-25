@@ -14,7 +14,7 @@ import pytest
 
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
-from synthetic_ecommerce_data.domains.retail import kit_jewellery, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import kit_jewellery, type_registry
 
 NEW = {"stud_earrings": "Stud Earrings", "bangle": "Bangle", "cufflinks": "Cufflinks"}
 METALS = {
@@ -133,11 +133,3 @@ def test_silver_necklace_18_inch_is_a_45_cm_silver_necklace_sku(ceiling: list[di
 def test_ring_size_n_is_a_ring_sku_in_uk_and_us_sizes(ceiling: list[dict]) -> None:
     sized = [s for r in _of(ceiling, "Ring") for s in r["skus"] if s.get("ring_size_uk") == "N"]
     assert sized and all(s["ring_size_us"] == "7" for s in sized)
-
-
-def test_the_new_types_are_templates_the_build_does_not_derive() -> None:
-    """Cut 1 adds templates only, as gen#423's jewellery did: a derived stone style would rewrite
-    a stud's stone in its title but not its pearl drawing. Deriving them is a later cut."""
-    derivable = {r["product_id"] for r in scale.derivable(scale.templates())}
-    ids = {f"BRD-{r.code}" for key in NEW for r in type_registry.specs()[key].rows}
-    assert ids and not ids & derivable

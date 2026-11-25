@@ -16,6 +16,6 @@ SPEC = TypeSpec(
     rows=(),
     homes=(
         Home("decoy_product_words", False),
-        Home("accessory_rows", False),
+        Home("accessory_rows", True),
     ),
 )
