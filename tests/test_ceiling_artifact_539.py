@@ -190,7 +190,11 @@ def test_a_real_build_survives_the_pickle() -> None:
 
 def test_every_shard_with_a_file_to_run_downloads_the_catalogue() -> None:
     assert TESTS.get("needs") == "ceiling-catalogue"
-    download = _step("actions/download-artifact")
+    download = next(
+        s for s in TESTS["steps"]
+        if s.get("uses", "").startswith("actions/download-artifact")
+        and s["with"]["name"] == "ceiling-catalogue"
+    )  # fmt: skip
     assert download.get("if") == "steps.select.outputs.run == 'true'"
     upload = next(
         s for s in CI["jobs"]["ceiling-catalogue"]["steps"]

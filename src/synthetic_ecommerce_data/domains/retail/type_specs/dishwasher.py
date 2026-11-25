@@ -12,6 +12,7 @@ Not derivable: the range is authored.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import appliance_lineups as lineups
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec, a
@@ -31,16 +32,19 @@ _DISH_KINDS = (
 
 def dishwasher_rows() -> tuple[Row, ...]:
     out: list[Row] = []
-    for pre, shape, title, kind_name, lead, models in _DISH_KINDS:
+    for pre, shape, title, kind_name, lead, table in _DISH_KINDS:
+        models = lineups.line_up(pre, table, 2)
+
         def make(i, models=models, lead=lead, kind_name=kind_name, pre=pre):
             places, width, price, noise = models[i]
             rating = lar.RATINGS[(i + len(pre)) % 5]
+            says, sold_on = lineups.feature("Dishwasher", i)
             desc = (f"{lead}. It holds {places} place settings, is {width} cm wide and runs at "
-                    f"{noise} dB, energy rating {rating}.")
+                    f"{noise} dB, energy rating {rating}.{says}")
             attrs = (a("appliance_type", "Type", kind_name), lar.count("place_settings", "Place settings", places),
-                     lar.cm(width), a("energy_rating", "Energy rating", rating), a("noise_db", "Noise level (dB)", str(noise)))
+                     lar.cm(width), a("energy_rating", "Energy rating", rating), a("noise_db", "Noise level (dB)", str(noise)), *sold_on)
             return float(price), desc, lar.PALETTES[i % 3], attrs
-        out += lar.kind_rows(pre, 6, lar.DISHWASHERS, "Dishwasher", "dishwasher", (("kind", shape),), title, make)
+        out += lar.kind_rows(pre, len(models), lar.DISHWASHERS, "Dishwasher", "dishwasher", (("kind", shape),), title, make)
     return tuple(out)
 
 

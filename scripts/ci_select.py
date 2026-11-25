@@ -391,6 +391,7 @@ class Tree:
         for path in self.py:
             self.edges[path], self.leaves[path] = self._edges(path)
         self._closure: dict[str, tuple[frozenset[str], frozenset[str]]] = {}
+        self._named: dict[str, tuple[tuple[re.Pattern[str], ...], dict[str, bool]]] = {}
 
     def _console_scripts(self) -> dict[str, set[str]]:
         """``[project.scripts]`` of pyproject.toml (read as text: tomllib needs Python 3.11)."""
@@ -684,14 +685,20 @@ class Tree:
             return False if changed in self.text else self._unresolved_import(members, changed)
         if self._owner_module_in(members, changed):
             return True
-        patterns = self._tokens(changed)
         document = changed.endswith(_DOC_SUFFIXES) or changed.startswith(_DOC_DIR)
         readers = _DOC_READERS if document else ("",)
-        return any(
-            any(p.search(self.strings.get(m, "")) for p in patterns)
-            for m in members
-            if m.startswith(readers)
-        )
+        return any(self._named_in(m, changed) for m in members if m.startswith(readers))
+
+    def _named_in(self, member: str, changed: str) -> bool:
+        """Whether the text of ``member`` names the changed file: each text is searched once for
+        it, however many tests reach the member (#1035)."""
+        if changed not in self._named:
+            self._named[changed] = (self._tokens(changed), {})
+        patterns, found = self._named[changed]
+        if member not in found:
+            text = self.strings.get(member, "")
+            found[member] = any(p.search(text) for p in patterns)
+        return found[member]
 
     def _package_dir(self, changed: str) -> str | None:
         """The directory of the package that owns a non-Python file under ``src/``: the nearest

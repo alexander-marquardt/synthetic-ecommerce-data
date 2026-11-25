@@ -24,42 +24,29 @@ WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Three minutes of the weights' seconds: the issue's target for one test file.
 FILE_BUDGET_SECONDS = 180.0
 
-#: Why each file over the budget is over it. The seconds are the table's (the push run
-#: 44208080586 on main 91fc09a9, on the self-hosted runners). A file #1035 cut keeps its line
-#: until a refresh measures the cut; then the line goes, or says what is left.
+#: Why each file over the budget is over it. The seconds are the table's (run 45347596547, the
+#: full selection of #1227, on the self-hosted runners). A file #1035 cut keeps its line until a
+#: refresh measures the cut; then the line goes, or says what is left.
 REASONS = {
     "tests/test_merge_pr.py": (
-        "1486 s: each case clones the repository and runs a real build of scripts/merge_pr.sh, "
+        "1548 s: each case clones the repository and runs a real build of scripts/merge_pr.sh, "
         "which gen_train still calls for a conflicted PR. Selected only by a change to the merge "
         "path (#1037) and split over every shard (SPLIT_FILES)."
     ),
     "tests/test_merge_pr_github_ci_348.py": (
-        "346 s: as tests/test_merge_pr.py, the --github-ci mode of the same script. Selected only "
+        "377 s: as tests/test_merge_pr.py, the --github-ci mode of the same script. Selected only "
         "by a change to the merge path (#1037) and split over every shard."
     ),
-    "tests/test_retail_scale.py": (
-        "412 s before #1035, which reads the templates once per worker (23 calls of 6 to 9 s "
-        "each) and moved the CLI and capacity tests to "
-        "tests/test_retail_scale_cli_and_capacity_1035.py; the next refresh measures it."
-    ),
     "tests/test_type_seam.py": (
-        "330 s before #1035, which builds the small catalogue the left-out, resize and edit "
-        "tests compare against once per worker instead of once per test; the next refresh "
-        "measures it."
+        "246 s: it builds the small catalogue whole once per worker, and again for each left-out, "
+        "resized and edited case, since the difference between two builds is what it tests."
     ),
-    "tests/test_retail_ceiling_forms_237.py": (
-        "275 s before #1035, which reads the templates once per worker instead of once per "
-        "test (305 s to 68 s locally, 59 s of it the ceiling build CI makes once); the next "
-        "refresh measures it."
+    "tests/test_ci_select_495.py": (
+        "211 s before #1035's one search of each text per changed file (six of its tests took 23 "
+        "to 36 s, selecting for many paths on the whole tree); the next refresh measures it."
     ),
-    "tests/test_catalog_brands_voice.py": (
-        "205 s before #1035, which reads each 100K document's attributes once for the "
-        "must-stock scan (39 s on CI); the next refresh measures it. Its other checks read every "
-        "document of the shared 100K file."
-    ),
-    "tests/test_nails_751.py": (
-        "186 s before #1035, which shares the whole build its left-out and whole-build tests "
-        "compare against; the next refresh measures it."
+    "tests/test_merge_pr_local_ci_guard_366.py": (
+        "194 s: as tests/test_merge_pr.py, the --local-ci guard of the same script."
     ),
 }
 
