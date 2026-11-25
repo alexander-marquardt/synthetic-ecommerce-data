@@ -83,10 +83,53 @@ SLICE_2 = (
 )
 
 
+#: Slice 3: the last 32 types under half the area before it.
+SLICE_3 = (
+    "ball_stock_precision",
+    "ball_stock_rubber",
+    "ball_valves",
+    "bench_vises",
+    "bit_sharpeners",
+    "center_punches",
+    "circle_cutters",
+    "compression_springs",
+    "cutter_storage_racks",
+    "fastener_extractors",
+    "flat_gaskets",
+    "fluted_dowels",
+    "grooving_cutters",
+    "hose_clamps",
+    "induction_heaters",
+    "keyed_padlocks",
+    "milling_collets",
+    "milling_tool_holders",
+    "nut_splitters",
+    "seal_pick_sets",
+    "sems_bolts",
+    "serrated_flange_nuts",
+    "shaft_collars",
+    "side_lock_holders",
+    "swivel_casters",
+    "t_slot_nuts",
+    "tap_wrenches",
+    "thread_pitch_gages",
+    "timing_pulleys",
+    "u_bolts",
+    "wedge_anchors",
+    "wheel_mandrels",
+)
+
+
 @pytest.mark.parametrize("key", SLICE_2)
 def test_a_slice_2_type_is_drawn_as_its_own_product(key):
     """Every fill test below runs over ``BREADTH_PRODUCTS``, so a type that leaves it is
     unmeasured."""
+    assert key in BREADTH_PRODUCTS
+
+
+@pytest.mark.parametrize("key", SLICE_3)
+def test_a_slice_3_type_is_drawn_as_its_own_product(key):
+    """As for slice 2."""
     assert key in BREADTH_PRODUCTS
 
 
