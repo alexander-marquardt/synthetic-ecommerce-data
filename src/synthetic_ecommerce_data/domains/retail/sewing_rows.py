@@ -3,10 +3,12 @@
 Sewing and knitting sit in Office & School beside Art Supplies (``Office & School > Sewing &
 Knitting``), the department #837's taxonomy gives crafts, and take its build record department
 (``office_rows.DEPARTMENT``), which keys the brand pools. Each type is a spec of its own
-(``type_specs/sewing_thread.py``, ``yarn.py``, ``fabric.py``) drawn by :mod:`kit_sewing`. Every
-style offers the six main colors (gen#275) and no more: the range is sized to its share of the
-issue's +900 SKUs (``docs/retail-prototype/sewing-knitting-1118.md``), so each type sells two
-brands and its SKU axis the fewest steps a shopper expects. Every brand here is invented.
+(``type_specs/sewing_thread.py``, ``yarn.py``, ``fabric.py``) drawn by :mod:`kit_sewing`, and
+cut 2's tools (``sewing_machine.py``, ``knitting_needles.py``, ``crochet_hook.py``) drawn by
+:mod:`kit_sewing_tools`. A style offers the six main colors (gen#275) and no more, or three of
+them for a needle or a hook sold in three sizes: the range is sized to its share of the issue's
++900 SKUs (``docs/retail-prototype/sewing-knitting-1118.md``), so each type sells two brands and
+its SKU axis the fewest steps a shopper expects. Every brand here is invented.
 """
 
 from __future__ import annotations
@@ -21,6 +23,9 @@ NODE = (ROOT, "Sewing & Knitting")
 THREAD = (*NODE, "Sewing Thread")
 YARN = (*NODE, "Yarn")
 FABRIC = (*NODE, "Fabric")
+MACHINE = (*NODE, "Sewing Machines")
+NEEDLES = (*NODE, "Knitting Needles")
+HOOKS = (*NODE, "Crochet Hooks")
 
 #: The range's own invented brands; the stationery brands of :mod:`office_rows` sell it too.
 BOBBINMERE = "Bobbinmere"
@@ -30,7 +35,9 @@ OWNERS = ((BOBBINMERE, "own"), (PURLWICK, "own"))
 
 def row(code: str, title: str, brand: str, path: tuple[str, ...], product_type: str, shape: str,
         description: str, attrs: tuple[tuple, ...], sizes: tuple[tuple[str, float], ...],
-        params: tuple[tuple[str, str], ...], size_key: str = "pack_size") -> Row:  # fmt: skip
-    """One sewing style: its six colors times its ``size_key`` values are its SKUs."""
+        params: tuple[tuple[str, str], ...], size_key: str = "pack_size",
+        colors: tuple = SIX) -> Row:  # fmt: skip
+    """One sewing style: its colors (the six main ones unless named) times its ``size_key``
+    values are its SKUs."""
     return Row(code, title, brand, DEPARTMENT, path, product_type, sizes[0][1], shape, description,
-               SIX, attrs, sizes, params=params, size_key=size_key)  # fmt: skip
+               colors, attrs, sizes, params=params, size_key=size_key)  # fmt: skip
