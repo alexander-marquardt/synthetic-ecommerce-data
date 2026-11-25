@@ -181,7 +181,7 @@ SPEC = TypeSpec(
              "A stitched faux leather belt with a flat plate buckle that slides to size, with a grained finish."),
         _row("BLTCNV", "Canvas Casual Belt", _W, 9.0, "Canvas", "Pin", "3.8",
              "A woven canvas belt with a pin buckle and a pale stitched edge, for chinos and shorts."),
-        _row("BLTWEB", "Webbing Belt", _P, 10.0, "Webbing", "Plate", "3.2",
+        _row("BLTWEB", "Mens Webbing Belt", _P, 10.0, "Webbing", "Plate", "3.2",
              "A flat woven webbing belt with a plate buckle that grips anywhere along the strap, so it fits every waist."),
         _row("BLTAUT", "Automatic Leather Belt", _W, 19.0, "Leather", "Automatic", "3.5",
              "A leather belt with a ratchet slide under the strap that clicks to a fit in small steps, with no holes to punch."),

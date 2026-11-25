@@ -301,10 +301,11 @@ SHOPPER_FABRICS = frozenset({
 #: of a garment only. A bag or a belt keeps its own ``material``, as homeware does (gen#187).
 TEXTILE_DEPARTMENTS = frozenset({"Clothing", "Lingerie & Nightwear"})
 NON_TEXTILE_TYPES = frozenset({
-    "Analog Watch", "Backpack", "Baby Beakers", "Belt", "Bracelet", "Clutch Bag",
+    "Analog Watch", "Backpack", "Baby Beakers", "Belt", "Belt Bag", "Bracelet", "Clutch Bag",
     "Crossbody Bag", "Digital Watch", "Drop Earrings", "Earrings", "Fitness Band", "Handbag",
-    "Hoop Earrings", "Key Clips", "Necklace", "Purse", "Ring", "Shoe Care Kit", "Shoe Laces",
-    "Shoe Polish", "Shoulder Bag", "Tote Bag", "Travel Cases", "Umbrella", "Waist Bags",
+    "Hoop Earrings", "Key Clips", "Laptop Bag", "Messenger Bag", "Necklace", "Purse", "Ring",
+    "Shoe Care Kit", "Shoe Laces", "Shoe Polish", "Shoulder Bag", "Tote Bag", "Travel Cases",
+    "Umbrella", "Waist Bags",
     "Wallet", "Watch",
 })  # fmt: skip
 
