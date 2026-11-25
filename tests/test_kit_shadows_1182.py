@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import functools
 import re
+import xml.etree.ElementTree as ET
 
 import pytest
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow, kit, orientation, scale
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
-from synthetic_ecommerce_data.domains.retail import kit, orientation, scale
 from test_flat_shadow_1182 import _check
 
 #: The shapes whose kit drew its shadow unlabelled and that the catalogue draws turned.
@@ -97,6 +98,20 @@ def test_a_level_picture_stands_on_the_steps_shadow() -> None:
     brand, style = _brand()
     svg = kit.render("bath_towel", _FILL, brand=brand, uid="u", style=style)
     assert len(_STEP.findall(svg)) == 1 and 'class="turn"' not in svg
+
+
+def test_a_level_shadow_keeps_to_its_kits_sheet() -> None:
+    """A level drawing as wide as the 400-unit sheet and standing on its foot stands on a shadow
+    that ends at the sheet's edges, so the plain sheet draws nothing past them."""
+    figure = '<path d="M0,200 L400,200 L400,396 L0,396 Z"/>'
+    drawing = ground_shadow.ellipse(200, 396, 200, 9) + figure
+    shadow, rest = ground_shadow.turned(drawing, "", "", "u")
+    assert rest == figure
+    el = ET.fromstring(f"<g>{shadow}</g>").find("ellipse")
+    assert el is not None
+    cx, cy, rx, ry = (float(el.get(k, 0)) for k in ("cx", "cy", "rx", "ry"))
+    assert cx - rx >= 0 and cx + rx <= ground_shadow.SHEET, (cx, rx)
+    assert cy + ry <= ground_shadow.SHEET and ry > 0, (cy, ry)
 
 
 @functools.cache

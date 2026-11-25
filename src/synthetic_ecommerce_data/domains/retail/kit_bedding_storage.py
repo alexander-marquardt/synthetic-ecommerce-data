@@ -30,6 +30,7 @@ image serves every size its color sells. The drawings are original and drawn by 
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     LW_DETAIL,
     Fill,
@@ -151,7 +152,7 @@ def bed_pillow(paint: str, fill: Fill, label: str | None, kind: str = "down alte
     else:
         mid = (y0 + y1) / 2
         face = f"M{x0},{y0} Q200,{y0 - bulge} {x1},{y0} Q{x1 + bulge},{mid} {x1},{y1} Q200,{y1 + bulge} {x0},{y1} Q{x0 - bulge},{mid} {x0},{y0} Z"
-    out = ['<ellipse cx="200" cy="340" rx="130" ry="10" fill="#000000" fill-opacity=".08"/>']
+    out = [ground_shadow.ellipse(200, 340, 130, 10)]
     out.append(_path(f"M{x0 + 4},{y1 - 6} L{x1 - 4},{y1 - 6} L{x1 - 10},{y1 + side} L{x0 + 10},{y1 + side} Z", _shade(paint, 0.12) if paint.startswith("#") else paint))
     out.append(_path(face, paint))
     if kind == "down alternative":  # a quilted cover

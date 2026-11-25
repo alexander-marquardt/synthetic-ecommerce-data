@@ -186,15 +186,18 @@ filling at least half of the figure area ([drawings](drawings.md#breadth-types-f
   largest turned items are 60 cm: a foam roller, a floor puzzle, a snood and artificial stems.
   `tests/test_tilt_audit_1101.py` plants a turned fridge and checks that the build fails.
 
-  A turned product's shadow is not turned (#1182). A kit draws its shadow in its figure, as an
-  ellipse with `class="ground"`; `retail/ground_shadow.py` takes it out of a turned drawing and
-  draws one soft horizontal ellipse outside the turn, under the drawing's lowest point and as
+  A product's shadow lies flat, level or turned (#1182). A kit draws its shadow in its figure
+  through `ground_shadow.ellipse`, which labels it `class="ground"`; no kit draws an unlabelled
+  one. `retail/ground_shadow.py` takes it out of the drawing and draws one soft horizontal
+  ellipse in its place, outside the product's turn, under the drawing's lowest point and as
   wide as the part of the drawing near the ground (the lowest 12% of its height). The product's
-  own turn is unchanged. Every such shadow falls away from one light (`ground_shadow.LIGHT`, up and to
-  the left). The kits that label their shadow are bread, chocolate, dairy, drinks, produce,
-  punnet and soft drinks; the other kits' shadows, and the level pictures, still draw their own
-  (the next slices). `tests/test_flat_shadow_1182.py` renders a turned product of each of the ten
-  shapes and reads where its shadow lies.
+  own turn is unchanged. A level picture, in a house style or on the plain sheet, stands on the
+  same shadow; on its kit's 400-unit sheet the shadow is kept inside the sheet. Every shadow
+  falls away from one light (`ground_shadow.LIGHT`, up and to the left).
+  `tests/test_flat_shadow_1182.py` renders a turned product of each of slice 1's ten shapes and
+  reads where its shadow lies; `tests/test_kit_shadows_1182.py` checks every registered shape's
+  kit labels its shadow, that no kit-drawn shadow is left in any picture at angle 0 or turned,
+  and the same flat shadow under a turned product of each of the 54 shapes labelled since.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
