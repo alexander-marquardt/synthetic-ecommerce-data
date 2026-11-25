@@ -182,3 +182,9 @@ and color and its flavour's accent.
 One of each shape and brand, before (main at `dbdc94bf`) and after:
 
 ![Each chocolate pack before and after its brand's mark and colors](../images/chocolate-brands-1125.png)
+
+The packs the issue names (a bar at 100g and 200g, a multipack, a box at its three sizes, a
+sharing bag, a hot chocolate, a white chocolate bar), before any of the five slices (main at
+`9361454c`) and after the last:
+
+![The chocolate packs the issue names before the redraw and after it](../images/chocolate-sheet-1125.png)
