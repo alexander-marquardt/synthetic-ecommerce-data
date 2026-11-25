@@ -21,11 +21,6 @@ ROOT = Path(__file__).resolve().parents[1]
 #: or a slash is not (``docs/retail-catalog-batch-1.md``, a path): those are names, not prose.
 REFUSED = re.compile(r"""\bretail["']?\s[\s#>*"']*(?:demos?\b|catalog)""", re.IGNORECASE)
 
-#: Files that may hold a refused phrase: a copy of the R&I repo's block pinned by sha256
-#: (``scripts/check_industrial_unit_pin.py``), so its comments change there first
-#: (elastic/prism-retail-and-industrial#2143).
-EXEMPT = {"tests/data/industrial_canonical_units.yaml"}
-
 
 def refused(text: str) -> list[int]:
     """The line numbers (from 1) at which ``text`` starts a refused phrase."""
@@ -40,7 +35,7 @@ def tree_hits(root: Path) -> list[str]:
     hits = []
     for name in filter(None, names):
         path = root / name
-        if name in EXEMPT or not path.is_file():
+        if not path.is_file():
             continue
         text = path.read_bytes().decode("utf-8", errors="ignore")
         hits += [f"{name}:{line}" for line in refused(text)]
@@ -92,9 +87,3 @@ def test_the_lint_names_the_file_and_line_of_a_tracked_phrase(tmp_path) -> None:
 
 def test_no_tracked_file_names_a_second_catalog_or_demo() -> None:
     assert tree_hits(ROOT) == []
-
-
-@pytest.mark.parametrize("name", sorted(EXEMPT))
-def test_an_exempt_file_still_holds_a_refused_phrase(name) -> None:
-    """Once its source is corrected and the copy is refreshed, the exemption goes with it."""
-    assert refused((ROOT / name).read_text("utf-8")), f"{name} is clean: take it out of EXEMPT"
