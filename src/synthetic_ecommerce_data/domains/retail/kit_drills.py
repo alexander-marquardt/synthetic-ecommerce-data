@@ -98,34 +98,47 @@ def _cable(d: str) -> str:
     )
 
 
-def _hank(cx: float, cy: float, w: float, h: float) -> str:
-    """A cable folded into a figure of eight and tied at its middle, as it is sold."""
-    x0, x1, up, dn = cx - w / 2, cx + w / 2, cy - h * 0.62, cy + h * 0.62
-    body = (
-        f"M{cx:.1f},{cy - 13:.1f} C{cx + w * 0.16:.1f},{up:.1f} {x1:.1f},{up:.1f} {x1:.1f},{cy:.1f} "
-        f"C{x1:.1f},{dn:.1f} {cx + w * 0.16:.1f},{dn:.1f} {cx:.1f},{cy + 13:.1f} "
-        f"C{cx - w * 0.16:.1f},{dn:.1f} {x0:.1f},{dn:.1f} {x0:.1f},{cy:.1f} "
-        f"C{x0:.1f},{up:.1f} {cx - w * 0.16:.1f},{up:.1f} {cx:.1f},{cy - 13:.1f} Z"
+def _loop(cx: float, cy: float, w: float, h: float, back: bool = False) -> str:
+    """A rounded loop as a path, wound the other way for a hole (``back``)."""
+    r, k = min(w, h) / 2, min(w, h) * 0.224
+    x0, x1, y0, y1 = cx - w / 2, cx + w / 2, cy - h / 2, cy + h / 2
+    pts = [
+        (x0 + r, y0), (x1 - r, y0), (x1 - k, y0), (x1, y0 + k), (x1, y0 + r),
+        (x1, y1 - r), (x1, y1 - k), (x1 - k, y1), (x1 - r, y1),
+        (x0 + r, y1), (x0 + k, y1), (x0, y1 - k), (x0, y1 - r),
+        (x0, y0 + r), (x0, y0 + k), (x0 + k, y0), (x0 + r, y0),
+    ]  # fmt: skip
+    if back:
+        pts = pts[1::-1] + pts[15:0:-1]
+    a = [f"{x:.1f},{y:.1f}" for x, y in pts]
+    return (
+        f"M{a[0]} L{a[1]} C{a[2]} {a[3]} {a[4]} L{a[5]} C{a[6]} {a[7]} {a[8]} "
+        f"L{a[9]} C{a[10]} {a[11]} {a[12]} L{a[13]} C{a[14]} {a[15]} {a[16]} Z"
     )
-    strands = " ".join(
-        f"M{cx - w * 0.5 * k:.1f},{cy:.1f} C{cx - w * 0.5 * k:.1f},{cy - h * 0.6 * k:.1f} {cx - w * 0.16:.1f},{cy - h * 0.6 * k:.1f} {cx:.1f},{cy - 11 * k:.1f} "
-        f"C{cx + w * 0.16:.1f},{cy + h * 0.6 * k:.1f} {cx + w * 0.5 * k:.1f},{cy + h * 0.6 * k:.1f} {cx + w * 0.5 * k:.1f},{cy:.1f} "
-        f"C{cx + w * 0.5 * k:.1f},{cy - h * 0.6 * k:.1f} {cx + w * 0.16:.1f},{cy - h * 0.6 * k:.1f} {cx:.1f},{cy - 11 * k:.1f} "
-        f"C{cx - w * 0.16:.1f},{cy + h * 0.6 * k:.1f} {cx - w * 0.5 * k:.1f},{cy + h * 0.6 * k:.1f} {cx - w * 0.5 * k:.1f},{cy:.1f}"
-        for k in (0.82, 0.6, 0.36)
+
+
+def _hank(cx: float, cy: float, w: float, h: float) -> str:
+    """A cable wound in a long coil and strapped across its middle, as it is sold."""
+    t = min(w, h) * 0.36
+    strands = " ".join(_loop(cx, cy, w - 2 * t * k, h - 2 * t * k) for k in (0.25, 0.5, 0.75))
+    strap = (
+        _rect(cx - w / 2 - 3, cy - 10, w + 6, 20, METAL, 4, 1.6)
+        if h > w
+        else _rect(cx - 10, cy - h / 2 - 3, 20, h + 6, METAL, 4, 1.6)
     )
     return (
-        _path(body, GRIP)
+        _path(_loop(cx, cy, w, h) + " " + _loop(cx, cy, w - 2 * t, h - 2 * t, back=True), GRIP)
         + _line(strands, 1.6, "", _tint(GRIP, 0.4))
-        + _rect(cx - 9, cy - 19, 18, 38, METAL, 4, 1.6)
+        + strap
     )
 
 
-def _plug(x: float, y: float) -> str:
-    """A mains plug, its pins to the left."""
+def _plug(x: float, y: float, right: bool = False) -> str:
+    """A mains plug, its pins to the left, or to the ``right``."""
+    px, qx = (x + 34, x + 47) if right else (x, x - 13)
     return (
         _line(
-            f"M{x:.1f},{y + 9:.1f} L{x - 13:.1f},{y + 9:.1f} M{x:.1f},{y + 23:.1f} L{x - 13:.1f},{y + 23:.1f}",
+            f"M{px:.1f},{y + 9:.1f} L{qx:.1f},{y + 9:.1f} M{px:.1f},{y + 23:.1f} L{qx:.1f},{y + 23:.1f}",
             4,
         )
         + _rect(x, y, 34, 32, GRIP, 6)
@@ -348,7 +361,8 @@ def hammer_drill(paint: str, fill: Fill, label: str | None, power: str = "cordle
         out.insert(
             0,
             f'<g class="{CABLE_CLASS}">'
-            + _cable("M140,318 L140,338 Q140,350 160,350 L262,350 Q300,350 322,330")
+            + _cable("M84,342 Q96,355 116,355 L296,355 Q322,355 330,336")
+            + _cable("M180,316 L180,324 Q180,336 194,336 L290,336 Q312,336 322,320")
             + _hank(332, 262, 70, 152)
             + _plug(50, 324)
             + "</g>",
@@ -363,9 +377,10 @@ def corded_drill(paint: str, fill: Fill, label: str | None, handle: str = "pisto
     the plug beside it; ``side`` adds a side handle."""
     out = [
         f'<g class="{CABLE_CLASS}">'
-        + _cable("M140,330 L140,340 Q140,352 160,352 L226,352 Q250,352 262,338")
+        + _cable("M84,342 Q96,355 116,355 L256,355 Q284,355 292,336")
+        + _cable("M140,336 L226,336 Q246,336 258,322")
         + _hank(300, 284, 136, 112)
-        + _plug(52, 324)
+        + _plug(50, 324)
         + "</g>",
         *_chuck(262, 96, keyed=True),
         _path(
@@ -472,8 +487,9 @@ def sds_drill(paint: str, fill: Fill, label: str | None, power: str = "corded") 
             0,
             f'<g class="{CABLE_CLASS}">'
             + _cable("M60,272 L60,318 Q60,330 78,330 L110,330")
+            + _cable("M226,326 L262,326")
             + _hank(168, 326, 132, 56)
-            + _plug(252, 316)
+            + _plug(252, 310, right=True)
             + "</g>",
         )
     return _label(out, label)
@@ -646,7 +662,7 @@ def tool_kit(paint: str, fill: Fill, label: str | None, case: str = "case") -> l
         _dim("M58,200 L342,200 L343,214 L57,214 Z", 0.35),
         f'<g transform="rotate(90 136 236)">{"".join(_hammer_tool(136, 168, 148))}</g>',
         *_tape_tool(282, 244, 34, fill),
-        *(_rect(70 + 24 * i, 272, 16, 22, METAL, 3, 1.6) for i in range(6)),
+        *(_rect(70 + 24 * i, 272, 16, 22, METAL, 3, 1.6) for i in range(5)),
         _path("M32,312 L368,312 L366,342 Q364,354 350,354 L50,354 Q36,354 34,342 Z", paint),
         _lit("M36,316 L364,316 L364,326 L36,326 Z", 0.3),
         _dim("M38,342 L362,342 Q360,350 348,351 L52,351 Q40,350 38,342 Z", 0.22),
@@ -884,9 +900,8 @@ def volt_meter(paint: str, fill: Fill, label: str | None, form: str = "handheld"
             _path("M272,140 Q308,30 204,32 L204,58 Q264,58 240,140 Z", _shade(fill.base, 0.2)),
             _lit("M128,110 Q112,44 180,40 L180,48 Q128,54 140,112 Z", 0.35),
             _dim("M262,134 Q284,74 250,58 Q296,70 270,134 Z", 0.2),
-        ]
-        out += [
-            _path("M84,170 L66,178 Q58,182 58,194 L58,236 L72,236 L72,200 L90,192 Z", GRIP),
+            _path("M96,150 L72,160 Q58,166 62,184 L74,232 L96,236 Z", GRIP),
+            _lit("M86,160 L74,166 Q66,170 68,182 L76,214 L82,214 L76,182 Q76,174 86,170 Z", 0.28),
         ]
     else:
         out += [
