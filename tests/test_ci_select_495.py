@@ -901,16 +901,16 @@ def test_an_unreadable_range_is_every_test_file(repo_with_change: tuple[Path, st
 
 def test_the_plan_line_prints_the_count_then_the_files() -> None:
     done = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--plan", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
     )
     assert done.returncode == 0, done.stderr
     first, *files = done.stdout.splitlines()
-    assert first == "shards=3"
+    assert first == "shards=20"
     shard = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--shard", "1", "--of", "3"],
+        [sys.executable, str(REPO / "scripts" / "ci_shards.py"), "--shard", "1", "--of", "20"],
         capture_output=True,
         text=True,
         cwd=REPO,
@@ -1029,14 +1029,14 @@ def _run_step(tmp_path: Path, run: str, planner: str) -> tuple[int, str]:
     _write(tmp_path, {"scripts/ci_shards.py": planner})
     output = tmp_path / "github_output"
     output.write_text("", encoding="utf-8")
-    script = re.sub(r"\$\{\{.*?\}\}", "1", run)
+    # The local run's shard: a hosted shard's plan is the run's (tests/test_ci_plan_1035.py).
+    script = re.sub(r"\$\{\{.*?\}\}", "all", run)
     done = subprocess.run(
         ["bash", "-e", "-c", script],
         cwd=tmp_path,
         capture_output=True,
         text=True,
         check=False,
-        # the running CI job has a RUNNER_TEMP, and its own plan is saved there
         env={**os.environ, "GITHUB_OUTPUT": str(output), "RUNNER_TEMP": str(tmp_path)},
     )
     return done.returncode, output.read_text(encoding="utf-8")
