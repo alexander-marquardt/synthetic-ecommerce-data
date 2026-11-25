@@ -32,5 +32,6 @@ share loads and spins (`Compact Washer`, `Washer Dryer Combo`, `Heat Pump Dryer`
 order in `laundry_appliance._STEPS`, so no model number repeats between them.
 
 The models are not derivable, as before: the scaled build copies them as authored. The issue's last
-slice is the ten-query table, without and with a policy.
+slice, the ten-query table without and with a policy, is
+[clash-queries-1116.md](clash-queries-1116.md).
 `tests/test_retail_appliance_lineups_1116.py` holds this page.
