@@ -40,6 +40,7 @@ from synthetic_ecommerce_data.domains.retail import (
     dark_blues,
     feature_decoys,
     fruit_word_brand_styles,  # noqa: F401 -- registers the five house styles
+    kit_soft_drinks,  # noqa: F401 -- registers soft_drink, the flavored waters
 )
 from synthetic_ecommerce_data.domains.retail.class_model import BRAND_OWNER, Style, one
 from synthetic_ecommerce_data.domains.retail.decoy_kind import Kind
@@ -69,6 +70,13 @@ def _food(path: tuple[str, ...], product_type: str, shape: str, brand: str, pric
     """A Food & Drink kind sold without a color, in a leaf under the department."""
     return Kind("Food & Drink", ("Food & Drink", *path), product_type, shape, brand, price,
                 colorless=True, params=params)
+
+
+def _water(flavor: str, label: str) -> Kind:
+    """A sparkling water of ``flavor`` (a ``kit_soft_drinks.LIQUIDS`` key) under ``label``, its
+    title's noun."""
+    return _food(("Drinks", "Soft Drinks"), "Soft Drink", "soft_drink", "Vine & Valley", 1.1,
+                 (("label", label), ("flavor", flavor), ("pack_size", "500ml")))  # fmt: skip
 
 
 _SOFAS = ("Home", "Furniture", "Sofas")
@@ -173,8 +181,9 @@ KINDS = {
                    "Vine & Valley", 2.1),
     "smoothie": _food(("Drinks", "Juice", "Smoothies"), "Juice", "carton",
                 "Vine & Valley", 2.1),
-    "water": _food(("Drinks", "Soft Drinks"), "Soft Drink", "bottle",
-             "Vine & Valley", 1.1),
+    # A flavored sparkling water in a 500ml PET bottle, the water near clear (gen#1127).
+    "lemon_water": _water("Sparkling Lemon Water", "Water"),
+    "lime_water": _water("Sparkling Lime Water", "Water & Limes"),
     # A bar sits in the Chocolate Bars child for its chocolate, a box under Chocolate (gen#298).
     "dark_chocolate": _food((*_CHOCOLATE, "Chocolate Bars", "Dark Chocolate Bars"), "Chocolate Bar",
                       "chocolate_bar", "Pantry Mill", 2.2, (("chocolate", "dark"),)),
@@ -185,6 +194,14 @@ KINDS = {
                      "Hearth & Table", 4.5),
     "sweets": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "bag",
               "Pantry Mill", 1.6),
+    # chocolate-coated fruit draws its own chocolate: a bag or box showing the fruit (gen#1125)
+    "coated_strawberries": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "chocolate_bag",
+                           "Pantry Mill", 1.6, (("chocolate", "milk"), ("piece", "strawberries"))),
+    "coated_bananas": _food(("Chocolate & Sweets", "Sweets"), "Sweets", "chocolate_bag",
+                      "Pantry Mill", 1.6, (("chocolate", "milk"), ("piece", "bananas"))),
+    "chocolate_cherries": _food((*_CHOCOLATE, "Chocolate Boxes"), "Chocolate Box",
+                          "chocolate_box", "Hearth & Table", 4.5,
+                          (("chocolate", "dark"), ("piece", "cherries"))),
     "tinned": _food(("Food Cupboard", "Tinned"), "Tinned Food", "tin",
               "Copper Hill Preserves", 1.2),
     "jam": _food(("Food Cupboard", "Jam"), "Jam", "jar",
