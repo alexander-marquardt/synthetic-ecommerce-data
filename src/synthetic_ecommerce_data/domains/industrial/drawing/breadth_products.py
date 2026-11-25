@@ -43,6 +43,7 @@ from synthetic_ecommerce_data.domains.industrial.drawing.breadth_light import (
     slab,
     thread,
 )
+from synthetic_ecommerce_data.domains.industrial.drawing.breadth_shop import SHOP
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import Drawn, Record
 
 # --- chain, pin and puller tools ---------------------------------------------------------------
@@ -527,6 +528,7 @@ def ring_dispenser(record: Record) -> Drawn:
 #: The breadth types drawn as their own product: type key -> its drawing.
 BREADTH_PRODUCTS: dict[str, Callable[[Record], Drawn]] = {
     **HARDWARE,
+    **SHOP,
     "anaerobic_threadlockers": threadlocker_bottle,
     "anti_seize_compounds": anti_seize_can,
     "bearing_greases": grease_tub,

@@ -26,46 +26,37 @@ from __future__ import annotations
 
 #: Parts with no natural up, drawn at any of the 24 clock positions.
 ANY: tuple[str, ...] = (
-    "abrasive_flap_disc", "ball_stock_precision", "ball_stock_rubber",
+    "abrasive_flap_disc",
     "bar_stock_hex", "bar_stock_round", "bar_stock_square", "bearing_radial_ball",
     "bolt_hex", "bronze_sleeve_bushings", "cap_nuts_acorn", "carriage_bolts",
-    "compression_springs", "cotter_pins", "coupling_nuts", "cut_resistant_gloves",
+    "cotter_pins", "coupling_nuts", "cut_resistant_gloves",
     "dowel_pins", "drill_bushings", "drill_jobber",
-    "end_mill_ball", "end_mill_square", "er_collets", "fastener_extractors",
-    "flange_nuts", "flat_gaskets", "fluted_dowels",
-    "hex_bit_sockets", "hex_key", "hex_pipe_nipples", "hose_clamps", "key_stock",
+    "end_mill_ball", "end_mill_square", "er_collets",
+    "flange_nuts",
+    "hex_bit_sockets", "hex_key", "hex_pipe_nipples", "key_stock",
     "lag_screws", "lock_nuts_nylon_insert",
-    "milling_collets", "nail_finishing", "nail_framing", "nail_masonry", "nut_hex",
+    "nail_finishing", "nail_framing", "nail_masonry", "nut_hex",
     "o_rings",
     "retaining_rings_external",
     "roll_pins", "roller_chain", "roller_chain_links",
     "roller_chain_sprockets", "screw_button_head", "screw_deck", "screw_drywall",
     "screw_flat_head", "screw_hex_head", "screw_low_head", "screw_machine", "screw_sheet_metal",
-    "screw_socket_head", "screw_wood", "sems_bolts", "serrated_flange_nuts",
-    "set_screws_hex_socket", "shackles", "shaft_collars",
-    "studs_double_end", "t_slot_nuts", "tap_spiral_point", "threaded_rod",
-    "timing_pulleys", "turnbuckles", "u_bolts", "wall_anchors", "washer_flat",
-    "wedge_anchors",
-    "wheel_depressed_center", "wheel_mandrels",
+    "screw_socket_head", "screw_wood",
+    "set_screws_hex_socket", "shackles",
+    "studs_double_end", "tap_spiral_point", "threaded_rod",
+    "turnbuckles", "wall_anchors", "washer_flat",
+    "wheel_depressed_center",
 )
 
 #: Products with a natural up, and every type nobody was sure of: within +-36 degrees.
 UPRIGHT: tuple[str, ...] = (
-    "ball_valves",
-    "bench_vises",
-    "bit_sharpeners", "cabinet_hinges", "cabinet_knobs",
-    "center_punches",
-    "circle_cutters",
+    "cabinet_hinges", "cabinet_knobs",
     "combination_wrenches",
-    "cutter_storage_racks",
-    "grooving_cutters",
-    "hand_files", "induction_heaters", "keyed_padlocks",
-    "levels", "milling_tool_holders", "nut_splitters",
+    "hand_files",
+    "levels",
     "pillow_block_bearings",
     "rigid_casters", "shelf_brackets",
-    "side_lock_holders",
-    "stud_finders", "swivel_casters", "tap_wrenches", "tape_measures",
-    "thread_pitch_gages",
+    "stud_finders", "tape_measures",
     "utility_hooks", "utility_knives",
 )
 
@@ -74,22 +65,27 @@ SLIGHT: tuple[str, ...] = ()
 
 #: Products drawn to fill the figure area (#1215, #1216): a wider turn would shrink them.
 STEADY: tuple[str, ...] = (
-    "anaerobic_threadlockers", "anti_seize_compounds", "backing_pads", "band_saw_blades",
-    "bearing_greases", "bearing_pullers", "bench_tool_racks", "bit_index_cases", "blind_rivets",
-    "c_clamps", "cantilever_racks", "chain_breakers", "chain_lubricants", "chain_tensioners",
-    "cold_chisels", "compound_cutters", "conduit_pliers", "cutter_sharpening_fixtures",
-    "cutter_storage_cases", "diamond_wheels", "drawer_slides", "drill_stop_collars", "drive_guards",
-    "eye_bolts", "fastener_dispensers", "foam_ear_plugs", "gear_pullers", "grinder_guards",
-    "grub_screw_keys", "hammer_ball_pein", "hammer_claw", "hammer_club", "hammer_dead_blow",
-    "hammer_framing", "hammer_rubber_mallet", "hammer_sledge", "handle_wedges",
-    "magnetic_bit_holders", "micro_collets", "nut_drivers_hex",
-    "nylon_wall_anchors", "orb_hydraulic_fittings", "piloted_counterbores",
-    "picture_hangers", "pin_pullers",
-    "pneumatic_cut_off_tools", "quick_disconnect_couplings", "replacement_pins", "rigging_pulleys",
-    "rigid_shaft_couplings", "sds_drill_bits", "shaft_alignment_lasers", "silicone_greases",
-    "sleeve_anchors", "snap_ring_pliers", "spanner_wrenches", "spill_socks", "tap_extractors",
-    "tapping_fluids", "thread_chasers", "thread_plug_gages", "thread_restoring_files",
-    "tool_holsters", "v_belts", "wrench_organizers", "zerk_grease_fittings",
+    "anaerobic_threadlockers", "anti_seize_compounds", "backing_pads", "ball_stock_precision",
+    "ball_stock_rubber", "ball_valves", "band_saw_blades", "bearing_greases", "bearing_pullers",
+    "bench_tool_racks", "bench_vises", "bit_index_cases", "bit_sharpeners", "blind_rivets",
+    "c_clamps", "cantilever_racks", "center_punches", "chain_breakers", "chain_lubricants",
+    "chain_tensioners", "circle_cutters", "cold_chisels", "compound_cutters", "compression_springs",
+    "conduit_pliers", "cutter_sharpening_fixtures", "cutter_storage_cases", "cutter_storage_racks",
+    "diamond_wheels", "drawer_slides", "drill_stop_collars", "drive_guards", "eye_bolts",
+    "fastener_dispensers", "flat_gaskets", "fluted_dowels", "foam_ear_plugs", "gear_pullers",
+    "grinder_guards", "grooving_cutters", "grub_screw_keys", "hammer_ball_pein", "hammer_claw",
+    "hammer_club", "hammer_dead_blow", "hammer_framing", "hammer_rubber_mallet", "hammer_sledge",
+    "handle_wedges", "hose_clamps", "induction_heaters", "keyed_padlocks", "magnetic_bit_holders",
+    "micro_collets", "milling_collets", "milling_tool_holders", "nut_drivers_hex", "nut_splitters",
+    "nylon_wall_anchors", "orb_hydraulic_fittings", "picture_hangers", "piloted_counterbores",
+    "pin_pullers", "pneumatic_cut_off_tools", "quick_disconnect_couplings", "replacement_pins",
+    "rigging_pulleys", "rigid_shaft_couplings", "sds_drill_bits", "sems_bolts",
+    "serrated_flange_nuts", "shaft_alignment_lasers", "shaft_collars", "side_lock_holders",
+    "silicone_greases", "sleeve_anchors", "snap_ring_pliers", "spanner_wrenches", "spill_socks",
+    "swivel_casters", "t_slot_nuts", "tap_extractors", "tap_wrenches", "tapping_fluids",
+    "thread_chasers", "thread_pitch_gages", "thread_plug_gages", "thread_restoring_files",
+    "timing_pulleys", "tool_holsters", "u_bolts", "v_belts", "wedge_anchors", "wheel_mandrels",
+    "wrench_organizers", "zerk_grease_fittings",
 )
 
 #: Wide, low products, laid across the sheet (#1217).
@@ -97,9 +93,9 @@ DIAGONAL: tuple[str, ...] = ("safety_glasses",)
 
 #: Sets and kits, drawn as several items: at 0 degrees only (#884).
 LEVEL: tuple[str, ...] = (
-    "bit_socket_sets", "cord_splicing_kits", "driver_bit_sets", "hex_bit_socket_sets",
-    "household_tool_sets", "kit_assortment", "pin_punch_sets", "seal_pick_sets",
-    "sleeve_installation_kits", "thread_repair_kits",
+    "bit_socket_sets", "cord_splicing_kits", "driver_bit_sets", "fastener_extractors",
+    "hex_bit_socket_sets", "household_tool_sets", "kit_assortment", "pin_punch_sets",
+    "seal_pick_sets", "sleeve_installation_kits", "thread_repair_kits",
 )
 
 #: Type key -> orientation.
