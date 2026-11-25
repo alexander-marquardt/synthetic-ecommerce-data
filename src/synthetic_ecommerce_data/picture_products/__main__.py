@@ -14,14 +14,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("manifest", type=Path, help="a picture manifest: a JSON list or JSON Lines")
     parser.add_argument("out", type=Path, help="the directory the products and pictures go in")
     args = parser.parse_args(argv)
-    products = write(load_file(args.manifest))
+    pictures = load_file(args.manifest)
+    products = write(pictures)
     images = args.out / "images"
     images.mkdir(parents=True, exist_ok=True)
     with (args.out / "products.jsonl").open("w", encoding="utf-8") as fh:
         for p in products:
             fh.write(json.dumps(p.doc, sort_keys=True) + "\n")
             (images / p.image_name).write_text(p.svg, encoding="utf-8")
-    print(f"{len(products)} products and pictures written to {args.out}")
+    print(f"{len(products)} products and pictures written to {args.out}, of {len(pictures)} rows")
     return 0
 
 

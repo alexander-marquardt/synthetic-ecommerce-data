@@ -37,5 +37,7 @@ The queries, on the no-policy baseline ranker (`tests/test_retail_cooking_1116.p
 first. The bare `range` meets range cookers and the signal-range products both in its top ten: a
 category policy, not the data, picks the intent.
 
-Slices 2 and 3 of the issue are still to come: steam irons, vacuum cleaners and microwaves; then
-the cooker hood, the deeper laundry and freezer kinds and the department's SKU count.
+Steam irons, vacuum cleaners and microwaves came next: see
+[clash-appliances-1116.md](clash-appliances-1116.md). The cooker hood and
+the deeper laundry and freezer kinds followed in [hood-washer-1116.md](hood-washer-1116.md). The
+department's SKU count is still to come.

@@ -21,8 +21,12 @@ Point = tuple[float, float]
 #: line work only (flutes, thread crests). ``handle`` and ``grip`` take their
 #: color from the shape itself. ``break`` is a drafting break's zigzag, line work
 #: stroked at the outline's weight, solid; ``gap`` is the paper between a break's
-#: two zigzags, unoutlined, so a shank's cut end follows its zigzag (#822).
-ROLES = ("part", "plain", "hole", "dark", "line", "handle", "grip", "break", "gap")
+#: two zigzags, unoutlined, so a shank's cut end follows its zigzag (#822). ``gloss``
+#: and ``shade`` are light on the product: a translucent white or black overlay with
+#: no outline, laid over the shapes drawn before it (#1217).
+ROLES = (
+    "part", "plain", "hole", "dark", "line", "handle", "grip", "break", "gap", "gloss", "shade",
+)  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -90,6 +94,10 @@ class Figure:
     shapes: list[Poly | Disc | Discs | Lines | Dots | Bars | Outlines] = field(default_factory=list)
     #: The characteristic size, in inches, that the sheet's size cue reads.
     size_in: float = 1.0
+    #: Drawn as large as its own outline, turned, fits the figure area, rather than at its type's
+    #: scale (:meth:`turned_bounds`): a product that is not drawn to scale, such as a pair of
+    #: gloves, at any angle (#1217).
+    fit_turned: bool = False
 
     def poly(self, points, role: str = "part", fill: str | None = None) -> None:
         self.shapes.append(Poly(tuple(points), role, fill))
@@ -119,6 +127,22 @@ class Figure:
         rects = tuple(rects)
         if rects:
             self.shapes.append(Bars(rects, role))
+
+    def turned_bounds(self, angle: float) -> tuple[float, float, float, float]:
+        """The box its polygons cover turned ``angle`` degrees clockwise on screen about the
+        centre of :meth:`bounds`, relative to that centre. Every other shape of a ``fit_turned``
+        figure lies inside its polygons."""
+        x0, y0, x1, y1 = self.bounds()
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        a = math.radians(angle)
+        c, s = math.cos(a), math.sin(a)
+        xs: list[float] = []
+        ys: list[float] = []
+        for shape in self.shapes:
+            if isinstance(shape, Poly):
+                xs.extend((x - cx) * c - (y - cy) * s for x, y in shape.points)
+                ys.extend((x - cx) * s + (y - cy) * c for x, y in shape.points)
+        return min(xs), min(ys), max(xs), max(ys)
 
     def bounds(self) -> tuple[float, float, float, float]:
         xs: list[float] = []

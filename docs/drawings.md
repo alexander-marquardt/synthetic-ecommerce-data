@@ -44,12 +44,12 @@ Step by step:
    `geometry_from_record()` of the matching module in `domains/industrial/geometry/` (`endmill`,
    `drill`, `tap`, `fastener`, `washer` and `flapdisc`). That package parses
    and checks a record and draws nothing; `drawing/` is the only renderer.
-   The hammer, the five types added under #103 (`hex_nut`, `bearing`,
-   `depressed_wheel`, `hex_key`, `kit`) and the breadth shapes have no
+   The hammers, the five types added under #103 (`hex_nut`, `bearing`,
+   `depressed_wheel`, `hex_key`, and the kit, now in `case_figures.py`) and the breadth shapes have no
    `domains/industrial/geometry/` module. The nut, bearing, wheel and hex key read their lengths
    inline with `_length_or()` in `figures.py` (a `dimensions.parse_length`
-   wrapper). The hammer parses its face and handle lengths with its own
-   helper, the kit draws one slot per size it counts, and the breadth shapes
+   wrapper). A hammer reads its overall length
+   ([Hammers](#hammers-the-real-kind-large-and-lit-1215)), the kit draws one item per size it counts, and the breadth shapes
    read nothing (see [Breadth types](#breadth-types-fixed-shapes)).
 4. **Figure.** The function returns a `Drawn(figure, source)`. A `Figure`
    (`core/drawing/model.py`) holds shapes in **inches**: `Poly` (also used for
@@ -94,7 +94,7 @@ that draws through core registers its own figures there.
 * `_FIGURES` holds eleven of the original twelve types. The screw and bolt
   types go through `_broken(width, height)`, which wraps `fastener()` with the
   type's extent height so an overlong part is drawn broken (below).
-* `FIGURES.update(...)` below `kit()` adds the five types from #103:
+* `FIGURES.update(...)` adds the five types from #103:
   `kit_assortment`, `nut_hex`, `bearing_radial_ball`,
   `wheel_depressed_center` and `hex_key`.
 * A type declared in its own module (`domains/industrial/product_types/`) is **not written in
@@ -179,14 +179,19 @@ type's, from `domains/industrial/orientation.py` (through
 `core.domain.orientation`): `any` turns a part with no natural up (a screw, a
 nut, a glove) to one of the 24 clock positions, `upright` turns the rest within
 -36 to 36 degrees in steps of 12, `slight` (clothing) within -15 to 15 in
-steps of 5, and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
+steps of 5, `diagonal` (safety glasses) 54 to 66 degrees to either side in steps of 6 (#1217),
+`steady` (a product drawn to fill the figure area, #1216) within -6 to 6 in
+steps of 3, and `level` (a set or kit) not at all (#884). A product with a SKU of more than one unit on a pack type is
 drawn level whatever its type's orientation (`product_angle`), so a fan of
 end mills is not tilted as a whole. At 90 or 270 degrees a tall figure is drawn at 0.82 of its upright
 scale, and the worst angle, near 45 degrees, takes a squat one to 0.65. The scale is the type's extent turned by that angle over the figure
 area, so a turned part and its dimension lines stay inside it (a product at
 0 degrees keeps the type's scale). The magnifier's too-small rule reads the
 part's upright size, and its layout the box the turned part covers. A caller
-that names no product id draws upright.
+that names no product id draws upright. One type takes its scale another way: a figure with
+`Figure.fit_turned` set (the pair of cut-resistant gloves, #1217) is drawn as large as its own
+outline, turned, fits the figure area, and centred by that outline (`sheet.outline_scale`), so a
+size of it is not drawn smaller than another; the size shows in the pair's proportions.
 
 **A pack card fans its items.** For a type in `pack.AXES`, `_draw` passes a figure through
 `fan()` (`core/drawing/model.py`) when the record's `Units per Pack` is above 1: the part stays
@@ -299,8 +304,8 @@ and `DimensionParseError`.
 The figures without `domains/industrial/geometry/` geometry decide per attribute. `_length_or()`
 returns the parsed value or a proportional fallback. The result is `record` if
 every drawn value parsed, `partial` if the primary parsed, and `nominal` if it
-did not. The hammer is never `nominal`: a missing face or length makes it
-`partial`. Its head weight is not drawn (`hammer()`'s docstring explains why).
+did not. A hammer is never `nominal`: a missing overall length makes it
+`partial`. Its head weight is not drawn (`hammer_figures.py`'s docstring explains why).
 A kit is `record` when it publishes `Sizes Included`, `partial` otherwise. The
 breadth shapes are always `nominal`.
 
@@ -308,6 +313,41 @@ How many of the committed catalog's drawings take each rung is
 `figures.drawings.geometry` in `golden-catalog/stats.json`, which the build
 measures on `images.jsonl` (#103). Every `nominal` row is a breadth SKU; no
 depth SKU falls back to nominal geometry.
+
+## Hammers: the real kind, large and lit (#1215)
+
+The seven hammers (`domains/industrial/drawing/hammer_figures.py`) are seen from the head end: the
+head lies across the sheet and the handle comes toward the viewer, so it is short and stout. The
+side view it replaced, true to its length, filled 2 to 21% of the figure area. Each kind has
+its own head (a ball, a curved or a straight claw, a chamfered block, a rubber barrel, a molded
+dead blow head), a highlight and a shadow (the `gloss` and `shade` roles). The record says the
+rest: a milled `Face Type` is checkered, `Handle Material` gives the color and a wood one its
+grain, `Handle Grip Material` adds a ribbed grip.
+
+The whole drawing is scaled by the published `Overall Length`, from 0.95 of full size at the kind's
+shortest to 1 at its longest (`SMALLEST`), so siblings draw apart and the shortest keeps 90% of the
+area. A record without one is placed by its `Handle Length`, else its `Face Dia.`, and is `partial`.
+A hammer is `steady`, and its scale is fitted to its turned outline
+(`product_look.OUTLINES`). `tests/test_fill_hammers_1215.py` draws every size of every kind, in
+every handle, grip and face, at every angle, and holds each to 50% of the figure area, or to the
+kind's own floor where its true outline cannot reach that (`FLOORS`: the ball pein, the claw and
+the framing hammer). Before and after: [the sheet](images/hammers-fill-1215.png).
+
+## Tool sets, assortment kits and picture hangers: open, large and lit (#1215)
+
+A household tool set and an assortment kit (`domains/industrial/drawing/case_figures.py`) are drawn
+as their `Container Type`, open, with what they hold in it. The set's container is in its `Color`
+and holds a hammer, pliers, screwdrivers and a wrench in its `Material`, and one bit for each piece
+it counts. The kit's holds one item for each listed size, up to 15, each drawn as its `Type`: hex
+keys, drills, taps, or compartments of screws. A picture hanger (`hanger_figures.py`) is drawn face on as its `Style`, in
+its `Color`; a higher `Load Capacity` is larger and has more nails or screws, and it is `steady`.
+
+Every body carries a highlight and a shadow (`lit.py`). The smallest set and the lightest hanger
+are drawn at 0.95 of the largest, so siblings draw apart. `tests/test_fill_tool_sets_1215.py` draws
+every container, style, color, count and rating at every angle and holds each to 50% of the figure
+area, and the largest to the byte budget of a drawing. The Sawtooth Hanger is the one named
+exception (`FLOORS`): a strip over twice as long as it is deep fills the width of the portrait area
+only. Before and after: [the sheet](images/tool-sets-fill-1215.png).
 
 ## Breadth types: fixed shapes
 
@@ -332,6 +372,24 @@ attribute is no size of the part (`breadth_rungs.NOT_SIZES`: a type, a piece cou
 rating) keeps one picture, and so does a figure drawn from its own dimensions: a longer bolt is
 already a longer drawing, and a rank on top would shrink it twice.
 
+### A breadth type drawn as its own product (#1216)
+
+A type named in `BREADTH_PRODUCTS` (`domains/industrial/drawing/breadth_products.py`) draws the
+product it is sold as, in place of its row's `shape`: a jaw puller, a grease tub, an eye bolt.
+The geometry is still fixed and reads nothing from the record, but it has the product's own parts
+and colors, a highlight and a shadow (the `gloss` and `shade` roles: translucent, unoutlined), and
+it is laid out to fill the figure area. Three things keep it large:
+
+* it is `steady`, turned by 6 degrees at most (a kit is `level`);
+* its scale is fitted to its own turned outline (`product_look.OUTLINES`), not to its turned box;
+* its size ladder starts at 0.93 of the full drawing (`breadth_rungs.PRODUCT_BOTTOM`).
+
+`tests/test_fill_breadth_1216.py` draws every size at every angle and holds each to 50% of the
+figure area, measured as [the picture sweep](retail-prototype/picture-fill-1129.md) does, or to
+the type's own floor where its true outline cannot reach that (`FLOORS`: a rod, an open clamp).
+Before and after: [the sheet](images/breadth-fill-1216.png). The other breadth types under 50%
+follow in later slices of #1216.
+
 ### Every drawing is drawn by code (#803)
 
 Every product drawing is original and made by code; no external image file is used. The C-clamp
@@ -353,7 +411,8 @@ gage (toothed leaves fanned out of their case) and a T-slot nut (the T of its ne
 with a tapped hole). Safety glasses also drew the block, but they are now a deep type with a
 figure of their own (#863), so they have no breadth shape. Square bar stock is a block and
 keeps it. The cut-resistant glove, a deep type with its own figure, is
-drawn as one curved outline, with rounded fingertips and thumb and a palm that narrows to a
+drawn as the pair it is sold as (#1217), the back of one glove behind the coated palm of the
+other, each one curved outline, with rounded fingertips and thumb and a palm that narrows to a
 ribbed cuff, still hatched in its shell's knit. `tests/test_breadth_figures_873.py` checks each
 shape's parts and checks the glove. Every SKU of a product shares its angle and look on the white
 paper (#849). Before and after, the first product of each type and three of its SKUs:

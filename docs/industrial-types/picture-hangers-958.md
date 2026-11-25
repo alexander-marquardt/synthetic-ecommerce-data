@@ -14,4 +14,4 @@
 
 **Price.** Generated, not measured: the price census has no picture hangers. It is about the rating to the 0.45 power, anchored at 6 USD for a 30 lb hanger.
 
-**Drawing.** The hanger is drawn face on, filled with the record's color and sized to its rating. Each style has its own outline: a bent hook with its nail, a toothed strip with two nail holes, a ring on a strap plate, or a hook beside a coil of wire.
+**Drawing.** The hanger is drawn face on, filled with the record's color and sized to its rating. Each style has its own outline: a folded hook with its nails, a toothed strip with a screw at each end, a ring on a strap plate, or a compartment box of hooks, wire and nails. A higher rating is held by more nails or screws. Each has a highlight and a shadow and fills at least half of the figure area, except the toothed strip, whose own floor the test names (#1215).

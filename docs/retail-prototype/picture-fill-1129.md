@@ -92,7 +92,7 @@ starts `hammer_`, `screwdriver` or `electric_drill` (`NAMED_REALISTIC`) stays in
 its code draws to a length. Its note says so: `yes (maintainer 11-21 names it realistic; its code
 draws to scale)`. Other hand tools that the code draws to scale (levels, tape measures, utility
 knives, combination wrenches, hand files, hex keys, stud finders) are out of scope by the rule as
-written. The redraw order (slice 3) names them for a ruling.
+written, so they get no redraw.
 
 A kit that holds both kinds of type is split in `kits.md` by product type, into
 `<kit> (in scope)` and `<kit> (drawn to scale)` rows.
@@ -105,7 +105,7 @@ A kit that holds both kinds of type is split in `kits.md` by product type, into
 | `kits.md` | one row per kit module, worst median area first: product types, SKUs served, median whole % and area %, flat (most of its types are), empty (median area under 35%), drawn to scale, in scope, and its worst type. The kit modules whose shapes no served type draws are listed under the table. |
 | `worst40.html` | the worst 40 in-scope type rows' served pictures, with their numbers (a drawn-to-scale type gets no redraw, so it is not among them) |
 | `worst40.svg` | the same 40 pictures as one SVG contact sheet, five to a row, for a PNG on the issue (`rsvg-convert`). The one posted on gen#1129 is `docs/images/picture-fill-1129-worst40.png` |
-| `rows.json` | every render's numbers, with the cost |
+| `rows.json` | every render's numbers, every type row, and the cost |
 
 A kit is the module that defines the shape: `kit.shapes()[shape]`'s module, such as `kit`,
 `kit_packs` or `belt`, or an industrial figure's module (`industrial/levels`).
@@ -136,8 +136,70 @@ took a median of 0.13 ms and a p95 of 0.36 ms, so the whole industrial build tak
 time only, not the build. A drawing in strokes only reads 0% by this fill method, such as the
 clothes hangers and the snowflake.
 
-The posted tables and the contact sheet are on gen#1129. The redraw order and the redraw issues
-are slice 3.
+The posted tables and the contact sheet are on gen#1129.
+
+## The redraw order
+
+    uv run python scripts/redraw_order_1129.py --rows .agent/fill-1129/rows.json
+
+`scripts/redraw_order_1129.py` reads the sweep's `rows.json` and prints one row per group of kits,
+in the order to redraw them. Each group has one redraw issue (`GROUPS`). A type is in the order
+when it is in scope and fills under 50% of the product area (`FLOOR`, gen#1111's fill test). A
+type drawn to scale is never in it. A row that no group holds stops the script, so no picture is
+dropped. A test refuses a retail shape that is in no group and not in `NO_REDRAW`, which gives
+each shape's reason to have no redraw (it already fills half, or no template draws it). So a new
+kit joins a group in its own PR. The tiers:
+
+1. the redraws the maintainer named (`NAMED`), in the order gen#1129 lists them;
+2. the retail groups, by the top-12 slots their types fill, then by worst median area;
+3. the realistic industrial groups, in the same way.
+
+The top-12 slots are in `tests/data/seed_top12_1129.json`: the top 12 of each of the 60 seed
+queries of the R&I demo (`src/prism_retail_and_industrial/data/seed_queries.json`), read once from
+a read-only Engine on 2026-11-23. Of its 720 slots, 335 are types in the order, 344 are industrial
+types drawn to scale, and 41 are types that already fill 50%.
+
+The order at ddade9f3, with `kit_bath_shave` and `kit_baking` in their groups (the SKUs are the
+templates', to the hundred from 1,000 up):
+
+| # | redraw | issue | kits | types under 50% | SKUs | median area % | top-12 slots |
+|---|---|---|---|---|---|---|---|
+| 1 | Loose fruit and vegetables | gen#1111 | `kit_produce` | 0 | 0 | - | 0 |
+| 2 | Chocolate | gen#1125 | `kit_chocolate` | 0 | 0 | - | 0 |
+| 3 | Bread | gen#1126 | `kit_bread` | 0 | 0 | - | 0 |
+| 4 | Wine, beer and soft drinks | gen#1127 | `kit`, `kit_beer`, `kit_drinks`, `kit_packs`, `kit_soft_drinks` | 11 | 1,000 | 22% | 11 |
+| 5 | Milk and yoghurt | gen#1128 | `kit_dairy` | 0 | 0 | - | 0 |
+| 6 | Dresses, tops, jeans and trousers | gen#1189 | `kit`, `kit_garments`, `kit_lowerbody`, `mens_pants` | 24 | 37,100 | 15% | 99 |
+| 7 | Shoes and boots | gen#1190 | `kit_footwear` | 27 | 18,000 | 8% | 48 |
+| 8 | Bedding, towels, soft furnishings, lipstick and eyeliner | gen#1191 | `kit_bedding_storage`, `kit_home`, `kit_softfurn` | 24 | 1,600 | 23% | 37 |
+| 9 | Beds, plants, socks and the other kit_more shapes | gen#1192 | `kit_more` | 18 | 665 | 24% | 37 |
+| 10 | Sweatshirts, pyjamas, sheets, mugs and aprons | gen#1193 | `kit_surfaces` | 7 | 1,200 | 39% | 36 |
+| 11 | Gifts, party goods, spray bottles and outfit sets | gen#1194 | `kit_gifts`, `kit_party`, `kit_round4`, `stickers` | 32 | 758 | 33% | 13 |
+| 12 | Grocery packs, cakes and trays | gen#1195 | `kit`, `kit_baking`, `kit_biscuits`, `kit_grocery`, `kit_punnet` | 39 | 5,000 | 40% | 13 |
+| 13 | Bottles and jars (the shared packs) | gen#1196 | `kit_packs` | 51 | 3,100 | 27% | 12 |
+| 14 | Picture motifs | gen#1197 | `kit_motifs` | 31 | 220 | 25% | 7 |
+| 15 | Accessories, jewellery and luggage | gen#1198 | `belt`, `gloves`, `hat_cap`, `kit_accessories`, `kit_jewellery`, `kit_luggage`, `scarf`, `sunglasses`, `wallet` | 28 | 1,600 | 11% | 5 |
+| 16 | Pets | gen#1199 | `kit_pet_care`, `kit_pet_gear`, `kit_pets` | 8 | 671 | 18% | 3 |
+| 17 | Underwear and swimwear | gen#1200 | `kit`, `kit_swimwear`, `kit_underwear` | 18 | 28,800 | 9% | 0 |
+| 18 | Garden and patio | gen#1201 | `kit_garden`, `kit_garden_care`, `kit_garden_yard`, `kit_outdoor`, `kit_patio` | 18 | 1,200 | 12% | 0 |
+| 19 | Sports and outdoors | gen#1202 | `kit_cycling`, `kit_fishing_golf`, `kit_fitness_team`, `kit_outdoor_winter`, `kit_sports` | 56 | 2,100 | 15% | 0 |
+| 20 | Baby clothes and baby gear | gen#1203 | `kit_baby`, `kit_baby_gear` | 15 | 1,600 | 18% | 0 |
+| 21 | Coats, suits and school uniform | gen#1204 | `kit`, `kit_coats`, `kit_outerwear`, `kit_school`, `kit_suit_sets`, `kit_suits` | 31 | 11,500 | 19% | 0 |
+| 22 | Lighting and decor | gen#1205 | `kit_decor`, `kit_lighting` | 12 | 459 | 21% | 0 |
+| 23 | Car care and car accessories | gen#1206 | `kit_automotive`, `kit_automotive_electrics`, `kit_automotive_interior` | 13 | 1,500 | 22% | 0 |
+| 24 | Tableware and kitchenware | gen#1208 | `kit_baking`, `kit_cups`, `kit_household`, `kit_tableware` | 28 | 670 | 22% | 0 |
+| 25 | Beauty, hair, grooming and health | gen#1207 | `kit_bath_shave`, `kit_beauty`, `kit_beauty_cotton`, `kit_grooming`, `kit_hair`, `kit_health`, `kit_health_care`, `kit_health_feminine`, `kit_skin` | 35 | 1,200 | 24% | 0 |
+| 26 | Toys | gen#1209 | `kit_toy_word_decoys`, `kit_toys`, `kit_toys_craft`, `kit_toys_learning`, `kit_toys_play` | 11 | 356 | 26% | 0 |
+| 27 | Electronics and office | gen#1210 | `kit_audio`, `kit_electronics`, `kit_gadgets`, `kit_gaming`, `kit_office`, `kit_printers`, `kit_smart_home` | 37 | 3,400 | 29% | 0 |
+| 28 | Appliances | gen#1211 | `kit_appliances`, `kit_kitchen_appliances`, `kit_large_appliances` | 16 | 460 | 30% | 0 |
+| 29 | Household goods and sewing | gen#1212 | `kit_goods`, `kit_plain_goods`, `kit_sewing` | 17 | 186 | 35% | 0 |
+| 30 | Cleaning and paper goods | gen#1213 | `kit_bags_wrap`, `kit_cleaning`, `kit_cleaning_care`, `kit_paper` | 14 | 622 | 35% | 0 |
+| 31 | Furniture and sofas | gen#1214 | `kit_furniture`, `kit_seating`, `kit_storage_furniture` | 18 | 410 | 36% | 0 |
+| 32 | Drills, hammers, tool sets and ladders | gen#1215 | `industrial/case_figures`, `industrial/figures`, `industrial/hammer_figures`, `industrial/household_tool_sets`, `industrial/picture_hangers`, `kit_drills` | 19 | 627 | 14% | 12 |
+| 33 | Industrial breadth types (storage, workwear, hand tools, vises and the rest) | gen#1216 | `industrial/breadth_shapes` | 95 | 184 | 12% | 2 |
+| 34 | Safety glasses and cut-resistant gloves | gen#1217 | `industrial/cut_resistant_gloves`, `industrial/safety_glasses` | 2 | 120 | 19% | 0 |
+
+Row 31's first slice, the seven `kit_furniture` types, is redrawn ([furniture-fill-1214](furniture-fill-1214.md)); the table is the sweep's, before any redraw.
 
 Tests: `tests/test_picture_fill_1129.py` holds the readers to fixed SVGs:
 
@@ -151,3 +213,8 @@ Tests: `tests/test_picture_fill_1129.py` holds the readers to fixed SVGs:
   draws to none;
 - the out-of-scope rule with the named hammers, the split kit, and the contact sheet, which skips
   a drawn-to-scale type and keeps each cell's ids apart.
+
+`tests/test_redraw_order_1129.py` holds the order to fixed rows: the tiers, the slots before the
+area, the floor, a drawn-to-scale type left out, an ungrouped row refused, a kit split by shape,
+the recorded 720 slots, one filed issue per group, the bath and shave and the baking kits in their
+groups, and every retail shape in a group or in `NO_REDRAW`.

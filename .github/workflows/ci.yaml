@@ -28,7 +28,7 @@ on:
         required: false
         default: ""
       random_seed:
-        description: "Run the tests in a random order from this seed (pytest-randomly, #539)"
+        description: "Run the tests in a random order from this seed (--order-seed, #539, #1107)"
         required: false
         default: ""
 
@@ -50,7 +50,7 @@ concurrency:
 # for a push, a dispatched run and a pull request from a branch of this repository, once the
 # repository variable SYNTH_CI_SELF_HOSTED is `true`; a fork's pull request, and every run while
 # the variable is unset, stays on GitHub-hosted ubuntu-latest. Every job carries the same
-# expression: tests/test_ci_runs_on_596.py.
+# expression, but for the hosted cancel-on-red jobs (#1175): tests/test_ci_runs_on_596.py.
 jobs:
   lint:
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
@@ -89,11 +89,24 @@ jobs:
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 15
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
         shard: [ceiling, hundred_k]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The leg that plans the shards reads the change's base..head, so it has the history.
+          fetch-depth: ${{ matrix.shard == 'ceiling' && '0' || '1' }}
+      # Every shard's plan, made once for the run (#1035): each of the 20 shards made its own,
+      # after a checkout of the whole history, the shards with nothing to run too. `--of` is the
+      # length of the tests job's matrix (tests/test_ci_plan_1035.py pins it). A planner that
+      # crashes is a red step here, and `tests` never starts. A local run's leg is `all`:
+      # its tests job plans. Before the builds, so that a plan that cannot be made ends the job at once.
+      - name: Plan the test shards
+        run: |
+          if [ "${{ matrix.shard }}" = ceiling ]; then
+            python3 scripts/ci_shards.py --plans-out "$RUNNER_TEMP/test-plans" --of 20 --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}"
+          fi
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
@@ -117,6 +130,12 @@ jobs:
           retention-days: 1
           # Pickles of a few hundred MB: the fastest zip level, which every shard then unzips.
           compression-level: 1
+      - uses: actions/upload-artifact@v4
+        if: matrix.shard == 'ceiling'
+        with:
+          name: test-plans
+          path: ${{ runner.temp }}/test-plans
+          if-no-files-found: error
 
   tests:
     needs: ceiling-catalogue
@@ -139,9 +158,9 @@ jobs:
     runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
     timeout-minutes: 25
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
@@ -151,23 +170,36 @@ jobs:
       # is added to PYTEST_ADDOPTS in the Tests step's own env.)
       PYTEST_ADDOPTS: "-n auto --dist loadgroup --max-worker-restart=0 -rfE"
     steps:
-      - uses: actions/checkout@v4
+      # This shard's plan, before the checkout (#1035): a shard with no file to run checks out
+      # nothing, so it costs seconds, not the 0.6 to 1.0 minutes of a checkout of the whole history.
+      - uses: actions/download-artifact@v4
         with:
-          # tests/test_merge_pr.py builds a throwaway origin from HEAD, and a
-          # fetch from a shallow checkout would make that origin shallow too.
-          fetch-depth: 0
-      # Whether this shard has a file to run: the set-up below is for a shard that has.
+          name: test-plans
+          path: ${{ runner.temp }}/test-plans
+      # Whether this shard has a file to run: the steps below are for a shard that has.
       - name: Does this shard have a test file to run
         id: select
         run: |
-          # A planner that crashes is a red step, never an empty plan: a process
-          # substitution would hide its exit status and read as "no test to run".
-          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          # A hosted shard reads the plan the ceiling-catalogue job made, and one that is not there
+          # is a red step, never an empty plan; a local run is the shard `all` and plans here. A
+          # planner that crashes is red too: a process substitution would hide its exit status.
+          saved="${RUNNER_TEMP:-}/test-plans/test-plan-${{ matrix.shard }}.txt"
+          if [ "${{ matrix.shard }}" != all ]; then
+            plan_text=$(cat "$saved") || { echo "no plan for shard ${{ matrix.shard }} in the test-plans artifact"; exit 1; }
+          else
+            plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          fi
           first="${plan_text%%$'\n'*}"
           if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
           mapfile -t plan <<< "$plan_text"
           echo "$first: ${#plan[@]} lines (the first is the shard count)"
           if [ "${#plan[@]}" -gt 1 ]; then echo "run=true" >> "${GITHUB_OUTPUT:-/dev/null}"; else echo "run=false" >> "${GITHUB_OUTPUT:-/dev/null}"; fi
+      - uses: actions/checkout@v4
+        if: steps.select.outputs.run == 'true'
+        with:
+          # tests/test_merge_pr.py builds a throwaway origin from HEAD, and a
+          # fetch from a shallow checkout would make that origin shallow too.
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v5
         if: steps.select.outputs.run == 'true'
         with:
@@ -195,9 +227,15 @@ jobs:
           # The junit path: `runner` is available in a step's env, not in the job's.
           # --durations=10 names the slowest tests in the log, so a shard that stalls is read, not guessed (#704).
           # A dispatched random_seed turns random order on (#539): docs/ci-sharding.md.
-          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('-p randomly --randomly-seed={0}', inputs.random_seed) || '' }}
+          PYTEST_ADDOPTS: ${{ env.PYTEST_ADDOPTS }} --durations=10 --junitxml=${{ runner.temp }}/junit-${{ matrix.shard }}.xml ${{ inputs.random_seed && format('--order-seed={0}', inputs.random_seed) || '' }}
         run: |
-          plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          # The plan the run made (#1035); a local run is the shard `all`, and plans here.
+          saved="${RUNNER_TEMP:-}/test-plans/test-plan-${{ matrix.shard }}.txt"
+          if [ -n "${RUNNER_TEMP:-}" ] && [ -f "$saved" ]; then
+            plan_text=$(cat "$saved")
+          else
+            plan_text=$(python3 scripts/ci_shards.py --plan ${{ matrix.shard }} --of ${{ strategy.job-total }} --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}") || { echo "the planner failed"; exit 1; }
+          fi
           first="${plan_text%%$'\n'*}"
           if ! [[ "$first" =~ ^shards=[0-9]+$ ]]; then echo "the plan's first line is not shards=N: $first"; exit 1; fi
           mapfile -t plan <<< "$plan_text"
@@ -408,6 +446,154 @@ jobs:
           python3 scripts/check_customer_names.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
           --pr "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}"
+
+  # A pull request run's first red required check cancels the rest of the run (#1175,
+  # docs/ci-sharding.md): one job per required job, started once that job has ended red. Never a
+  # step of the red job, which GitHub would then record as cancelled; hosted, so it does not queue
+  # behind the self-hosted pool. Skipped on every green run and on every other event.
+  cancel-on-red-lint:
+    needs: [lint]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-ceiling-catalogue:
+    needs: [ceiling-catalogue]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-tests:
+    needs: [tests]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-commit-messages:
+    needs: [commit-messages]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-file-size:
+    needs: [file-size]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-red-commit-proof:
+    needs: [red-commit-proof]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-customer-name-check:
+    needs: [customer-name-check]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-no-derived-files:
+    needs: [no-derived-files]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
 
   # The published-assets job is gone with the asset host it checked: the
   # drawings are rebuilt from the committed catalog into a pinned bundle

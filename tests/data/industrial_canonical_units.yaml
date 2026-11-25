@@ -13,9 +13,9 @@
 pin:
   repo: elastic/prism-retail-and-industrial
   path: src/prism_retail_and_industrial/data/customization.yaml
-  commit: 9642d5b94f782bf0615fe6847bf5dc6e2cbae377
-  blob: 70185d976f20d71f2c78c42c388503b9c6f5ed99
-  sha256: 0d8875c8dfb4a2eb6b20e5923816b4678a06218e089ac265f5b770c781e0b61d
+  commit: a48208ca46d6bc9d07d8a085370a27c28ee65d78
+  blob: 3adaf528fb257e0987848b199c577e90ed6ed9b8
+  sha256: 26ce8ded01c121da52e8eb3adddac83341ef53ce5ed09b9636962c42a693386c
 canonical_units:
   # MILLIMETRES — buys 1/512 inch exactly, far finer than the 64ths this
   # catalog stocks or the 1/256 its own interval ladder can publish.
@@ -59,14 +59,14 @@ canonical_units:
   rotation:
     code: RPM
     units: { RPM: "1" }
-  # MILLILITRES -- the retail catalog's volumes (a 250 ml bottle), the one kind
+  # MILLILITRES -- the retail domain's volumes (a 250 ml bottle), the one kind
   # only the retail persona writes. Declared here because the Engine's boot
   # census reads every persona's unit codes against this one taxonomy, and the
   # Combined persona reads retail's attributes through ``catalog_combined``. LTR (a litre, 1000 ml) is a retail Capacity.
   volume:
     code: MLT
     units: { MLT: "1", LTR: "1000" }
-  # VOLTS -- the retail catalog's voltage_v attribute (a 12 V charger), written
+  # VOLTS -- the retail domain's voltage_v attribute (a 12 V charger), written
   # only by the retail persona. Declared for the same reason as ``volume``.
   voltage:
     code: VLT
