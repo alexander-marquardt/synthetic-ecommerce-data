@@ -8,9 +8,10 @@ turned drawing and its width that of the part of the drawing near the ground. A 
 in a house style or on the plain sheet, stands on the same one (an empty turn), so every
 picture's shadow is drawn here and falls away from the one :data:`LIGHT`.
 
-The drawing is measured by :func:`.sheet_extent.reach`, which gives a box. Leaning the drawing a
-little each way and reading how low it reaches gives the lines that hug its underside
-(:func:`_span`), so the footprint of a path is read without a rasteriser.
+The drawing is measured by :func:`.sheet_extent.reaches`, which gives a box per lean and reads
+the drawing once for all of them. Leaning the drawing a little each way and reading how low it
+reaches gives the lines that hug its underside (:func:`_span`), so the footprint of a path is read
+without a rasteriser.
 """
 
 from __future__ import annotations
@@ -104,17 +105,16 @@ def _flat(figure: str, defs: str, transform: str, uid: str) -> str:
 def _footprint(defs: str, body: str) -> tuple[float, float, float] | None:
     """(left, right, lowest y) of the part of ``body`` near the ground, or ``None`` when it draws
     nothing :func:`.sheet_extent.reach` measures."""
-    flat = sheet_extent.reach(_SVG.format(defs, 0, body))
+    angles = [a for lean in LEANS for a in (lean, -lean)]
+    flat, *leaned = sheet_extent.reaches(_SVG.format(defs, 0, body), [0, *angles])
     if flat is None:
         return None
     low = flat[3]
     # How low the drawing reaches leaned each way: the line that hugs its underside there.
     lines = []
-    for lean in LEANS:
-        for a in (lean, -lean):
-            box = sheet_extent.reach(_SVG.format(defs, a, body))
-            assert box is not None
-            lines.append((math.radians(a), box[3]))
+    for a, box in zip(angles, leaned, strict=True):
+        assert box is not None
+        lines.append((math.radians(a), box[3]))
     spans = [_span(lines, y) for y in (low, low - BAND * (low - flat[1]))]
     return min(s[0] for s in spans), max(s[1] for s in spans), low
 

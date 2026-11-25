@@ -35,6 +35,13 @@ When a shape fails: move or shorten the part the failure names. A pool of glow f
 a polygon whose corners `kit_lighting._glow` holds to the sheet. Do not widen the check or add
 an allow-list: the test has none, so the count only goes down.
 
+`sheet_extent.reaches(svg, angles)` gives the box of one SVG turned by each of several angles,
+parsed once, and a path's points are read once per `d` and only placed again by each matrix:
+the shared ground shadow measures every shadowed drawing at 21 leans (#1182). Read 21 times
+over, that took the plain-sheet sweep from 65 s to 236 s, near its 300 s limit; read once, it
+takes 82 s and draws the same bytes. `reach(svg)` is `reaches` at no turn, so the guard reads
+the same boxes.
+
 `src/synthetic_ecommerce_data/domains/retail/motifs.drawn_box` is the older, coarser measure (the control-point
 hull of a shape's default drawing, for placing a print); it and this guard agree on the sheet.
 
