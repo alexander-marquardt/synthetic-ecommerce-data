@@ -40,8 +40,8 @@ TABLE = Path(__file__).resolve().parent.parent / "scripts" / "ci_type_free.json"
 
 _TOOL = 4
 _state: dict = {"file": None, "ran": set(), "read": set(), "told": set(), "count": 0}
-#: code of a cached function -> its wrapper, the read count when its running call began, and the
-#: hits already attributed once it is known to read.
+#: code of a cached function -> its wrapper, a stack of the read counts at which its running calls
+#: began (a recursive cache has several), and the hits already attributed once it is known to read.
 _cached: dict = {}
 _began: dict = {}
 _hits: dict = {}
@@ -75,13 +75,22 @@ def _called(code, _offset):
             return sys.monitoring.DISABLE
         _cached[code] = held
         sys.monitoring.set_local_events(_TOOL, code, sys.monitoring.events.PY_RETURN)
-    _began.setdefault(code, _state["count"])
+    _began.setdefault(code, []).append(_state["count"])
     return None
 
 
 def _returned(code, _offset, _value):
-    if _state["count"] > _began.pop(code, 0) and code not in _hits:
+    """A call that ended with more reads than it began with filled the cache with a read."""
+    stack = _began.get(code)
+    if stack and stack.pop() < _state["count"] and code not in _hits:
         _hits[code] = _cached[code].cache_info().hits
+
+
+def _unwound(code, _offset, _exception):
+    """A cached call that raised ends without a return: drop its entry."""
+    stack = _began.get(code)
+    if stack:
+        stack.pop()
 
 
 def _note_hits() -> None:
@@ -101,7 +110,8 @@ def watch() -> None:
     monitoring.use_tool_id(_TOOL, "type_reads")
     monitoring.register_callback(_TOOL, monitoring.events.PY_START, _called)
     monitoring.register_callback(_TOOL, monitoring.events.PY_RETURN, _returned)
-    monitoring.set_events(_TOOL, monitoring.events.PY_START)
+    monitoring.register_callback(_TOOL, monitoring.events.PY_UNWIND, _unwound)
+    monitoring.set_events(_TOOL, monitoring.events.PY_START | monitoring.events.PY_UNWIND)
 
 
 def listed() -> frozenset[str]:

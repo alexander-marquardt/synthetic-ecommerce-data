@@ -146,7 +146,9 @@ type module selected nearly every test file.
   230 files and 102.9 minutes of the weights instead of 530 and 150.9.
 - `tests/type_reads.py`, in every run, notes the files that call a reader of those tables. A listed
   file that does fails, and the message names its line to remove. A hit on a `functools` cache that
-  a read filled counts as a read of the file that hit it, in whatever order the files run.
+  a read filled counts as a read of the file that hit it, in whatever order the files run. A
+  recursive cache, the `pathlib` glob cache and a cache whose earlier call raised are not charged
+  for a read that happened outside their own call (each running call keeps its own start count).
 - The recorder cannot see into another process, so a file that starts one, or that takes a build
   from `tests/shared_builds.py`, or that names `typespec`, is never listed. Importing a core or
   retail module, `scale.templates()` and `scale.build()` must read no table, because a read there
