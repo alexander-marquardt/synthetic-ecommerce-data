@@ -40,7 +40,7 @@ STYLES = {"case": "Case", "mirror": "Mirror Lid", "drawers": "Drawers", "travel"
 def _row(code, title, brand, price, desc, style, material, compartments, colors, lock=False):
     attrs = (
         a("box_style", "Box style", STYLES[style]), a("material", "Material", material),
-        a("compartments", "Compartments", str(compartments)), a("mirror", "Mirror", "Yes" if style == "mirror" else "No"),
+        ("compartments", "Compartments", str(compartments), "C62"), a("mirror", "Mirror", "Yes" if style == "mirror" else "No"),
         a("lock", "Lock", "Yes" if lock else "No"), a("audience", "Audience", WOMENS),
     )  # fmt: skip
     return Row(code, title, brand, CLOTHING, PATH, PTYPE, price, "jewellery_box", desc, colors, attrs,
@@ -82,7 +82,7 @@ SPEC = TypeSpec(
     ),
     decoys=(
         Decoy(5, "white jewellery box", "color",
-              _row("JBXDWS", "Jewellery Box with White Stitching", WRENFIELD, 26.0,
+              _row("JBXDWS", "Black Jewellery Box, White Contrast Lining", WRENFIELD, 26.0,
                    "A black faux leather jewelry box with white contrast stitching and a mirror in the lid: the box itself is black.",
                    "mirror", "Faux Leather", 6, (BLACK,))),
         Decoy(4, "earrings", "category",
