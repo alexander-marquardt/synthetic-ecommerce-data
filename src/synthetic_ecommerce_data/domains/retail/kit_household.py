@@ -31,6 +31,7 @@ is drawn as that many marked groups, which ``tests/test_retail_household_200.py`
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -88,7 +89,7 @@ def _group(cls: str, parts: list[str]) -> str:
 
 
 def _shadow(cx: float, cy: float, rx: float) -> str:
-    return f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{rx * 0.08:.1f}" fill="#000000" fill-opacity=".08"/>'
+    return ground_shadow.ellipse(cx, cy, rx, rx * 0.08)
 
 
 def _weave(x0: float, y0: float, x1: float, y1: float, step: float = 14) -> list[str]:

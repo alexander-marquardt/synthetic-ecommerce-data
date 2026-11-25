@@ -36,6 +36,7 @@ import hashlib
 from collections.abc import Callable
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -846,7 +847,7 @@ def shoe(paint: str, fill: Fill, label: str | None, kind: str = "trainer", mater
     base = fill.base
     uid = hashlib.sha1(f"{paint}|{base}|{kind}|{material}|{closure}|{lace}|{sorted(axes.items())}".encode()).hexdigest()[:10]
     dy = 200 - (min(k.top, k.top - 30 if closure == "Ankle Strap" else k.top) + G) / 2
-    shadow = f'<ellipse cx="{_f((XB + XT) / 2)}" cy="{_f(G + 3)}" rx="{_f((XT - XB) / 2 + 12)}" ry="7" fill="{INK}" opacity=".12"/>'
+    shadow = ground_shadow.ellipse((XB + XT) / 2, G + 3, (XT - XB) / 2 + 12, 7, INK, 0.12)
     body_: list[str] = [shadow]
     parts: list[str] = []  # the painted parts a glitter coat covers
     if kind == "sandal" or (kind == "jelly" and axes["style"] == "sandal"):

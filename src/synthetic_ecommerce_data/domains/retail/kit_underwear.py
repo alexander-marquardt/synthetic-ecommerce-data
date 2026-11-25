@@ -39,6 +39,7 @@ draw differently, and a longer garment must hang lower.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW_DETAIL,
@@ -105,7 +106,7 @@ def _hi(fill: Fill) -> str:
 
 
 def _shadow(cy: float = 366, rx: float = 100) -> str:
-    return f'<ellipse cx="200" cy="{cy}" rx="{rx}" ry="7" fill="#000000" fill-opacity=".08"/>'
+    return ground_shadow.ellipse(200, cy, rx, 7)
 
 
 # --------------------------------------------------------------------------

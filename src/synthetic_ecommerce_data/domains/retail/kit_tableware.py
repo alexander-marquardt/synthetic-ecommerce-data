@@ -30,6 +30,7 @@ a default, so each shape also draws bare (as a motif does).
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -79,7 +80,7 @@ def _circle(
 
 
 def _shadow(cx: float, cy: float, rx: float) -> str:
-    return f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{rx * 0.08:.1f}" fill="#000000" fill-opacity=".08"/>'
+    return ground_shadow.ellipse(cx, cy, rx, rx * 0.08)
 
 
 # --------------------------------------------------------------------------
@@ -787,7 +788,7 @@ def chopping_board(
     mat = material.lower()
     top = "M64,176 L272,106 L346,200 L136,284 Z"
     out = [
-        '<ellipse cx="206" cy="304" rx="150" ry="14" fill="#000000" fill-opacity=".08"/>',
+        ground_shadow.ellipse(206, 304, 150, 14),
         _path("M64,176 L136,284 L136,302 L64,194 Z", _shade(fill.base, 0.25)),
         _path("M136,284 L346,200 L346,218 L136,302 Z", _shade(fill.base, 0.15)),
         _path(
