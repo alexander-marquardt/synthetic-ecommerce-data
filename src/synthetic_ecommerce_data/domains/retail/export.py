@@ -39,6 +39,7 @@ from synthetic_ecommerce_data.core.merchandising import blend, log_signal, merch
 from synthetic_ecommerce_data.core.variant_axes import profile, variant_axes
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
+    chocolate_brands,
     colorwords,
     facet_leaves,
     lipstick_looks,
@@ -252,7 +253,7 @@ def drawing_spec(rec: dict, sku: dict) -> dict:
     spec = {"drawing": rec["drawing"], "swatch": swatch}
     own = {k: str(sku[k]) for k in rec["drawing"].get("params") or {} if k in sku}
     own |= pack_copies.pile_count(rec, sku)
-    own |= lipstick_looks.params(rec) | pack_looks.params(rec)
+    own |= lipstick_looks.params(rec) | pack_looks.params(rec) | chocolate_brands.params(rec)
     if own:
         spec["params"] = own
     shrink = pack_scale.factor(rec, sku)  # the pack's size within its line (gen#543)
