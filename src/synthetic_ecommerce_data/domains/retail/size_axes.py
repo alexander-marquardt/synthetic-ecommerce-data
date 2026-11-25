@@ -103,6 +103,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Casserole Dish": ("capacity_l",),
     "Holdall": ("capacity_l",),
     "Kettle": ("capacity_l",),
+    "Messenger Bag": ("capacity_l",),
     "Kitchen Bin": ("capacity_l",),
     "Saucepan": ("capacity_l", "diameter_cm"),
     "Storage Box": ("capacity_l",),
@@ -175,6 +176,7 @@ AXES: dict[str, tuple[str, ...]] = {
     "Parasol": ("canopy_m",),
     "Umbrella": ("canopy_cm",),
     # Screens.
+    "Laptop Bag": ("screen_size_in",),
     "Laptop Sleeve": ("screen_size_in",),
     "Monitor": ("screen_size_in",),
     "TV": ("screen_size_in",),
