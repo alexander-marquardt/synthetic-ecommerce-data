@@ -105,8 +105,10 @@ def test_a_needle_book_or_pin_card_states_its_count_outside_its_title(cut, ptype
 
 #: Two readings of one param that a shopper can tell apart, per type: the drawing follows each.
 READINGS = {
-    "sewing_needles": [("needle_kind", "sharps", "embroidery"),
-                       ("needle_kind", "tapestry", "quilting")],  # fmt: skip
+    "sewing_needles": [
+        ("needle_kind", "sharps", "embroidery"),
+        ("needle_kind", "tapestry", "quilting"),
+    ],  # fmt: skip
     "sewing_pins": [("head", "ball head", "glass head"), ("head", "ball head", "flat head")],
     "embroidery_kit": [("kit_type", "cross stitch", "stamped"), ("motif", "floral", "heart")],
 }

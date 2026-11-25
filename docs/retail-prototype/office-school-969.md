@@ -17,8 +17,8 @@ type is a spec of its own:
 | Colored Pencils | `type_specs/colored_pencils.py` | Office & School > Art Supplies > Colored Pencils | 12 classic, 24 watercolor, 36 soft core, 48 erasable | tin color x pack of 1, 2, 3 tins |
 | Desk Organizer | `type_specs/desk_organizer.py` | Office & School > Desk Accessories > Desk Organizers | 5 compartment mesh, 3 plastic, 4 felt, 6 metal | color x pack of 1, 2, 4 |
 
-Sewing and knitting (thread, yarn, fabric, sewing machines, knitting needles and crochet hooks,
-gen#1118) sit beside Art Supplies under
+Sewing and knitting (thread, yarn, fabric, sewing machines, knitting needles, crochet hooks,
+sewing needles, sewing pins and embroidery kits, gen#1118) sit beside Art Supplies under
 `Office & School > Sewing & Knitting` and have a page of their own:
 [sewing-knitting-1118.md](sewing-knitting-1118.md).
 

@@ -1,4 +1,4 @@
-# Sewing and knitting: thread, yarn, fabric and the tools (gen#1118)
+# Sewing and knitting: thread, yarn, fabric, the tools and the notions (gen#1118)
 
 The retail build held no sewing machine, thread, fabric, yarn or needle, so a shopper's `thread`
 found only the industrial catalogue's threaded rods, thread taps and fastener thread sizes. This
@@ -95,6 +95,43 @@ is in `tests/test_retail_sewing_cut2_1118.py` (`FLOOR`). No decoy or row uses a 
 another family's model grammar (`line_grammar_families/`), because a word the text uses leaves
 that family's deal and moves its styles.
 
-**Left for the next cut:** needles and pins, and embroidery kits; #837's department count; and
-the `thread` demo queries (`sewing thread white` against `m6 thread`, without and with a policy)
-on an index that carries the range.
+## Cut 3: sewing needles, sewing pins and embroidery kits
+
+Cut 2 left a sewer with thread and a machine but no needle to sew by hand and no pin to hold a
+hem, and an embroiderer with floss and nothing to stitch it into. Cut 3 adds the last three types
+the issue names, each a spec of its own, drawn by `kit_sewing_notions.py`:
+
+| Type | Spec | Path | Templates | SKU axis |
+|---|---|---|---|---|
+| Sewing Needles | `type_specs/sewing_needles.py` | Office & School > Sewing & Knitting > Sewing Needles | sharps, embroidery, tapestry, quilting | color of the needle book x single, 3 pack |
+| Sewing Pins | `type_specs/sewing_pins.py` | Office & School > Sewing & Knitting > Sewing Pins | ball head dressmaker, glass head quilting, flat head quilting, ball head tailoring | color of the heads x single, 2 pack |
+| Embroidery Kit | `type_specs/embroidery_kit.py` | Office & School > Sewing & Knitting > Embroidery Kits | floral and heart, cross stitch and stamped | floss color, a kit sold singly |
+
+**Counts kept out of the title.** A needle book states how many needles it holds and a pin card
+how many pins (`needle_count`, `pin_count`), as an attribute and in the description, never in
+the title. The pack drawing reads a count from the title, so a "20" there would draw twenty books.
+
+**Colors.** A needle or a pin style offers three of the six main colors in two packs, and the four
+styles of each type carry all six between them (gen#275). A kit offers the six floss colors.
+
+**Drawings.** `sewing_needles` draws the needle book open on its felt page, its steel needles by
+kind: five with a round eye (sharps), five with a long eye (embroidery), four thick ones with a
+large eye (tapestry) or seven short ones (quilting). `sewing_pins` draws a card with two rows of
+pins whose heads are the SKU's color: small round heads, larger glass heads with a shine, or flat
+discs. `embroidery_kit` draws the wooden hoop on its linen, the motif (a flower or a heart) worked
+as a grid of crosses or a satin stitched shape, and two skeins of the floss. The orientations are
+in `orientations/sewing_notions.py`: a needle book and a pin card turn a little, and a hoop is
+level.
+
+**Decoys.** Each type carries a part-color decoy (class 4) and a range-name decoy (class 6).
+`red sewing needles` meets a blue needle book with a red threader. `green sewing needles` meets
+the Green Finch range in yellow. `white sewing pins` meets red-headed pins on a white card.
+`yellow sewing pins` meets the Yellow Rose range with blue heads. `black embroidery kit` meets a
+green kit with a black hoop. `red embroidery kit` meets the Red Robin range in blue.
+
+**Measured** (ceiling build, seed 0): each new type is derived as well as authored, and cuts 1 and
+2's figures do not move. The test's floor for cut 3 is in `tests/test_retail_sewing_cut3_1118.py`
+(`FLOOR`); the PR states the measured count.
+
+**Left for the next cut:** #837's department count, and the `thread` demo queries (`sewing thread
+white` against `m6 thread`, without and with a policy) on an index that carries the range.
