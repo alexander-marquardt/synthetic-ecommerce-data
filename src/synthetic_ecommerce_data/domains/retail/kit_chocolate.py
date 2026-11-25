@@ -24,7 +24,8 @@ advent_calendar   a board of 24 numbered doors under its label, doors   chocolat
                   1 and 2 open, each on a glossed chocolate star
 ================  ===================================================  ============
 
-Every chocolate shows glossed: a highlight at the top left and a shade at the foot right. Each
+Each shape takes its ``brand`` (:mod:`chocolate_brands`): the pack is the brand's color with its
+house mark on it and the flavour's color as the accent. Every chocolate shows glossed: a highlight at the top left and a shade at the foot right. Each
 shape draws its own weight (a 150g box is smaller than a 400g one, never under its smallest
 scale), so the pack scale (gen#543) gives it no factor and every size fills half its product
 area (docs/retail-prototype/chocolate-fill-1125.md). A box's label panel sits on the lid, a
@@ -38,6 +39,8 @@ from __future__ import annotations
 import math
 import re
 
+from synthetic_ecommerce_data.domains.retail.chocolate_brands import LOOKS
+from synthetic_ecommerce_data.domains.retail.house_styles import HOUSE_STYLES, mark_svg
 from synthetic_ecommerce_data.domains.retail.kit import (
     LW_DETAIL,
     Fill,
@@ -126,6 +129,35 @@ def _rect(x: float, y: float, w: float, h: float) -> str:
     return f"M{x:.1f},{y:.1f} L{x + w:.1f},{y:.1f} L{x + w:.1f},{y + h:.1f} L{x:.1f},{y + h:.1f} Z"
 
 
+def pack_colors(paint: str, fill: Fill, brand: str | None) -> tuple[str, str | None]:
+    """A pack's color and its accent: the brand's own color with the flavour's color as the
+    accent (:data:`.chocolate_brands.LOOKS`). A pack of no brand there is the flavour's color,
+    kept visible on white paper, or its patterned ``paint``, with no accent."""
+    if look := LOOKS.get(brand or ""):
+        return wrapper_color(look.wrapper), fill.base
+    return (wrapper_color(fill.base) if fill.pattern == "solid" else paint), None
+
+
+def brand_mark(brand: str | None, cx: float, cy: float, size: float) -> list[str]:
+    """The brand's house mark in its color on a white disc ``size`` across, ringed in its trim;
+    nothing for a brand with no chocolate look."""
+    if not (look := LOOKS.get(brand or "")):
+        return []
+    r = size / 2
+    return [
+        '<g class="brand-mark">',
+        _path(_disc(cx, cy, r, r), "#ffffff", LW_DETAIL),
+        _line(_disc(cx, cy, r * 0.9, r * 0.9), size * 0.05, stroke=look.trim),
+        mark_svg(HOUSE_STYLES[brand].mark, cx, cy, size * 0.64, wrapper_color(look.wrapper)),
+        "</g>",
+    ]
+
+
+def _accent(x: float, y: float, w: float, h: float, accent: str | None) -> list[str]:
+    """A band in the flavour's color across a branded pack; nothing on an unbranded one."""
+    return [_tag("accent", _path(_rect(x, y, w, h), accent, 1.0))] if accent else []
+
+
 def _zigzag(x: float, y0: float, y1: float, lean: float, depth: float, step: float) -> str:
     """The points of a torn edge from ``(x, y0)`` down to ``(x - lean, y1)``, ``depth`` deep."""
     n = max(2, round((y1 - y0) / step))
@@ -179,20 +211,24 @@ def _piece(
 
 def _bar(
     x: float, y: float, w: float, h: float, grid: tuple[int, int], wrapper: str, choc: str,
-    gloss: str, label: str | None, opened: bool,
+    gloss: str, label: str | None, opened: bool, brand: str | None = None,
+    accent: str | None = None,
 ) -> list[str]:  # fmt: skip
     """One bar, its top face at ``(x, y, w, h)``: opened, its wrapper torn back over the foil
-    to show the segmented block, and the label panel on the wrapper; else wrapped whole."""
+    to show the segmented block, and the label panel on the wrapper; else wrapped whole. A
+    branded bar has its mark over the panel (beside it on a multipack's shallow bar) and a band
+    of the flavour's ``accent`` at the wrapper's foot."""
     t = max(7.0, h * 0.08)  # the bar's thickness, seen as its front edge
     out = ['<g class="bar">']
     if not opened:
         out += [
             _tag("wrapper", _path(_rect(x - 4, y - 4, w + 8, h + t + 8), wrapper)),
             _path(_rect(x - 4, y + h, w + 8, t + 4), _shade(wrapper, 0.28), LW_DETAIL),
-            _path(_rect(x + 10, y + 8, w - 20, 6), _mix(wrapper, "#ffffff", 0.45), 1.0),
+            _path(_rect(x + 10, y + 8, w - 20, 6), accent or _mix(wrapper, "#ffffff", 0.45), 1.0),
         ]
         return [*out, "</g>"]
-    cut, foil = x + w * 0.5, x + w * 0.6
+    shallow = accent is not None and h < 120  # a multipack's bar: the mark sits beside the panel
+    cut, foil = (x + w * 0.58, x + w * 0.68) if shallow else (x + w * 0.5, x + w * 0.6)
     out += _chocolate(
         _rect(x, y, w, h), _rect(x, y + h, w, t), _segments(x, y, w, h, *grid, choc), choc, gloss
     )
@@ -210,24 +246,34 @@ def _bar(
               f"L{x - 5:.1f},{y + h + t + 6:.1f} Z", _shade(wrapper, 0.28), LW_DETAIL),
         _path(f"M{cut + 12:.1f},{y - 6:.1f} L{cut + 44:.1f},{y + 14:.1f} L{cut + 8:.1f},{y + 26:.1f} Z",
               "#f4efe6", LW_DETAIL),
-        *_panel(x + 12, y + h * 0.14, cut - x - 32, h * 0.68, label, 40),
-        "</g>",
     ]  # fmt: skip
-    return out
+    room = cut - x - 32
+    if accent is None:
+        out += _panel(x + 12, y + h * 0.14, room, h * 0.68, label, 40)
+    elif shallow:
+        m = h * 0.46
+        out += brand_mark(brand, x + 8 + m / 2, y + h * 0.45, m)
+        out += _panel(x + 14 + m, y + h * 0.1, room - m - 2, h * 0.68, label, 40)
+        out += _accent(x - 4, y + h * 0.86, cut - 14 - x, h * 0.12, accent)
+    else:
+        out += brand_mark(brand, x + 12 + room / 2, y + h * 0.18, h * 0.29)
+        out += _panel(x + 12, y + h * 0.36, room, h * 0.48, label, 40)
+        out += _accent(x - 4, y + h * 0.88, cut - 14 - x, h * 0.09, accent)
+    return [*out, "</g>"]
 
 
 def chocolate_bar(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None,
+    chocolate: str | None = None, brand: str | None = None,
 ) -> list[str]:  # fmt: skip
     """A chocolate bar seen from a little above, its wrapper torn back over the foil to show
     the glossy segmented block, two broken pieces in front; a multipack (``"4 x 35g"``) is a
     stack of its bars, the front one opened. A bar under :data:`BAR_FULL_G` is drawn a little
     smaller, by about the cube root of its weight, never under :data:`BAR_SMALLEST`. The
-    wrapper is the flavour's color, the block the ``chocolate`` it is made of (:func:`chocolate_color`)."""
+    wrapper is its brand's or its flavour's (:func:`pack_colors`), the block the ``chocolate`` it is made of (:func:`chocolate_color`)."""
     n, grams = pack_items(pack_size)
     choc = chocolate_color(chocolate, fill.base)
-    wrapper = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    wrapper, accent = pack_colors(paint, fill, brand)
     gloss = f"choc-gloss-{choc[1:]}"
     out = [GLOSS.format(gloss)]
     if n == 1:
@@ -237,7 +283,7 @@ def chocolate_bar(
         x, y = 200 - w / 2, CENTER_Y - (h + 96) / 2 + 6
         out.append(f'<ellipse class="ground" cx="200" cy="{y + h + 22:.1f}" rx="{w / 2 + 14:.1f}" '
                    'ry="12" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
-        out += _bar(x, y, w, h, grid, wrapper, choc, gloss, label, opened=True)
+        out += _bar(x, y, w, h, grid, wrapper, choc, gloss, label, True, brand, accent)
         out += _piece(x + w * 0.08, y + h - 12, 2, 2, -8, choc, gloss)
         out += _piece(x + w * 0.62, y + h - 4, 2, 2, 10, choc, gloss)
         return out
@@ -249,7 +295,18 @@ def chocolate_bar(
                'ry="12" fill="#000000" fill-opacity=".14"/>')  # fmt: skip
     for i in reversed(range(n)):
         out += _bar(
-            x0 + i * dx, y0 - i * dy, w, h, (6, 2), wrapper, choc, gloss, label, opened=not i
+            x0 + i * dx,
+            y0 - i * dy,
+            w,
+            h,
+            (6, 2),
+            wrapper,
+            choc,
+            gloss,
+            label,
+            not i,
+            brand,
+            accent,
         )
     # The piece sits on the front bar's foot, high enough that it and its turn stay on the
     # sheet: at the 4-bar stack's foot it reached 3.3 past the bottom edge (gen#242).
@@ -368,7 +425,7 @@ def _praline(kind: int, cx: float, cy: float, rx: float, ry: float, colors: tupl
 
 def chocolate_box(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None, piece: str | None = None,
+    chocolate: str | None = None, piece: str | None = None, brand: str | None = None,
 ) -> list[str]:  # fmt: skip
     """An opened gift box seen from a little above: the lid stands behind it with a ribbon and
     the label panel, and the tray holds the chocolates in their paper cups, an assortment of
@@ -381,7 +438,7 @@ def chocolate_box(
     choc = chocolate_color(chocolate, fill.base)
     kind = next((name for name, hex_ in CHOCOLATE.items() if hex_ == choc), "milk")
     colors = (choc, CHOCOLATE[_ALSO[kind]], CHOCOLATE[_DRIZZLE[kind]])
-    box = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    box, accent = pack_colors(paint, fill, brand)
     gloss = f"choc-gloss-{choc[1:]}"
     lid = _mix(box, "#ffffff", 0.14)
     out = [
@@ -389,10 +446,12 @@ def chocolate_box(
         _line("M78,50 L322,50", 1.2, ' stroke-opacity=".5"'),
         _tag("ribbon", _path("M276,40 L298,40 L304,140 L282,140 Z", RIBBON, LW_DETAIL)),
         _tag("ribbon", _path("M287,46 C262,24 252,52 287,50 C322,52 312,24 287,46 Z", _shade(RIBBON, 0.1), LW_DETAIL)),
-        *_panel(90, 58, 172, 64, label, 34),
+        *brand_mark(brand, 101, 90, 46),
+        *(_panel(130, 58, 134, 64, label, 34) if accent else _panel(90, 58, 172, 64, label, 34)),
         _tag("wrapper", _path("M50,132 L350,132 L364,296 L36,296 Z", box)),
         _path("M36,296 L364,296 L364,340 L36,340 Z", _shade(box, 0.28)),
         _line("M36,310 L364,310", 1.6, ' stroke-opacity=".8"', RIBBON),
+        *_accent(36, 318, 328, 12, accent),
         _tag("tray", _path("M64,144 L336,144 L348,284 L52,284 Z", TRAY, LW_DETAIL)),
     ]  # fmt: skip
     top, bottom = 144.0, 284.0
@@ -485,16 +544,16 @@ CUT = {"bananas": _banana_cut}
 
 def chocolate_bag(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None, piece: str | None = None,
+    chocolate: str | None = None, piece: str | None = None, brand: str | None = None,
 ) -> list[str]:  # fmt: skip
     """A stand-up sharing bag: a crimped top seal, the label panel, a window showing the
     ``piece`` it holds (one of :data:`PIECES`, else bites) and a few spilled at its foot, the
     middle one broken open where the piece shows fruit inside (:data:`CUT`). The bag is
-    the flavour's color, kept visible on white paper (:func:`wrapper_color`); a bag under
+    its brand's color, or its flavour's (:func:`pack_colors`); a bag under
     :data:`BAG_FULL_G` is drawn smaller (:func:`own_scale`)."""
     k = own_scale(pack_size, BAG_FULL_G, BAG_SMALLEST)
     choc = chocolate_color(chocolate, fill.base)
-    bag = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    bag, accent = pack_colors(paint, fill, brand)
     gloss = f"choc-gloss-{choc[1:]}"
     draw = PIECES.get(piece or "", _bite)
     cut = CUT.get(piece or "", draw)
@@ -509,7 +568,9 @@ def chocolate_bag(
         _path(seal, _shade(bag, 0.22)),
         _line("M88,48 L312,48", 1.0, ' stroke-dasharray="4 4"'),
         _line("M96,72 C90,150 84,230 80,300", 9, ' stroke-opacity=".22"', "#ffffff"),
-        *_panel(108, 74, 184, 66, label, 36),
+        *_accent(86, 60, 228, 9, accent),
+        *brand_mark(brand, 126, 108, 48),
+        *(_panel(156, 76, 142, 64, label, 36) if accent else _panel(108, 74, 184, 66, label, 36)),
         _tag("window", _path(_disc(200, 232, 104, 74), _shade(choc, 0.55), 2.0, stroke=_mix(bag, "#ffffff", 0.5))),
     ]  # fmt: skip
     r = 21.0
@@ -549,16 +610,16 @@ ORANGE_DIMPLES = ((-0.5, -0.35), (-0.2, -0.55), (0.25, -0.4), (0.55, -0.15), (-0
 
 def hot_chocolate(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None,
+    chocolate: str | None = None, brand: str | None = None,
 ) -> list[str]:  # fmt: skip
     """A tub of drinking chocolate and, in front of it, a mug filled with it: the tub is the
-    flavour's color (:func:`wrapper_color`) under a lid in its shade, with the label panel and
+    its brand's color or its flavour's (:func:`pack_colors`) under a lid in its shade, with the label panel and
     a sheen down its left side; the mug's cocoa is the ``chocolate`` the drink is made of,
     glossed, a swirl on it and steam above. A tub under :data:`HOT_FULL_G` is drawn smaller
     (:func:`own_scale`)."""
     k = own_scale(pack_size, HOT_FULL_G, HOT_SMALLEST)
     choc = chocolate_color(chocolate, fill.base)
-    tub = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    tub, accent = pack_colors(paint, fill, brand)
     lid = _shade(tub, 0.3)
     mug = _mix(tub, "#ffffff", 0.78)
     gloss = f"choc-gloss-{choc[1:]}"
@@ -571,6 +632,8 @@ def hot_chocolate(
         _path(_disc(160, 44, 122, 20), _mix(lid, "#ffffff", 0.18)),
         _line("M40,80 C80,92 240,92 280,80", 1.2, ' stroke-opacity=".5"'),
         *_panel(64, 130, 192, 92, label, 38),
+        *_accent(44, 234, 232, 10, accent),
+        *brand_mark(brand, 118, 288, 72),
         _tag("mug", _path("M202,214 L340,214 L332,340 C332,350 306,356 271,356 "
                           "C236,356 210,350 210,340 Z", mug)),
         _tag("mug", _path("M338,234 C384,228 386,318 330,314 L331,296 C362,298 362,250 337,252 Z", mug)),
@@ -610,16 +673,16 @@ def _segment(cx: float, cy: float, w: float, h: float, angle: float, choc: str,
 
 def chocolate_orange(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None,
+    chocolate: str | None = None, brand: str | None = None,
 ) -> list[str]:  # fmt: skip
     """A chocolate orange: a ball of segments in the ``chocolate`` it is made of, glossed, its
-    grooves running from the top pole, sitting in its opened foil (the flavour's color, kept
-    visible on white paper by :func:`wrapper_color`), two loose segments in front and the
+    grooves running from the top pole, sitting in its opened foil (its brand's color or its
+    flavour's, :func:`pack_colors`), two loose segments in front and the
     label panel on the foil. An orange under :data:`ORANGE_FULL_G` is drawn smaller
     (:func:`own_scale`)."""
     k = own_scale(pack_size, ORANGE_FULL_G, ORANGE_SMALLEST)
     choc = chocolate_color(chocolate, fill.base)
-    foil = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    foil, accent = pack_colors(paint, fill, brand)
     gloss = f"choc-gloss-{choc[1:]}"
     cx, cy, r = 200.0, 166.0, 138.0
     petals = " ".join(
@@ -647,9 +710,11 @@ def chocolate_orange(
     out = [
         _tag("wrapper", _path(f"{petals} Z", foil)),
         _line(crinkles, 1.2, ' stroke-opacity=".55"', _mix(foil, "#ffffff", 0.5)),
+        *([_tag("accent", _line(_disc(200, 298, 150, 56), 7, stroke=accent))] if accent else []),
         *_chocolate(_disc(cx, cy, r, r), _disc(cx, cy + 8, r * 0.98, r), [*grooves, *dimples], choc, gloss),
         _path(_disc(cx, cy - r * 0.86, 12, 5), _shade(choc, 0.2), 1.2, stroke=_shade(choc, 0.5)),
-        *_panel(128, 318, 144, 38, label, 22),
+        *(_panel(164, 318, 110, 38, label, 22) if accent else _panel(128, 318, 144, 38, label, 22)),
+        *brand_mark(brand, 142, 337, 38),
     ]  # fmt: skip
     out += _segment(70, 336, 76, 50, -16, choc, gloss)
     out += _segment(330, 340, 76, 50, 14, choc, gloss)
@@ -709,16 +774,16 @@ def _cup(cx: float, top: float, r: float, h: float, choc: str, gloss: str, cut: 
 
 def peanut_butter_cups(
     paint: str, fill: Fill, label: str | None, pack_size: str | None = None,
-    chocolate: str | None = None,
+    chocolate: str | None = None, brand: str | None = None,
 ) -> list[str]:  # fmt: skip
-    """A pack of peanut butter cups: the opened wrapper lies behind (the flavour's color, kept
-    visible on white paper by :func:`wrapper_color`) with its crimped ends and label panel, two
+    """A pack of peanut butter cups: the opened wrapper lies behind (its brand's color or its
+    flavour's, :func:`pack_colors`) with its crimped ends and label panel, two
     fluted cups stand before it and a third in front, cut to show its filling. Each cup's top is
     the ``chocolate`` it is made of, glossed. A pack under :data:`CUPS_FULL_G` is drawn smaller
     (:func:`own_scale`)."""
     k = own_scale(pack_size, CUPS_FULL_G, CUPS_SMALLEST)
     choc = chocolate_color(chocolate, fill.base)
-    wrapper = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    wrapper, accent = pack_colors(paint, fill, brand)
     gloss = f"choc-gloss-{choc[1:]}"
     torn = " ".join(f"L{52 + i * 296 / 22:.1f},{48 - (6 if i % 2 else 0)}" for i in range(1, 23))
     out = [
@@ -726,7 +791,9 @@ def peanut_butter_cups(
         _path("M40,52 L52,48 L52,196 L40,192 Z", _shade(wrapper, 0.2), LW_DETAIL),
         _path("M360,52 L348,48 L348,196 L360,192 Z", _shade(wrapper, 0.2), LW_DETAIL),
         _line("M66,60 C64,110 64,150 66,186", 8, ' stroke-opacity=".22"', "#ffffff"),
-        *_panel(84, 64, 232, 80, label, 36),
+        *_accent(52, 154, 296, 14, accent),
+        *brand_mark(brand, 112, 104, 62),
+        *(_panel(152, 64, 164, 80, label, 36) if accent else _panel(84, 64, 232, 80, label, 36)),
     ]  # fmt: skip
     out += _cup(118, 214, 70, 56, choc, gloss, cut=False)
     out += _cup(282, 214, 70, 56, choc, gloss, cut=False)
@@ -750,14 +817,15 @@ def _star(cx: float, cy: float, r: float) -> str:
 
 
 def advent_calendar(
-    paint: str, fill: Fill, label: str | None, chocolate: str | None = None
-) -> list[str]:
-    """A chocolate advent calendar seen front on: a board (the flavour's color, kept visible on
-    white paper by :func:`wrapper_color`) with its edge in shade, the label panel between two
-    stars, and 24 numbered doors in four rows of six. Doors 1 and 2 stand open, each on a
+    paint: str, fill: Fill, label: str | None, chocolate: str | None = None,
+    brand: str | None = None,
+) -> list[str]:  # fmt: skip
+    """A chocolate advent calendar seen front on: a board (its brand's color or its
+    flavour's, :func:`pack_colors`) with its edge in shade, the label panel between its brand's
+    mark (a star with no brand) and a star, and 24 numbered doors in four rows of six. Doors 1 and 2 stand open, each on a
     glossed star of the ``chocolate`` inside (milk when none is named)."""
     choc = chocolate_color(chocolate or "milk", fill.base)
-    board = wrapper_color(fill.base) if fill.pattern == "solid" else paint
+    board, accent = pack_colors(paint, fill, brand)
     door = _mix(board, "#ffffff", 0.24)
     gloss = f"choc-gloss-{choc[1:]}"
     out = [
@@ -765,8 +833,9 @@ def advent_calendar(
         '<ellipse class="ground" cx="200" cy="348" rx="160" ry="9" fill="#000000" fill-opacity=".14"/>',
         _path("M56,46 L356,46 L356,342 L56,342 Z", _shade(board, 0.3)),
         _tag("wrapper", _path(_rect(48, 40, 300, 294), board)),
-        _path(_star(76, 78, 15), "#ffffff", LW_DETAIL),
+        *(brand_mark(brand, 75, 79, 44) or [_path(_star(76, 78, 15), "#ffffff", LW_DETAIL)]),
         _path(_star(320, 78, 15), "#ffffff", LW_DETAIL),
+        *_accent(48, 324, 300, 8, accent),
         *_panel(102, 54, 192, 50, label, 30),
     ]
     x0, y0, cols, rows, gap = 62.0, 118.0, 6, 4, 6.0

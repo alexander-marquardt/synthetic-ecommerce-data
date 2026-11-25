@@ -37,7 +37,7 @@ class Look:
 #: stay visible on white paper (``kit_chocolate.WRAPPER_CONTRAST``).
 LOOKS = {
     "Barrowby Kitchen": Look("#1f7a4a", "#e8d9a8"),
-    "Brewhollow Roasters": Look("#4a3a8c", "#e8b05a"),
+    "Brewhollow Roasters": Look("#7a5a10", "#f0d9a0"),
     "Crunchworth": Look("#c2451f", "#f5c542"),
     "Hearth & Table": Look("#6d2348", "#d9b45a"),
     "Pantry Mill": Look("#2f5f94", "#d9e4ee"),
@@ -46,4 +46,5 @@ LOOKS = {
 
 def params(rec: dict) -> dict[str, str]:
     """The pack's brand, for a chocolate drawing of a brand in :data:`LOOKS`; else nothing."""
-    return {}
+    branded = rec["drawing"]["shape"] in SHAPES and rec["brand"] in LOOKS
+    return {"brand": rec["brand"]} if branded else {}
