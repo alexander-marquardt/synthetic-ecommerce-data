@@ -158,7 +158,7 @@ def test_the_tray_holds_one_mark_per_piece():
     record = {"Container Type": "Metal Tool Box", "Color": "Blue", "Material": "Alloy Steel"}
     for n in sorted(PIECE_COUNTS):
         shapes = sets.figure({**record, "Piece Count": str(n)}).figure.shapes
-        assert sum(len(getattr(s, "centres", ())) for s in shapes) == n, n
+        assert sum(len(getattr(s, "rects", ())) for s in shapes) == n, n
 
 
 def test_every_container_draws_its_own_outline():
