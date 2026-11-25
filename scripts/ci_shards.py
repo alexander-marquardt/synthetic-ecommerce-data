@@ -24,6 +24,12 @@ weights only go stale slowly. ``tests/test_ci_shards_348.py`` checks that every 
 exactly one shard, that the workflow's matrix is the shard count, and that the shards stay
 balanced by the weights.
 
+No shard holds modules that can run at the same time and whose recorded peaks
+(``scripts/ci_module_peaks.json``) add up to more than its container less a margin
+(``SHARD_PEAK_MB``): the deal keeps them apart, a scoped run takes another shard when it must,
+and a plan that cannot fails here with the modules named, not in pytest with an OOM-killed
+worker (#1230).
+
 ``--plan`` prints the files in run order (``run_order``): heaviest first, the files whose
 tests xdist spreads last (``--dist loadgroup`` hands a free worker the next module in that
 order, so an alphabetical list left a late-sorting heavy module as the tail of the run).
@@ -33,6 +39,7 @@ order, so an alphabetical list left a late-sorting heavy module as the tail of t
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import math
 import os
@@ -40,6 +47,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -96,6 +104,18 @@ MODULE_PEAKS = REPO / "scripts" / "ci_module_peaks.json"
 HEAVY_MB = 1500
 #: The workers of a shard with no heavy module: 3 x 1.5 GB fits a runner's 6 GB container (#790).
 LIGHT_WORKERS = 3
+#: A self-hosted shard's container, in MB: its cgroup's ``memory.max``.
+CONTAINER_MB = 6144
+#: What a shard's container holds next to the modules on its workers, in MB: about 360 for the
+#: runner and pytest's controller, and git's cap of about 800 (docs/ci-sharding.md, #1230).
+MARGIN_MB = 1200
+#: The most MB the modules that run at the same time in one shard may peak at together.
+SHARD_PEAK_MB = CONTAINER_MB - MARGIN_MB
+#: The workers of a shard that holds a heavy module: a self-hosted container's cap. A shard with
+#: none gets ``LIGHT_WORKERS`` (``workers``), which ``HEAVY_MB`` alone keeps in the bound.
+HEAVY_WORKERS = 2
+#: The peak assumed for a module the table has no figure for: just heavy, as ``workers`` counts it.
+UNMEASURED_MB = HEAVY_MB + 1
 #: The runner's cap on ``-n auto``: a self-hosted container sets it, a hosted runner does not.
 WORKERS_ENV = "PYTEST_XDIST_AUTO_NUM_WORKERS"
 
@@ -182,45 +202,101 @@ def run_order(
     return whole + sorted(spreading)
 
 
+class PlanError(ValueError):
+    """No deal to this many shards keeps every shard's modules inside its container."""
+
+
+def concurrent_peak(
+    files: list[str], peaks: dict[str, int], spread: frozenset[str]
+) -> tuple[int, list[str]]:
+    """The most MB the modules of one shard can hold at the same time, and those modules.
+
+    Each of the ``HEAVY_WORKERS`` workers runs one module at a time and any two can meet, so it is
+    the sum of the highest peaks. A spread file's tests run on every worker, so it counts on each.
+    """
+    running = [
+        (peaks.get(name, UNMEASURED_MB), name)
+        for name in files
+        for _ in range(HEAVY_WORKERS if name in spread else 1)
+    ]
+    top = sorted(running, key=lambda peak: (-peak[0], peak[1]))[:HEAVY_WORKERS]
+    return sum(mb for mb, _ in top), [name for _, name in top]
+
+
+def _refusal(files: list[str], count: int, peaks: dict[str, int], spread: frozenset[str]) -> str:
+    total, names = concurrent_peak(files, peaks, spread)
+    each = " + ".join(f"{name} {peaks.get(name, UNMEASURED_MB)} MB" for name in names)
+    return (
+        f"no shard of {count} can hold {each}: {total} MB at the same time, over "
+        f"{SHARD_PEAK_MB} MB ({CONTAINER_MB} MB container less {MARGIN_MB} MB, docs/ci-sharding.md)"
+    )
+
+
 def deal(
-    files: list[str],
+    files: Sequence[str],
     count: int,
     weights: dict[str, float],
     split: frozenset[str] | None = None,
+    peaks: dict[str, int] | None = None,
+    spread: frozenset[str] | None = None,
 ) -> list[list[str]]:
-    """Split ``files`` into ``count`` shards: heaviest file first, each to the lightest shard.
+    """Split ``files`` into ``count`` shards: heaviest file first, each to the lightest shard
+    whose modules can still run at the same time in its container (``concurrent_peak``, #1230).
 
     A split file (``SPLIT_FILES``) is in every shard and weighs a ``count``-th of its seconds
-    in each; with one shard it is just a file.
+    in each; with one shard it is just a file. ``PlanError`` names the modules no shard can hold.
     """
     if count < 1:
         raise ValueError("a run needs at least one shard")
     split = SPLIT_FILES if split is None else split
     whole = [name for name in files if name not in split] if count > 1 else list(files)
     divided = [name for name in files if name in split] if count > 1 else []
+    peaks = load_peaks() if peaks is None else peaks
+    spread = (spread_files(files) if spread is None else spread) | split
+    if concurrent_peak(divided, peaks, spread)[0] > SHARD_PEAK_MB:
+        raise PlanError(_refusal(divided, count, peaks, spread))
     weight = {name: weights.get(name, DEFAULT_SECONDS) for name in files}
     shards: list[list[str]] = [list(divided) for _ in range(count)]
     load = [sum(weight[name] for name in divided) / count] * count
     for name in sorted(whole, key=lambda f: (-weight[f], f)):
-        lightest = min(range(count), key=lambda i: (load[i], i))
+        fits = [
+            i
+            for i in range(count)
+            if concurrent_peak([*shards[i], name], peaks, spread)[0] <= SHARD_PEAK_MB
+        ]
+        if not fits:
+            best = min(shards, key=lambda shard: concurrent_peak([*shard, name], peaks, spread)[0])
+            raise PlanError(_refusal([*best, name], count, peaks, spread))
+        lightest = min(fits, key=lambda i: (load[i], i))
         shards[lightest].append(name)
         load[lightest] += weight[name]
     return [sorted(shard) for shard in shards]
 
 
-def scoped_files(base: str, head: str, root: Path = REPO) -> list[str] | None:
+@functools.lru_cache(
+    maxsize=1
+)  # the plans of one range, of every shard, read the tree once (#1035)
+def scoped_files(base: str, head: str, root: Path = REPO) -> tuple[str, ...] | None:
     """The test files the change ``base..head`` reaches (scripts/ci_select.py), or None for
-    every test file: no range (a push to main, a manual run) or a diff git cannot read."""
+    every test file: no range (a push to main, a manual run) or a diff git cannot read.
+    A tuple: the selection is kept, and no caller may change it for the next."""
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     import ci_select
 
     chosen = ci_select.selection_for_range(base, head, root)
-    return None if chosen is None else sorted(chosen)
+    return None if chosen is None else tuple(sorted(chosen))
 
 
-def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
+def shards_needed(
+    files: Sequence[str],
+    of: int,
+    weights: dict[str, float],
+    peaks: dict[str, int] | None = None,
+    spread: frozenset[str] | None = None,
+) -> int:
     """How many of the ``of`` shards a selection is dealt to: enough that none holds more than
-    ``SCOPED_SHARD_SECONDS`` of work, at least one, at most ``of``.
+    ``SCOPED_SHARD_SECONDS`` of work or modules its container cannot hold at the same time, at
+    least one, at most ``of``.
 
     The average gives the first guess; the longest-first deal can leave one shard a file over
     it, so the count grows until the deal's own heaviest shard (a split file's share included)
@@ -228,19 +304,32 @@ def shards_needed(files: list[str], of: int, weights: dict[str, float]) -> int:
     """
     seconds = sum(weights.get(name, DEFAULT_SECONDS) for name in files)
     count = max(1, min(of, math.ceil(seconds / SCOPED_SHARD_SECONDS)))
-    while count < of and max(_dealt_loads(files, count, weights)) > SCOPED_SHARD_SECONDS:
+    peaks = load_peaks() if peaks is None else peaks
+    spread = spread_files(files) if spread is None else spread
+    while count < of:
+        try:
+            if max(_dealt_loads(files, count, weights, peaks, spread)) <= SCOPED_SHARD_SECONDS:
+                break
+        except PlanError:
+            pass
         count += 1
     return count
 
 
-def _dealt_loads(files: list[str], count: int, weights: dict[str, float]) -> list[float]:
+def _dealt_loads(
+    files: Sequence[str],
+    count: int,
+    weights: dict[str, float],
+    peaks: dict[str, int],
+    spread: frozenset[str],
+) -> list[float]:
     """The seconds of work each of ``count`` shards holds when ``files`` are dealt to them."""
     return [
         sum(
             weights.get(name, DEFAULT_SECONDS) / (count if name in SPLIT_FILES and count > 1 else 1)
             for name in shard
         )
-        for shard in deal(files, count, weights)
+        for shard in deal(files, count, weights, peaks=peaks, spread=spread)
     ]
 
 
@@ -250,13 +339,17 @@ def plan(
     """``(shards, files)``: how many shards share the run, and shard ``number``'s files (none
     when the selection does not need that many shards)."""
     weights = load_weights()
+    peaks = load_peaks()
     files = scoped_files(base, head, root) if base and head else None
     if files is None:
-        return of, deal(collected_test_files(root), of, weights)[number - 1]
-    active = shards_needed(files, of, weights)
+        every = collected_test_files(root)
+        spread = spread_files(every, root)
+        return of, deal(every, of, weights, peaks=peaks, spread=spread)[number - 1]
+    spread = spread_files(files, root)
+    active = shards_needed(files, of, weights, peaks, spread)
     if number > active:
         return active, []
-    return active, deal(files, active, weights)[number - 1]
+    return active, deal(files, active, weights, peaks=peaks, spread=spread)[number - 1]
 
 
 def shard_loads(
@@ -268,12 +361,15 @@ def shard_loads(
     """The seconds of work each shard holds by the weights."""
     weights = load_weights() if weights is None else weights
     split = SPLIT_FILES if split is None else split
+    files = collected_test_files(root)
     return [
         sum(
             weights.get(name, DEFAULT_SECONDS) / (count if name in split and count > 1 else 1)
             for name in shard
         )
-        for shard in deal(collected_test_files(root), count, weights, split)
+        for shard in deal(
+            files, count, weights, split, peaks=load_peaks(), spread=spread_files(files, root)
+        )
     ]
 
 
@@ -292,12 +388,34 @@ def refresh(reports: list[Path]) -> dict[str, float]:
     return {name: round(total, 1) for name, total in sorted(seconds.items())}
 
 
+def plan_text(number: int, of: int, base: str = "", head: str = "") -> str:
+    """Shard ``number``'s plan as ``--plan`` prints it: ``shards=<n>``, then its files in the
+    order they run."""
+    shards, files = plan(number, of, base, head)
+    files = run_order(files, load_weights(), spread_files(files))
+    return "\n".join([f"shards={shards}", *files])
+
+
 def main(argv: list[str] | None = None) -> int:
+    try:
+        return _main(argv)
+    except PlanError as refusal:
+        print(f"the plan cannot run: {refusal}", file=sys.stderr)
+        return 1
+
+
+def _main(argv: list[str] | None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--shard", help="1..N, or 'all' for every test file")
     parser.add_argument("--of", type=int, default=0, help="the number of shards (N)")
     parser.add_argument("--refresh", nargs="+", type=Path, metavar="JUNIT")
     parser.add_argument("--plan", help="shard K: print `shards=<n>`, then its files")
+    parser.add_argument(
+        "--plans-out",
+        type=Path,
+        metavar="DIR",
+        help="write every shard's plan, as --plan K --of N prints it, to DIR/test-plan-K.txt",
+    )
     parser.add_argument(
         "--base", default="", help="base of the change; with --head, scope the files"
     )
@@ -319,6 +437,17 @@ def main(argv: list[str] | None = None) -> int:
         args.peaks.write_text(json.dumps(table, indent=1) + "\n", encoding="utf-8")
         print(f"wrote {args.peaks}")
         return 0
+    if args.plans_out:
+        if args.of < 1:
+            parser.error("give --plans-out DIR --of N")
+        # Every plan before any file: a plan that fails leaves no directory to upload.
+        texts = [plan_text(k, args.of, args.base, args.head) for k in range(1, args.of + 1)]
+        args.plans_out.mkdir(parents=True, exist_ok=True)
+        for number, text in enumerate(texts, 1):
+            path = args.plans_out / f"test-plan-{number}.txt"
+            path.write_text(text + "\n", encoding="utf-8")
+        print(f"wrote {len(texts)} plans to {args.plans_out}; {texts[0].splitlines()[0]}")
+        return 0
     if args.plan == "all":  # a local run: every test file, one shard
         every = collected_test_files()
         ordered = run_order(every, load_weights(), spread_files(every))
@@ -327,9 +456,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.plan:
         if not args.plan.isdigit() or not 1 <= int(args.plan) <= max(args.of, 0):
             parser.error("give --plan K --of N with K in 1..N")
-        shards, files = plan(int(args.plan), args.of, args.base, args.head)
-        files = run_order(files, load_weights(), spread_files(files))
-        print("\n".join([f"shards={shards}", *files]))
+        print(plan_text(int(args.plan), args.of, args.base, args.head))
         return 0
     if args.refresh:
         WEIGHTS.write_text(json.dumps(refresh(args.refresh), indent=1) + "\n", encoding="utf-8")
