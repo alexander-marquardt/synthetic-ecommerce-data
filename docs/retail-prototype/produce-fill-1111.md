@@ -5,7 +5,8 @@ clear bag) is drawn big, round and fresh. Each layout in `PILES` (1 to 7 fruits)
 fruits one size, and every fruit is scaled to the same painted area at that size whatever its
 own shape's size, so a lemon and a grape fill the same space. Each fruit carries a gloss (a
 radial highlight up-left and a shade down-right over its body), and the pile stands on a
-`class="ground"` shadow. The bag and the net are enlarged round the bigger pile.
+`class="ground"` shadow, which stays flat when the pile is turned (gen#1182, docs/images.md). The
+bag and the net are enlarged round the bigger pile.
 
 **Fill is measured against the product area**, the plain sheet's 344 x 334 box
 (`house_styles.TURN_AREA`), and counts only the fruits (`<g class="fruit">`): a bag's film, a

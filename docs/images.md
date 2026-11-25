@@ -20,7 +20,7 @@ apply to them: they are filler to give a facet something to show, not a
 figure meant to survive a close look (maintainer, 2026-09-30). They still go
 through the same text allow-list, brand plate, house style and material/finish fill as
 every other drawing -- only the GEOMETRY is fixed. A breadth type with a drawing of its own
-(30 so far, `drawing/breadth_products.py`, #1216) is drawn as the product it is sold as, lit and
+(63 so far, `drawing/breadth_products.py`, #1216) is drawn as the product it is sold as, lit and
 filling at least half of the figure area ([drawings](drawings.md#breadth-types-fixed-shapes)).
 
 * **One image per SKU**, so two lengths of one screw look different, and a
@@ -185,6 +185,16 @@ filling at least half of the figure area ([drawings](drawings.md#breadth-types-f
   of the 34,463 products are turned, in 685 of the 910 categories, and none is refused. The
   largest turned items are 60 cm: a foam roller, a floor puzzle, a snood and artificial stems.
   `tests/test_tilt_audit_1101.py` plants a turned fridge and checks that the build fails.
+
+  A turned product's shadow is not turned (#1182). A kit draws its shadow in its figure, as an
+  ellipse with `class="ground"`; `retail/ground_shadow.py` takes it out of a turned drawing and
+  draws one soft horizontal ellipse outside the turn, under the drawing's lowest point and as
+  wide as the part of the drawing near the ground (the lowest 12% of its height). The product's
+  own turn is unchanged. Every such shadow falls away from one light (`ground_shadow.LIGHT`, up and to
+  the left). The kits that label their shadow are bread, chocolate, dairy, drinks, produce,
+  punnet and soft drinks; the other kits' shadows, and the level pictures, still draw their own
+  (the next slices). `tests/test_flat_shadow_1182.py` renders a turned product of each of the ten
+  shapes and reads where its shadow lies.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
