@@ -1,18 +1,22 @@
-"""The hand-written beers, ginger beer and root beer draw their real can or bottle (gen#1127).
+"""The hand-written beers, wines and soft drinks draw their real can or bottle (gen#1127).
 
 The grocery build's drinks moved to ``beer`` and ``soft_drink`` first; the five rows of
 :mod:`class_rows` (class 10, "beer") still drew the generic ``tin`` and ``bottle``, a 1.5L root
 beer as a tin. Such a row sells its sizes as ``net_volume_ml``, so its SKU's container comes from
-that. Cover and height span are measured as the soft drinks test measures them.
+that. The six one-size drinks of :mod:`color_word_brand_rows` and the plural decoys followed:
+two red wines, three sparkling waters and a wheat beer. Cover and height span are measured as the
+soft drinks test measures them.
 """
 
 from __future__ import annotations
 
 import pytest
 
+from retail_templates import templates as shared_templates
 from synthetic_ecommerce_data.domains.retail import (
     class_rows,
     kit_beer,
+    kit_drinks,
     kit_soft_drinks,
     pack_scale,
 )
@@ -138,3 +142,101 @@ def test_a_net_volume_is_the_pack_and_nothing_else_changes() -> None:
     assert kit_soft_drinks.soft_drink("#e8b04a", fill, "Cola", flavor="Cola",
                                       net_volume_ml="1500.0") == kit_soft_drinks.soft_drink(
         "#e8b04a", fill, "Cola", flavor="Cola", pack_size="1.5L")  # fmt: skip
+
+
+#: The one-size hand rows: product id -> (shape, the class of its container, the class that shows
+#: its drink, the drink's fill, the cover floor of that container in the earlier slices).
+WINE_750, PET_500, CAN_330 = 0.170, 0.20, CAN[330]
+ONE_SIZE = {
+    "BRD-CW06": (
+        "wine_bottle",
+        "bottle",
+        "wine",
+        kit_drinks.through_glass("#6a1f3a", "green"),
+        WINE_750,
+    ),
+    "BRD-CW07": (
+        "wine_bottle",
+        "bottle",
+        "wine",
+        kit_drinks.through_glass("#5a1a2a", "green"),
+        WINE_750,
+    ),
+    "BRD-CW11": (
+        "soft_drink",
+        "bottle",
+        "drink",
+        kit_soft_drinks.through_clear("#dbeaf0"),
+        PET_500,
+    ),
+    "PLT-DXQ05": (
+        "soft_drink",
+        "bottle",
+        "drink",
+        kit_soft_drinks.through_clear("#f1f0d2"),
+        PET_500,
+    ),
+    "PLT-DXQ09": (
+        "soft_drink",
+        "bottle",
+        "drink",
+        kit_soft_drinks.through_clear("#dfeccb"),
+        PET_500,
+    ),
+    "BRD-CW12": ("beer", "can", "livery", "#e0a040", CAN_330),
+}
+#: The whisky rows of the same table, which keep the generic bottle at the cover it had.
+SPIRITS, SPIRIT_COVER = {"BRD-CW08", "BRD-CW09", "BRD-CW10"}, 0.269
+#: The types drawn as their own container, wherever they are sold.
+DRINKS = frozenset({"Beer", "Cider", "Perry", "Wine", "Champagne", "Soft Drink", "Ginger Beer",
+                    "Root Beer"})  # fmt: skip
+
+
+@pytest.fixture(scope="module")
+def templates() -> dict[str, dict]:
+    return {rec["product_id"]: rec for rec in shared_templates()}
+
+
+def test_each_one_size_hand_drink_draws_its_container_and_shows_its_drink(
+    templates: dict[str, dict],
+) -> None:
+    for pid, (shape, body, shown, want, _) in ONE_SIZE.items():
+        rec = templates[pid]
+        (sku,) = rec["skus"]
+        svg = _svg(rec, sku)
+        assert rec["drawing"]["shape"] == shape, pid
+        assert len(_classes(svg, body)) == 1, pid
+        assert len(_classes(svg, "foot")) == (shape == "soft_drink"), pid
+        assert len(_classes(svg, "ring-pull")) == (body == "can"), pid
+        (drink,) = _classes(svg, shown)
+        assert drink.get("fill") == want, pid
+        assert rec["drawing"]["label"], pid
+        assert rec["drawing"]["label"].split()[0] in svg, pid
+        assert pack_scale.factor(rec, sku) is None, pid
+
+
+def test_each_one_size_hand_drink_covers_its_floor_and_spans_the_height(
+    templates: dict[str, dict],
+) -> None:
+    low = []
+    for pid, (*_, floor) in ONE_SIZE.items():
+        svg = _svg(templates[pid], templates[pid]["skus"][0])
+        if _cover(svg) < floor or _span(svg) < FULL:
+            low.append(f"{pid}: {_cover(svg):.3f} < {floor} or {_span(svg):.2f} < {FULL}")
+    assert not low, "\n".join(low)
+
+
+def test_no_template_drink_is_left_on_the_generic_bottle_or_tin(
+    templates: dict[str, dict],
+) -> None:
+    drinks = {pid: r["drawing"]["shape"] for pid, r in templates.items()
+              if r["product_type"] in DRINKS}  # fmt: skip
+    assert set(ONE_SIZE) <= set(drinks)
+    assert {p: s for p, s in drinks.items() if s in ("bottle", "tin")} == {}
+
+
+def test_the_whisky_rows_beside_them_keep_their_bottle(templates: dict[str, dict]) -> None:
+    for pid in SPIRITS:
+        rec = templates[pid]
+        assert rec["drawing"]["shape"] == "bottle", pid
+        assert _cover(_svg(rec, rec["skus"][0])) >= SPIRIT_COVER - 0.001, pid

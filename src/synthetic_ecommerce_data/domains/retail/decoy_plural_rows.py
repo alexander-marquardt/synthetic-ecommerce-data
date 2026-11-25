@@ -22,12 +22,12 @@ ROWS: tuple[tuple[str, str, str, str, str, str, int, tuple[str, ...]], ...] = (
     ("XQ03", "tinned", "Mandarin Oranges, 298g", "Segments of mandarin oranges in a light juice, in a 298g tin.", "Orange", "oranges", 910, ("mandarin oranges (60%)", "mandarin juice")),
     ("XQ04", "jam", "Seville Oranges Marmalade", "A thick cut marmalade made with bitter Seville oranges, in a 340g jar.", "Orange", "oranges", 890, ("seville oranges (45%)", "sugar", "lemon juice")),
     # -- lemons
-    ("XQ05", "water", "Sicilian Lemons Sparkling Water", "Sparkling spring water flavored with the juice of Sicilian lemons. No sugar.", "Yellow", "lemons", 950, ("carbonated spring water", "lemon juice (1%)", "natural flavoring")),
+    ("XQ05", "lemon_water", "Sicilian Lemons Sparkling Water", "Sparkling spring water flavored with the juice of Sicilian lemons. No sugar.", "Yellow", "lemons", 950, ("carbonated spring water", "lemon juice (1%)", "natural flavoring")),
     ("XQ06", "pickle", "Preserved Lemons, 350g", "Whole lemons preserved in salt and brine, for tagines and dressings. A 350g jar.", "Yellow", "lemons", 920, ("lemons", "salt", "water")),
     ("XQ07", "sweets", "Sherbet Lemons, 200g", "Boiled sweets with a fizzing sherbet center, in a 200g bag.", "Yellow", "lemons", 900, ("sugar", "glucose syrup", "dried lemon juice", "citric acid")),
     ("XQ08", "biscuit", "Lemons & Ginger Shortbread", "All butter shortbread baked with lemon zest and stem ginger.", "Cream", "lemons", 870, ("wheat flour", "butter", "lemon zest", "stem ginger")),
     # -- limes
-    ("XQ09", "water", "Sparkling Water & Limes", "Sparkling mineral water with a squeeze of limes. No sugar, no sweeteners.", "Green", "limes", 940, ("carbonated mineral water", "lime juice (1%)", "natural flavoring")),
+    ("XQ09", "lime_water", "Sparkling Water & Limes", "Sparkling mineral water with a squeeze of limes. No sugar, no sweeteners.", "Green", "limes", 940, ("carbonated mineral water", "lime juice (1%)", "natural flavoring")),
     ("XQ10", "sweets", "Lemons & Limes Sweets", "Boiled sweets in lemon and lime flavors, in a 200g bag.", "Green", "limes", 910, ("sugar", "glucose syrup", "dried lime juice", "dried lemon juice")),
     ("XQ11", "marinade", "Limes & Coriander Marinade", "A bottled marinade of limes, coriander and chilli for chicken and fish.", "Green", "limes", 880, ("lime juice (20%)", "coriander", "rapeseed oil", "chilli")),
     # -- apples
