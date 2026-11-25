@@ -1,6 +1,6 @@
 # Large appliances (gen#334)
 
-Home > Large Appliances holds 102 products in three leaves, each type at least six models and a
+Home > Large Appliances began with 102 products in three leaves, each type at least six models and a
 color or finish a SKU: Fridges & Freezers (fridge freezers 70/30 and 50/50, American style,
 under-counter, larder, chest, upright and integrated), Dishwashers (full size, slimline,
 integrated, table-top) and Laundry (washing machines, condenser, heat pump and vented tumble
@@ -26,7 +26,8 @@ stainless steel and a washing machine with a "Red Spot" dial that is white.
 Cooking (#1116): three more leaves, Range Cookers, Built-in Ovens and Hobs, with their own specs
 and `kit_cooking.py`; see [cooking-appliances-1116.md](cooking-appliances-1116.md). Cooker Hoods,
 more models of the laundry and freezer kinds, and US `Washer` titles:
-[hood-washer-1116.md](hood-washer-1116.md).
+[hood-washer-1116.md](hood-washer-1116.md). Four models of every kind from every own brand:
+[appliance-lineups-1116.md](appliance-lineups-1116.md).
 
 Series and model numbers (gen#622). A series belongs to exactly one brand across every kind
 (`appliance_model_numbers.SERIES`: five a brand, thirty in all), and the document's

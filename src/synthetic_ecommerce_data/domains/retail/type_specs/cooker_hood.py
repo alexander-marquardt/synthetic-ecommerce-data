@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from synthetic_ecommerce_data.domains.retail import appliance_lineups as lineups
 from synthetic_ecommerce_data.domains.retail import large_appliance_rows as lar
 from synthetic_ecommerce_data.domains.retail.breadth_rows import Row
 from synthetic_ecommerce_data.domains.retail.type_registry import Decoy, TypeSpec, a
@@ -39,14 +40,17 @@ def _attrs(kind_name: str, width: int, rate: int, speeds: int, rating: str) -> t
 
 def cooker_hood_rows() -> tuple[Row, ...]:
     out: list[Row] = []
-    for pre, shape, title, kind_name, lead, palettes, models in _HOOD_KINDS:
+    for pre, shape, title, kind_name, lead, palettes, table in _HOOD_KINDS:
+        models = lineups.line_up(pre, table, 3)
+
         def make(i, models=models, lead=lead, kind_name=kind_name, palettes=palettes, pre=pre):
             width, rate, speeds, price = models[i]
             rating = lar.RATINGS[(i + len(pre)) % 5]
+            says, sold_on = lineups.feature("Cooker Hood", i)
             desc = (f"{lead}. It is {width} cm wide, moves {rate} m3 of air an hour at its highest of "
-                    f"{_WORDS[speeds]} speeds, energy rating {rating}.")
-            return float(price), desc, palettes[i % 3], _attrs(kind_name, width, rate, speeds, rating)
-        rows = lar.kind_rows(pre, 6, lar.COOKER_HOODS, "Cooker Hood", "cooker_hood", (), title, make)
+                    f"{_WORDS[speeds]} speeds, energy rating {rating}.{says}")
+            return float(price), desc, palettes[i % 3], (*_attrs(kind_name, width, rate, speeds, rating), *sold_on)
+        rows = lar.kind_rows(pre, len(models), lar.COOKER_HOODS, "Cooker Hood", "cooker_hood", (), title, make)
         out += [replace(r, params=(("kind", shape), ("width", str(w))))
                 for r, (w, *_) in zip(rows, models, strict=True)]
     return tuple(out)
