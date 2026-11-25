@@ -802,10 +802,11 @@ def _render_styled(
     """:func:`render` in a brand's house style (see ``house_styles``), turned ``angle``, with
     ``emblem``'s licence line beside the logo."""
     from synthetic_ecommerce_data.domains.retail import (
-        house_styles as hs,  # deferred: house_styles is an optional layer over the kit
+        ground_shadow,  # deferred: it measures with sheet_extent
+        size_ladder,  # deferred: the size ladder is another (gen#339)
     )
     from synthetic_ecommerce_data.domains.retail import (
-        size_ladder,  # deferred: the size ladder is another (gen#339)
+        house_styles as hs,  # deferred: house_styles is an optional layer over the kit
     )
 
     drawn = _drawn(draw, paint, fill, label, params)
@@ -818,8 +819,7 @@ def _render_styled(
     measured = [product] if full == inner else [full, product]
     if angle:
         turned = hs.turn(full, defs, angle)
-        measured = [f'<g transform="{turned}">{m}</g>' for m in measured]
-        product = f'<g class="turn" transform="{turned}">{product}</g>'
+        measured, product = ground_shadow.turned_all(measured, defs, turned, uid)
     # The rows the largest size covers, so every size of the product is placed alike, and the
     # SKU's own, which a turned smaller size can reach past (gen#932).
     rows = hs.drawn_rows(defs, *measured) if style.mark != hs.NO_MARK else None
