@@ -2,8 +2,8 @@
 
 Before gen#1214 the seven types of `kit_furniture` were flat front views, small on the sheet:
 87% of their SKUs painted under half of the product area, the smallest size of a ladder
-bookcase 4%. Slice 1 redraws the seven types. The sofas follow in slice 2, the armchair, the
-footstool and the sideboard in slice 3.
+bookcase 4%. Slice 1 redraws the seven types, slice 2 the sofas (below); the armchair, the
+footstool and the sideboard follow in slice 3.
 
 **Each piece is drawn as it is sold**, from in front and a little above: a table shows its top
 and its near edge (`kit_furniture._flat_slab`, `_ellipse_slab`), a cabinet its front, side and top
@@ -49,3 +49,37 @@ covers 30% of it. Before, both were drawn at 1 to 2.5, wider than any size they 
 and holds each to 50% (or its named floor), a highlight, a shadow and more than one tone.
 
 ![Each product of the seven types before and after](../images/furniture-fill-1214.png)
+
+## Slice 2: the sofas
+
+Before slice 2, 173 of the 199 sofa SKUs painted under half of the product area: `kit_seating`
+fitted every piece into a box smaller than the product area, and a sofa, long and low, filled a
+strip of it. The smallest size of a sofa bed, on the shared size ladder, painted 15%.
+
+**A sofa is fitted to the product area and seen from higher up.** `kit_seating.View` holds how a
+piece is seen: how far a unit of depth moves the drawing left and up, and the area it is fitted
+into. A sofa is fitted to the product area (`AREA`, less 8 units at its foot for the shadow) and
+seen from above (`SOFA`), so its seat cushions show as a surface and the drawing is less sheared
+wide. A straight run of four seats or more and a U-shaped sofa are seen from higher still and more
+from the front (`LONG`, from `LONG_RUN` seats), a folded-out sofa bed, its mattress a bed's length
+in front of it, from lower down (`BED`). The armchair and the footstool keep the view they had
+(`CHAIR`) until slice 3. Each sofa stands on a ground shadow (`ground_shadow.ellipse`, which the
+picture's step redraws flat under it, gen#1182), not counted as fill. A sofa bed's size ladder
+runs from 0.84 to 0.90 (`size_ladder.BOTTOMS`), as a dining table's does.
+
+| type | shape | before, smallest to largest | now, smallest to largest |
+|---|---|---|---|
+| Sofa | `sofa_seats` | 30.2% to 55.2% | 50.1% to 80.2% |
+| Sofa | `sofa_version` | 36.2% to 54.9% | 53.3% to 79.9% |
+| Corner Sofa | `corner_sofa` | 36.1% to 51.3% | 53.5% to 67.2% |
+| Corner Sofa | `u_sofa` | 31.5% | 57.8% |
+| Chaise Sofa | `chaise_sofa` | 34.8% to 55.2% | 54.5% to 69.5% |
+| Modular Sofa | `modular_sofa` | 35.6% to 53.8% | 57.1% to 82.4% |
+| Recliner Sofa | `recliner_sofa` | 39.8% to 48.8% | 59.4% to 74.9% |
+| Sofa Bed | `sofa_bed` | 15.2% to 59.8% | 53.1% to 80.5% |
+
+The lowest now is the four-seat rolled-arm sofa, at 50.1%. `tests/test_furniture_fill_1214.py`
+holds every SKU of the eight shapes to 50%, a highlight and a shadow, and checks each sofa stands
+on a ground shadow that the measure skips.
+
+![Three sofas of each shape before and after](../images/sofa-fill-1214.png)

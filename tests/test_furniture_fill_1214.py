@@ -3,7 +3,8 @@
 Every SKU of every built template that draws one of these shapes is rendered as the plain sheet
 and measured with #1129's sweep (``picture_fill_1129.measure``): the share of the product area
 (``house_styles.TURN_AREA``) it paints, its highlight and its shadow. A product sold in sizes or
-packs is measured at each of them. Slice 1 is ``kit_furniture``'s seven types."""
+packs is measured at each of them. Slice 1 is ``kit_furniture``'s seven types, slice 2 the sofas
+of ``kit_seating``."""
 
 from __future__ import annotations
 
@@ -30,7 +31,17 @@ TYPES = {
     "bookcase": "Bookcase",
     "mirror": "Mirror",
     "wardrobe": "Wardrobe",
+    "sofa_seats": "Sofa",
+    "sofa_version": "Sofa",
+    "corner_sofa": "Corner Sofa",
+    "u_sofa": "Corner Sofa",
+    "chaise_sofa": "Chaise Sofa",
+    "modular_sofa": "Modular Sofa",
+    "recliner_sofa": "Recliner Sofa",
+    "sofa_bed": "Sofa Bed",
 }
+#: The SKUs a shape's built templates hold at least, so an emptied shape cannot pass unseen.
+FEWEST = {"u_sofa": 4}
 FLOOR = 0.50
 #: The named exceptions: a mirror about 1 to 3 (40 x 150 cm, 50 x 160 cm) or 1 to 4 (45 x 170 cm).
 #: A solid box of 1 to 3.2 as tall as the product area covers 30% of it.
@@ -55,7 +66,7 @@ def test_every_sku_fills_its_floor_with_a_highlight_and_a_shadow(shape):
             checked += 1
             if got.cover < floor or not got.highlight or not got.shadow or got.flat:
                 short.append((sku["sku"], floor, got))
-    assert checked >= 12, (shape, checked)
+    assert checked >= FEWEST.get(shape, 12), (shape, checked)
     assert short == [], f"{len(short)} of {checked} {shape} SKUs: {short[:3]}"
 
 
@@ -64,8 +75,20 @@ def test_an_exception_names_a_product_the_catalogue_sells():
     assert set(FLOORS) <= sold
 
 
-@pytest.mark.parametrize("shape", ["dining_table", "bookcase", "mirror"])
+@pytest.mark.parametrize("shape", ["dining_table", "bookcase", "mirror", "sofa_bed"])
 def test_a_size_of_furniture_is_drawn_smaller_but_not_under_the_floor(shape):
     """The shared ladder's smallest rung, 0.55 of 0.90, keeps 37% of the largest one's area."""
     kept = (size_ladder.bottom({"drawing": {"shape": shape}}) / size_ladder.TOP) ** 2
     assert 0.80 <= kept < 0.95, (shape, kept)
+
+
+SOFAS = [shape for shape in TYPES if "sofa" in shape]
+
+
+@pytest.mark.parametrize("shape", SOFAS)
+def test_a_sofa_stands_on_a_ground_shadow_the_fill_does_not_count(shape):
+    rec = next(r for r in scale.templates() if r["drawing"]["shape"] == shape)
+    svg = image_release.render(rec, rec["skus"][0], styled=False)
+    assert b'class="ground"' in svg
+    counted = pf.measure(svg, pf.TURN_AREA, skip=()).cover
+    assert pf.measure(svg, pf.TURN_AREA).cover < counted, "the shadow shows past the sofa's edge"
