@@ -241,6 +241,15 @@ REGISTRIES: tuple[Registry, ...] = (
         " orientation.py walks that package and names no shape (#1045)",
         (f"{RD}/orientations/__init__.py",),
     ),
+    Registry(
+        "tests/test_retail_type_options_413.py",
+        _shapes(r'^\s+"[a-z][a-z0-9_]*":\s*\['),
+        '    "probe_mat": [Option("probe_mm", "probe", "Probe", "MMT")],',
+        "add the spec's row (spec key -> the options it declares) to the MOVED dict of its"
+        " family's tests/spec_options/<family>.py, or a new family's file; the package finds it"
+        " by walking itself and nothing is listed here (gen#1183)",
+        ("tests/spec_options/__init__.py",),
+    ),
 )
 
 

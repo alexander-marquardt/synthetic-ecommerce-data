@@ -27,7 +27,9 @@ only when this page does not cover what you need.
      none (gen#413). `type_registry.option_table` merges every spec's options with
      `export.SHARED_OPTIONS`; a key with two names, or an option declared two ways, fails
      `tests/test_retail_type_options_413.py` and stops the build. Two specs may declare one
-     option alike, and one key may carry two units (`item_length` in cm or m);
+     option alike, and one key may carry two units (`item_length` in cm or m). The spec's
+     row of that test (spec key -> its options) goes in its family's
+     `tests/spec_options/<family>.py`, never in the test file (gen#1183);
    * a hand-authored text-match decoy (gen#294) is a `Decoy(class 1-7, query, policy, row)` in
      `decoys=`; it is never derived and never takes a color completion;
      the output standard's text check leaves a class 1 to 7 decoy out by itself:
