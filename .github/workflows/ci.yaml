@@ -108,7 +108,7 @@ jobs:
       - name: Plan the test shards
         run: |
           if [ "${{ matrix.shard }}" = ceiling ]; then
-            python3 scripts/ci_shards.py --plans-out "$RUNNER_TEMP/test-plans" --of 20 --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}"
+            python3 scripts/ci_shards.py --plans-out "$RUNNER_TEMP/test-plans" --of 12 --base "${{ github.event.pull_request.base.sha || inputs.base }}" --head "${{ github.event.pull_request.head.sha || inputs.head }}"
           fi
       - uses: astral-sh/setup-uv@v5
         with:
@@ -163,7 +163,9 @@ jobs:
     strategy:
       fail-fast: ${{ github.event_name == 'pull_request' }}
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        # As many shards as the CI host has slots (12), so a push run's shards all start at once:
+        # at 20 they ran in two waves (#1035, tests/test_ci_one_wave_1035.py, docs/ci-sharding.md).
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     env:
       # -n always: one worker is the serial suite this job exists to avoid. The
       # local run (scripts/local_ci_jobs.py) takes its own, memory-capped count.
