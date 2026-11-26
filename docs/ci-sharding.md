@@ -142,8 +142,9 @@ type module selected nearly every test file.
 
 - `scripts/ci_type_free.json` lists the test files that were seen to read no type table. The
   selection does not follow a listed file into the loaders, and follows every other file as before.
-  On the list of 2026-11-25 (301 files), a change to `product_types/fasteners/bolt_hex.py` selects
-  230 files and 102.9 minutes of the weights instead of 530 and 150.9.
+  On the list refreshed from push run 45687570357 (345 files, 2026-11-25), a change to
+  `product_types/fasteners/bolt_hex.py` selects 232 files and 99.7 minutes of the weights instead
+  of 539 and 146.6 with no list (238 and 99.9 on the 301 files of the local runs before it).
 - `tests/type_reads.py`, in every run, notes the files that call a reader of those tables. A listed
   file that does fails, and the message names its line to remove. A hit on a `functools` cache that
   a read filled counts as a read of the file that hit it, in whatever order the files run. A
