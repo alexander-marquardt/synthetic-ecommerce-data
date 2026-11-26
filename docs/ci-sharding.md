@@ -228,8 +228,13 @@ push runs 45707103035, 45743453354 and 45757600755 (2026-11-25 and 26, after #12
 refresh, 33 of the 577 test files had no figure and counted as heavy, so no shard of a full run
 got three workers. After it, 3 files had none, and 8 of the 20 shards got three workers. A test
 file added later has no figure until the next refresh: with #1118's
-`test_retail_sewing_cut3_1118` (578 files, 4 with none), 7 of the 20 shards get three; at the 12 shards of #1035, with more modules a shard, one gets three. The 3 are `test_merge_pr_red_log_453`, `test_type_bar_stock_hex` and `test_type_turnbuckles`:
+`test_retail_sewing_cut3_1118` (578 files, 4 with none), 7 of the 20 shards get three; at the 12 shards of #1035, with more modules a shard, one gets three. The 3 were `test_merge_pr_red_log_453`, `test_type_bar_stock_hex` and `test_type_turnbuckles`:
 each read just over 1,500 MB on an earlier module's leftovers, and never its shard's highest.
+Push runs 45800458450 and 45803214136 (main 392ace80 and 76a431cb, 12 shards) measured the 7
+files that had no figure by then, all under 1,500 MB, and their figures were added to the table.
+A whole rewrite from those two runs alone was not committed: it left 14 heavy modules out, as
+the paragraph below says one run can, and it raised `test_retail_audience` to 3,631 MB, which no
+deal of main's files to 12 shards could hold.
 
 On Linux, a shard also prints a `module over its recorded peak:` line when a module measured more
 than 10% above its figure in the table (`OVER_SHARE` in `tests/worker_peak.py`, #1230); a module
@@ -265,6 +270,22 @@ and are not bounded. The bound holds on a hosted runner too, which has no such c
 What the bound does not see: memory a worker keeps from an earlier module (#839's leak, below),
 unless a recorded peak shows it.
 
+### The heavy modules go to as few shards as fit (#1035)
+
+A shard with a heavy module runs two workers and one with none runs three, so a shard's time is
+its seconds over its workers, not its seconds. Before this, a full deal weighed seconds alone and
+spread main's heavy modules one or two to a shard: on push run 45800458450, 11 of the 12 shards
+ran two workers. `deal()` now puts the heavy modules (over 1,500 MB, or with no figure) on the
+first `k` shards only, and puts each file on the shard it would end soonest on. It tries `k` from
+the shard count down and keeps the `k` whose slowest shard ends first. Two bounds stop `k` going
+lower. The memory bound keeps main's eight modules over 2,472 MB in eight shards. A shard is
+also not dealt past `SHARD_BUDGET_SECONDS` (1,200 s) while another shard can take the file, and
+a hosted runner, which does not cap the workers, still holds that budget. On main's tables at 12
+shards, the deal is 9 two-worker shards of about 1,023 s each and 3 three-worker shards of 1,200 s
+each: 511 s of seconds over workers for the slowest shard. Spreading the heavy modules gave 534 s
+(11 two-worker shards). A run with no heavy module, or with a heavy split file, is dealt by seconds
+alone, as before. `tests/test_ci_heavy_shards_1035.py` holds this.
+
 ## Random order (#539)
 
 An ordinary run keeps its file order. `--order-seed=<n>`, an option of `tests/conftest.py`
@@ -292,7 +313,8 @@ a file still over the budget, so it goes when a refresh measures its file under 
 
 Refresh the table from a green run on the self-hosted runners, where every run now goes. The
 seconds of a hosted run are not the ones the shards spend. The refresh for #1035 read push run
-44208080586 (main 91fc09a9) and covers 472 files and 13,458 s.
+44208080586 (main 91fc09a9) and covers 472 files and 13,458 s. The next refresh read push run
+45800458450 (main 392ace80, 12 shards) and covers 580 files and 12,764 s.
 
 What a heavy file most often repeats is a build the worker could share:
 
@@ -498,6 +520,21 @@ The `ceiling-catalogue` job's 2.75 min comes first in each. A pull request's dea
 change: it is dealt to as few shards as keep each within the budget (10 for a full selection), and
 its run has 8 fewer `tests` jobs with nothing to run. At 12, one shard of a full run gets three
 workers, not seven of 20, which the estimate counts. The push runs after #1035 merges measure it.
+
+They took 15.5 and 17.2 min, both over the 15-minute target:
+
+| run | main | wall | slowest shard's pytest | shards on 3 workers |
+|---|---|---|---|---|
+| 45800458450 | 392ace80 (#1273) | 15.5 min | shard 12, 711 s (1,208 s of tests on 2 workers) | 1 of 12 |
+| 45803214136 | 76a431cb (#1274) | 17.2 min, with shards started up to 7.8 min late on busy slots | shard 12, 665 s | 1 of 12 |
+
+The `ceiling-catalogue` job took 2.7 min and a shard's job about 45 s more than its pytest, so
+the slowest shard's pytest has to stay under about 670 s to fit 15 min. The shards' test seconds
+ran from 893 to 1,208 against the table's even deal, so the table was refreshed from run
+45800458450's junit (580 files, 12,764 s). Each shard's pytest took about 1.1 times its seconds
+over its workers, plus about 40 s. The deal that gathers the heavy modules (above) brings the
+slowest shard's seconds over workers from 534 s to 511 s on that table. The push runs after it
+merges measure Done-when 2 again.
 
 ## Where the jobs run (#596)
 

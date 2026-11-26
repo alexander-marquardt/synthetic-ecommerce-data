@@ -24,29 +24,22 @@ WEIGHTS = REPO / "scripts" / "ci_shard_weights.json"
 #: Three minutes of the weights' seconds: the issue's target for one test file.
 FILE_BUDGET_SECONDS = 180.0
 
-#: Why each file over the budget is over it. The seconds are the table's (run 45347596547, the
-#: full selection of #1227, on the self-hosted runners). A file #1035 cut keeps its line until a
+#: Why each file over the budget is over it. The seconds are the table's (push run 45800458450,
+#: main 392ace80, on the self-hosted runners). A file #1035 cut keeps its line until a
 #: refresh measures the cut; then the line goes, or says what is left.
 REASONS = {
     "tests/test_merge_pr.py": (
-        "1548 s: each case clones the repository and runs a real build of scripts/merge_pr.sh, "
+        "1544 s: each case clones the repository and runs a real build of scripts/merge_pr.sh, "
         "which gen_train still calls for a conflicted PR. Selected only by a change to the merge "
         "path (#1037) and split over every shard (SPLIT_FILES)."
     ),
     "tests/test_merge_pr_github_ci_348.py": (
-        "377 s: as tests/test_merge_pr.py, the --github-ci mode of the same script. Selected only "
+        "353 s: as tests/test_merge_pr.py, the --github-ci mode of the same script. Selected only "
         "by a change to the merge path (#1037) and split over every shard."
     ),
     "tests/test_type_seam.py": (
-        "246 s: it builds the small catalogue whole once per worker, and again for each left-out, "
+        "255 s: it builds the small catalogue whole once per worker, and again for each left-out, "
         "resized and edited case, since the difference between two builds is what it tests."
-    ),
-    "tests/test_ci_select_495.py": (
-        "211 s before #1035's one search of each text per changed file (six of its tests took 23 "
-        "to 36 s, selecting for many paths on the whole tree); the next refresh measures it."
-    ),
-    "tests/test_merge_pr_local_ci_guard_366.py": (
-        "194 s: as tests/test_merge_pr.py, the --local-ci guard of the same script."
     ),
 }
 
