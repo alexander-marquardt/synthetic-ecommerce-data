@@ -156,7 +156,8 @@ def attributes(picture: Picture, size: tuple[int, int, int]) -> tuple[tuple, ...
     for part, value in _parts(picture):
         if is_count(picture.type, part):
             one = book.COUNTS[part][0]
-            out.append((f"{one.lower()}_count", f"{one} count", value, "C62", float(value)))
+            name = book.COUNT_NAMES.get(part, f"{one} count")
+            out.append((f"{one.lower()}_count", name, value, "C62", float(value)))
         else:
             out.append((book.KEYS.get(part, part), _name(part), value.replace("_", " ").title()))
     for key, v in zip(("item_width", "item_height", "item_depth"), size, strict=True):

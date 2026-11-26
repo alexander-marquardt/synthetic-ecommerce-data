@@ -42,7 +42,7 @@ _DECOR = ("Home", "Decor")
 _BATH = ("Home", "Bathroom")
 _LIGHT = ("Home", "Lighting")
 _KITCHEN = ("Home", "Kitchen")
-_HARDWARE = ("Hardware", "Home Hardware")
+_HARDWARE = ("Home", "DIY & Tools")
 _GARDEN = ("Garden", "Garden Decor")
 
 TYPES: dict[str, TypeBook] = {
@@ -79,7 +79,7 @@ TYPES: dict[str, TypeBook] = {
 
 #: Each furniture brand with a house style, and its own ranges (invented place-like names).
 RANGES: dict[str, tuple[str, ...]] = {
-    "Brackenmere Home": ("Ashcombe", "Fernleigh", "Brindlewick"),
+    "Brackenmere Home": ("Ashdene", "Fernleigh", "Brindlewick"),
     "Larchwood Living": ("Copperdene", "Marrowby", "Saltrigg"),
     "Emberly Home": ("Wendlecote", "Orrinvale", "Tamblehurst"),
     "Cobble & Kiln": ("Quarrendon", "Pellowmere", "Stagsby"),
@@ -180,8 +180,13 @@ NAMES: dict[str, str] = {
     "seat": "Seat shape",
     "top": "Worktop",
     "size": "Pull size",
+    "seat_height": "Stool height",
 }
+#: A count's display name where the catalog already names the concept (a light count is the
+#: lighting rows' "Number of lights", under the same ``light_count`` key).
+COUNT_NAMES: dict[str, str] = {"lights": "Number of lights"}
 
 #: A part's attribute key, where the param name would collide with a key the catalog already
 #: gives another meaning (``size`` is a SKU's size option, gen#1093).
-KEYS: dict[str, str] = {"size": "pull_size"}
+#: A stool's counter or bar seat is a class, not a measure: ``item_height`` is the one height key.
+KEYS: dict[str, str] = {"size": "pull_size", "seat_height": "stool_class"}
