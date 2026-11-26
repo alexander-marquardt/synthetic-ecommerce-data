@@ -654,7 +654,7 @@ def armchair(paint: str, fill: Fill, label: str | None, style: str = "accent", l
 def footstool(paint: str, fill: Fill, label: str | None, form: str = "rectangular", storage: str = "no", legs: str = "oak") -> list[str]:
     """A padded footstool, buttoned on top: a box on four legs, or a drum; a storage stool's lid shows."""
     if form == "round":
-        # The drum of 224 x 110 on legs 18 below it, scaled to 0.9 of the product area and centred.
+        # The drum of 224 x 110 on legs 18 below it, scaled to 0.9 of the product area and centered.
         left, high, right, low = AREA
         k = 0.9 * min((right - left) / 224.0, (low - high) / 208.0)
         cx, rx, ry, h = (left + right) / 2, 112.0 * k, 40.0 * k, 110.0 * k
