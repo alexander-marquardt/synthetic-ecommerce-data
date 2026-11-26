@@ -55,6 +55,7 @@ EXCEPTIONS = {
     "Anklet": "precious metal: the color is the metal (gen#1113)",
     "Charm": "precious metal: the color is the metal (gen#1113)",
     "Brooch": "precious metal: the color is the metal (gen#1113)",
+    "Jewellery Set": "precious metal: the color is the metal (gen#1113)",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",

@@ -1,7 +1,8 @@
 # Jewellery and watches (gen#1113)
 
 Cut 1 is stud earrings, bangles and cufflinks. Cut 2 is pendants, anklets and watch straps, and it
-makes the jewellery and watch types derivable. Cut 3 is charms, brooches and jewellery boxes.
+makes the jewellery and watch types derivable. Cut 3 is charms, brooches and jewellery boxes. Cut 4
+is jewellery sets, kids' watches, and the sports and dress styles of the analog and digital watches.
 
 ## Cut 1: stud earrings, bangles and cufflinks
 
@@ -141,6 +142,72 @@ Retail ceiling build, seed 0, main 76558518 against this cut.
 "charm", "birthstone charm", "brooch", "pearl brooch", "jewellery box" and "travel jewelry case"
 ranking the type first.
 
+## Cut 4: jewellery sets, kids' watches, sports and dress watches
+
+| Type | Spec | Path | Styles | SKU axis |
+|---|---|---|---|---|
+| Jewellery Set | `type_specs/jewellery_set.py` | Womens > Jewellery > Jewellery Sets | polished disc, heart (three), pearl (two), five stone sets; a necklace and earrings, or a set of three with a bracelet | metal; a stone set states `stone` |
+| Kids Watch | `type_specs/kids_watch.py` | Kids > Watches | time teacher and digital faces, Unisex | strap color, the six main colors across the styles; `case_mm` is the one size of a style |
+
+A jewellery set states `set_contents` (Necklace and Earrings, or Necklace, Earrings and Bracelet),
+`piece_count` and `set_style`. A kids' watch states `watch_type`, `display`, a silicone `strap`
+and `water_resistance`.
+
+**Sports and dress watches** are styles, not types. Every Analog Watch and Digital Watch row now
+states `watch_style`. Analog Watch: Dress (9 records, a thin case on leather or mesh), Sports (14:
+8 chronographs, 6 dive watches), Field (3) and Everyday (16). Digital Watch: Sports (11) and
+Everyday (14). A sports style is water resistant to at least 100 m.
+
+**Drawings.** `jewellery_set` takes `pieces` (2 or 3) and `motif` (plain, heart, pearl, stone),
+plus a `stone`; each piece shows the motif. `kids_watch` takes `face` (teacher, digital).
+`analog_watch` gains `dial` (plain, chrono, dive) and a `silicone` strap drawn with its holes. A
+chronograph or dive title draws that dial. A plain dial is left out of the params, so the
+existing records keep theirs. Jewellery Set is a `main_colors.EXCEPTIONS` entry, as the other
+metal jewellery is. Both new shapes stand upright.
+
+**Derived styles.** Both new types are derivable. A derived style keeps its template's pieces,
+motif, stone, face, watch style and water resistance (`scale_text.JEWELLERY_KEYS` gains
+`set_contents`, `set_style`, `watch_style` and `water_resistance`).
+
+**Decoys.** A silver heart set with gold tone edges ("gold jewellery set"); a disc pendant
+and earrings set made to match a bracelet that is not included ("bracelet"); a kids' watch with pink
+numbers on another strap color ("pink kids watch"); a kids' watch with no alarm ("kids watch with
+alarm").
+
+**Necklace weight.** The sets put "necklace" in many more titles, and each extra title lowers the
+word's weight on the text baseline. With "necklace" in each set's description too, a sterling
+silver keyring ranked first for "silver necklace" (`tests/test_retail_jewellery_watches_423.py`).
+A set's description now says "a pendant on a fine chain", and only the 2-piece titles say
+"necklace". A Necklace ranks first again, but by a margin of 0.18 (20.35 against 20.17), so a
+later cut that adds necklace text should run that test.
+
+**Other record changes.** A diff of every ceiling record against main shows 91 records added
+(38 Jewellery Set, 26 Kids Watch, 21 Analog Watch, 6 Digital Watch) and none lost. 40 existing
+Analog Watch and Digital Watch records gain the `watch_style` attribute. Three of them also take
+another brand or range name. The new rows bring new brands into each watch type's pool, so these
+derived styles draw differently: a woven fabric strap watch, a sports digital watch and a leather
+strap watch.
+
+### The count after cut 4
+
+Retail ceiling build, seed 0, main 301759df against this cut.
+
+| Type | Before | After |
+|---|---:|---:|
+| Jewellery Set | 0 | 110 |
+| Kids Watch | 0 | 74 |
+| Analog Watch | 165 | 336 |
+| Digital Watch | 134 | 170 |
+| The other 17 types | 2,010 | 2,010 |
+| **The range** | **2,309** | **2,700** |
+
+The range now counts the Kids path too, where only Kids Watch sits.
+`tests/test_retail_jewellery_range_1113.py` holds a floor of 2,690 SKUs on the range.
+`tests/test_retail_jewellery_cut4_1113.py` holds each new type's axes, its drawing params, every
+watch's style, and "jewellery set", "necklace and earrings set", "kids watch", "time teacher
+watch", "dress watch", "sports watch" and "chronograph watch" each ranking its type or style
+first.
+
 ## The demo queries
 
 Each query of the issue is held in `tests/test_retail_jewellery_1113.py`, on the family it should
@@ -157,8 +224,4 @@ reads the type.
 
 ## What comes next
 
-These types are still to come:
-
-- jewellery sets;
-- kids', sports and dress watches (case size, strap material and water resistance are axes already);
-- the final count on gen#837 once they are built.
+The range's types are all built. What remains is the final count on gen#837, once cut 4 merges.
