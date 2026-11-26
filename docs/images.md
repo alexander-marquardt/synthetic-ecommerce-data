@@ -198,6 +198,9 @@ filling at least half of the figure area ([drawings](drawings.md#breadth-types-f
   reads where its shadow lies; `tests/test_kit_shadows_1182.py` checks every registered shape's
   kit labels its shadow, that no kit-drawn shadow is left in any picture at angle 0 or turned,
   and the same flat shadow under a turned product of each of the 54 shapes labelled since.
+  The redraw sweep (`scripts/shadow_sweep_1182.py`) counts 2,059 turned products with a shadow
+  over 23 kits, every one flat; [the flat shadow page](retail-prototype/flat-shadow-1182.md) has
+  the list by kit and the before/after sheet.
 
   Any two brands' marks, rasterised
   at the tile's 19 px, differ in at least 24 pixels
