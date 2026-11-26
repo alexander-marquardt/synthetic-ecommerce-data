@@ -52,6 +52,11 @@ lacked or held thinly. Each records here the SKUs it added per type, measured on
 (`retail_figures.ceiling()`, seed 0) in the pull request that adds them. The table sits above the
 mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 
+gen#1113's rows are measured on main bc63a4e0, after its four cuts merged (#1168, #1224, #1265,
+#1269). They take the Womens, Mens and Kids jewellery and watch range from 367 SKUs to 2,700
+(+2,333); its Fitness Band (36), Watch (8) and Earrings (4) did not grow.
+`tests/test_retail_jewellery_range_1113.py` holds each row against the build.
+
 | Issue | Department | Type | SKUs added |
 |---|---|---|---:|
 | gen#1112 (slice 1) | Health | Sanitary Pads | 299 |
@@ -80,6 +85,24 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Needles | 48 |
 | gen#1118 (sewing, cuts 1 to 3) | Office & school | Embroidery Kit | 45 |
 | gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Machine | 44 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Pendant | 492 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Watch Strap | 468 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Analog Watch (63 to 336) | 273 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Digital Watch (38 to 170) | 132 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Charm | 128 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Bangle | 123 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Anklet | 112 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Jewellery Set | 110 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Brooch | 89 |
+| gen#1113 (jewellery, cuts 1 to 4) | Kids | Kids Watch | 74 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Jewellery Box | 64 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Ring (83 to 140) | 57 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Stud Earrings | 54 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Bracelet (58 to 102) | 44 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Cufflinks | 36 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Necklace (47 to 80) | 33 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Hoop Earrings (15 to 37) | 22 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Drop Earrings (15 to 37) | 22 |
 
 ## The mix
 
