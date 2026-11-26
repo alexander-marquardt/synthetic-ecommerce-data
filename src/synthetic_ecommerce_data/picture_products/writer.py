@@ -31,6 +31,9 @@ from synthetic_ecommerce_data.picture_manifest import COLORS, TYPES, Fallback, P
 from synthetic_ecommerce_data.picture_products import book
 
 INCH = 2.54
+#: The build record's department (the closed list of ``domains/retail/departments``): every type
+#: the book describes is a home good of a home brand. The store's department is the top of the
+#: type's path (``book.TYPES``), which may be Hardware, Garden or Office & School (gen#1093).
 DEPARTMENT = "Home"
 PRICE_FACTOR = (0.6, 1.8)
 PER_COUNT = 15.0
@@ -102,10 +105,13 @@ def title(picture: Picture, range_: str) -> str:
     parts = dict(_parts(picture))
     words = [range_]
     for part, value in parts.items():
-        if is_count(picture.type, part):
-            if value != "0" and (picture.type, part) not in book.UNTITLED_COUNTS:
-                words.append(f"{value} {_count_words(picture.type, part)[0]}")
-        elif word := book.TITLE_WORDS.get((picture.type, part), {}).get(value):
+        key = (picture.type, part)
+        word = None
+        if key in book.TITLE_WORDS or not is_count(picture.type, part):
+            word = book.TITLE_WORDS.get(key, {}).get(value)
+        elif value != "0" and key not in book.UNTITLED_COUNTS:
+            word = f"{value} {_count_words(picture.type, part)[0]}"
+        if word:
             words.append(word)
     return " ".join([*words, _noun(picture, parts)])
 
@@ -123,10 +129,11 @@ def description(picture: Picture, brand: str, range_: str, size: tuple[int, int,
         else:
             features.append(f"{_name(part).lower()}: {value.replace('_', ' ')}")
     noun = _noun(picture, dict(parts))
-    return (
+    text = (
         f"The {range_} {noun} from {brand}, {w} cm wide, {h} cm high and {d} cm deep, "
-        f"in {picture.color.lower()}. Features: {'; '.join(features)}."
+        f"in {picture.color.lower()}."
     )
+    return f"{text} Features: {'; '.join(features)}." if features else text
 
 
 def attributes(picture: Picture, size: tuple[int, int, int]) -> tuple[tuple, ...]:
@@ -137,7 +144,7 @@ def attributes(picture: Picture, size: tuple[int, int, int]) -> tuple[tuple, ...
             one = book.COUNTS[part][0]
             out.append((f"{one.lower()}_count", f"{one} count", value, "C62", float(value)))
         else:
-            out.append((part, _name(part), value.replace("_", " ").title()))
+            out.append((book.KEYS.get(part, part), _name(part), value.replace("_", " ").title()))
     for key, v in zip(("item_width", "item_height", "item_depth"), size, strict=True):
         out.append((key, f"Item {key.removeprefix('item_')}", str(v), "CMT", float(v * 10)))
     return tuple(out)

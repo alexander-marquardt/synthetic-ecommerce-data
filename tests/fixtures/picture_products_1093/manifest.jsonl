@@ -1,0 +1,56 @@
+{"image_id": "0f5619131a2f3603", "type": "sideboard", "color": "Red", "parts": {"doors": 4, "drawers": 4, "legs": "hairpin"}}
+{"image_id": "7c5314e95a5d9683", "type": "sideboard", "color": "White", "parts": {"doors": 0, "drawers": 0, "legs": "tapered"}, "proportions": {"height_per_width": 0.48, "depth_per_width": 0.27}}
+{"image_id": "ea4b84696ddae64b", "type": "bar_cabinet", "color": "Blue", "parts": {"doors": 2, "glass_rack": "no", "stools": 3}}
+{"image_id": "cf513ed245bcfe03", "type": "bar_cabinet", "color": "Natural", "parts": {"doors": 0, "glass_rack": "yes", "stools": 0}, "proportions": {"height_per_width": 1.5, "depth_per_width": 0.45}}
+{"image_id": "bad7a4637e0ae7ed", "type": "storage_cabinet", "color": "Green", "parts": {"front": "glass", "shelves": 5, "drawers": 3, "lock": "yes"}}
+{"image_id": "6d98876cd39db33b", "type": "storage_cabinet", "color": "Dark Brown", "parts": {"front": "open", "shelves": 1, "drawers": 0, "lock": "no"}, "proportions": {"height_per_width": 1.98, "depth_per_width": 0.48}}
+{"image_id": "ae693392c3d11fd9", "type": "shoe_storage", "color": "Yellow", "parts": {"tiers": 5, "form": "bench", "frame": "metal"}}
+{"image_id": "a54d62982e3646c5", "type": "shoe_storage", "color": "Tan", "parts": {"tiers": 2, "form": "rack", "frame": "wood"}, "proportions": {"height_per_width": 0.62, "depth_per_width": 0.34}}
+{"image_id": "b53c6d09fcc8c730", "type": "wall_shelf", "color": "Black", "parts": {"shelves": 4, "mount": "rail", "layout": "staggered"}}
+{"image_id": "264840cfe103fe2b", "type": "wall_shelf", "color": "Grey", "parts": {"shelves": 1, "mount": "floating", "layout": "stacked"}, "proportions": {"height_per_width": 0.6, "depth_per_width": 0.3}}
+{"image_id": "0f6d4b44b3c77725", "type": "tile", "color": "White", "parts": {"form": "hexagon", "pattern": "motif", "surface": "gloss", "grout": "dark"}}
+{"image_id": "7df18675b90e069c", "type": "tile", "color": "Navy", "parts": {"form": "square", "pattern": "plain", "surface": "matte", "grout": "light"}, "proportions": {"height_per_width": 0.9, "depth_per_width": 0.05}}
+{"image_id": "0bf8be50617eaf17", "type": "vanity", "color": "Natural", "parts": {"sinks": 2, "doors": 4, "drawers": 3, "mount": "wall"}}
+{"image_id": "89cf282b703ffa4a", "type": "vanity", "color": "Pink", "parts": {"sinks": 1, "doors": 0, "drawers": 0, "mount": "floor"}, "proportions": {"height_per_width": 0.85, "depth_per_width": 0.52}}
+{"image_id": "bcff86194d293af7", "type": "cabinet_pull", "color": "Dark Brown", "parts": {"style": "edge", "size": "large", "backplate": "yes"}}
+{"image_id": "4917a6e05adbeed0", "type": "cabinet_pull", "color": "Gold", "parts": {"style": "bar", "size": "small", "backplate": "no"}, "proportions": {"height_per_width": 0.23, "depth_per_width": 0.23}}
+{"image_id": "b641293326b44778", "type": "sink_faucet", "color": "Tan", "parts": {"handles": 2, "spout": "waterfall", "mount": "wall"}}
+{"image_id": "a8e035eb05ab4010", "type": "sink_faucet", "color": "Silver", "parts": {"handles": 1, "spout": "arc", "mount": "deck"}, "proportions": {"height_per_width": 1.5, "depth_per_width": 0.75}}
+{"image_id": "416379beac7829f9", "type": "bath_storage", "color": "Grey", "parts": {"form": "wall", "shelves": 4, "cabinet": "mirror"}}
+{"image_id": "369b4432b23ca78f", "type": "bath_storage", "color": "Red", "parts": {"form": "tower", "shelves": 2, "cabinet": "none"}, "proportions": {"height_per_width": 2.25, "depth_per_width": 0.34}}
+{"image_id": "d24fa37692a17a52", "type": "canister", "color": "Navy", "parts": {"count": 4, "body": "metal", "lid": "wood"}}
+{"image_id": "168825d32008b86b", "type": "canister", "color": "Blue", "parts": {"count": 1, "body": "ceramic", "lid": "flat"}, "proportions": {"height_per_width": 0.5, "depth_per_width": 0.28}}
+{"image_id": "2b821ac976ff481f", "type": "wall_art", "color": "Pink", "parts": {"panels": 3, "subject": "geometric", "frame": "wide"}}
+{"image_id": "0961d6f070d8b39e", "type": "wall_art", "color": "Green", "parts": {"panels": 1, "subject": "abstract", "frame": "canvas"}, "proportions": {"height_per_width": 0.6, "depth_per_width": 0.05}}
+{"image_id": "766cf50cc41dd83f", "type": "decor_object", "color": "Gold", "parts": {"form": "box", "material": "glass", "pieces": 3}}
+{"image_id": "efd7abe3c98b4039", "type": "decor_object", "color": "Yellow", "parts": {"form": "sculpture", "material": "ceramic", "pieces": 1}, "proportions": {"height_per_width": 0.75, "depth_per_width": 0.45}}
+{"image_id": "130f8377ad1f3249", "type": "garden_statue", "color": "Silver", "parts": {"form": "obelisk", "base": "plinth", "material": "resin"}}
+{"image_id": "248a3c2107b4e7ec", "type": "garden_statue", "color": "Black", "parts": {"form": "animal", "base": "none", "material": "stone"}, "proportions": {"height_per_width": 1.54, "depth_per_width": 0.77}}
+{"image_id": "ab3854866c645dc8", "type": "faux_floral", "color": "Red", "parts": {"form": "tree", "bloom": "berry"}}
+{"image_id": "231eb148ddb149ca", "type": "faux_floral", "color": "White", "parts": {"form": "arrangement", "bloom": "leaf"}, "proportions": {"height_per_width": 1.2, "depth_per_width": 0.9}}
+{"image_id": "f1c64dcdc6b974af", "type": "fountain", "color": "Blue", "parts": {"form": "tabletop", "basins": 3, "material": "resin"}}
+{"image_id": "0f6b480f56cc4d73", "type": "fountain", "color": "Natural", "parts": {"form": "tiered", "basins": 1, "material": "stone"}, "proportions": {"height_per_width": 1.44, "depth_per_width": 0.9}}
+{"image_id": "68b979253af4c4b6", "type": "bar_stool", "color": "Green", "parts": {"seat_height": "bar", "back": "full", "seat": "square", "base": "sled"}}
+{"image_id": "0b76fdfcdb003fb5", "type": "bar_stool", "color": "Dark Brown", "parts": {"seat_height": "counter", "back": "none", "seat": "round", "base": "four_leg"}, "proportions": {"height_per_width": 2.17, "depth_per_width": 0.9}}
+{"image_id": "a5cdf1bb5b7f7c86", "type": "desk", "color": "Yellow", "parts": {"outline": "l_shaped", "drawers": 4, "legs": "hairpin"}}
+{"image_id": "6de574c3f29f25ed", "type": "desk", "color": "Tan", "parts": {"outline": "rectangular", "drawers": 0, "legs": "straight"}, "proportions": {"height_per_width": 0.56, "depth_per_width": 0.45}}
+{"image_id": "37540da982f145f9", "type": "office_chair", "color": "Black", "parts": {"back": "high", "cover": "fabric", "arms": "no", "base": "sled"}}
+{"image_id": "ec20ee3718409d28", "type": "office_chair", "color": "Grey", "parts": {"back": "mid", "cover": "mesh", "arms": "yes", "base": "castor"}, "proportions": {"height_per_width": 1.46, "depth_per_width": 0.9}}
+{"image_id": "dc2aef54a53aeea4", "type": "tv_stand", "color": "White", "parts": {"doors": 4, "shelves": 3, "legs": "hairpin"}}
+{"image_id": "9b573019e731926a", "type": "tv_stand", "color": "Navy", "parts": {"doors": 0, "shelves": 0, "legs": "short"}, "proportions": {"height_per_width": 0.33, "depth_per_width": 0.24}}
+{"image_id": "4baf105462e18a44", "type": "kitchen_island", "color": "Natural", "parts": {"doors": 4, "drawers": 3, "top": "steel", "wheels": "yes"}}
+{"image_id": "b72693c80f46745b", "type": "kitchen_island", "color": "Pink", "parts": {"doors": 0, "drawers": 0, "top": "wood", "wheels": "no"}, "proportions": {"height_per_width": 0.68, "depth_per_width": 0.56}}
+{"image_id": "69ae4cc8c06785f7", "type": "bookcase", "color": "Dark Brown", "parts": {"shelves": 8, "style": "glass_door"}}
+{"image_id": "f9362227b08dc4aa", "type": "bookcase", "color": "Gold", "parts": {"shelves": 2, "style": "standard"}, "proportions": {"height_per_width": 2.02, "depth_per_width": 0.34}}
+{"image_id": "8762ecec2a78bb57", "type": "wardrobe", "color": "Tan", "parts": {"doors": 4, "mirrored": "yes", "door": "sliding"}}
+{"image_id": "fdc41d1d6e1644f5", "type": "wardrobe", "color": "Silver", "parts": {"doors": 2, "mirrored": "no", "door": "hinged"}, "proportions": {"height_per_width": 1.62, "depth_per_width": 0.5}}
+{"image_id": "d3d73c33f075bd7f", "type": "chest_of_drawers", "color": "Grey", "parts": {"drawers": 8, "form": "wide"}}
+{"image_id": "5c10a3c61711c51d", "type": "chest_of_drawers", "color": "Red", "parts": {"drawers": 2, "form": "tall"}, "proportions": {"height_per_width": 1.24, "depth_per_width": 0.5}}
+{"image_id": "f4d31224fb4184d1", "type": "sofa", "color": "Navy", "parts": {}}
+{"image_id": "6fc4740e77891d78", "type": "sofa", "color": "Blue", "parts": {}, "proportions": {"height_per_width": 0.38, "depth_per_width": 0.41}}
+{"image_id": "a9e647c1734da207", "type": "rug", "color": "Pink", "parts": {"form": "kitchen_mat", "pile": "short", "motif": "stars"}}
+{"image_id": "3b1f278dc7696afa", "type": "rug", "color": "Green", "parts": {"form": "rectangle", "pile": "flat", "motif": "none"}, "proportions": {"height_per_width": 0.05, "depth_per_width": 0.56}}
+{"image_id": "9105acb531b4b34d", "type": "vanity_light", "color": "Gold", "parts": {"lights": 5, "shade": "globe", "aim": "down", "finish": "matte white"}}
+{"image_id": "6abbe6389e28efe4", "type": "vanity_light", "color": "Yellow", "parts": {"lights": 1, "shade": "cone", "aim": "up", "finish": "brass"}, "proportions": {"height_per_width": 0.34, "depth_per_width": 0.26}}
+{"image_id": "1a0e049a44878a52", "type": "bench", "color": "Silver", "parts": {"back": "yes", "seat": "wood", "storage": "drawers"}}
+{"image_id": "65ed85b73d53c013", "type": "bench", "color": "Black", "parts": {"back": "no", "seat": "upholstered", "storage": "none"}, "proportions": {"height_per_width": 0.34, "depth_per_width": 0.3}}
