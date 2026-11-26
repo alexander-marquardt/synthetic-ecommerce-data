@@ -6,6 +6,10 @@ that carries it (``TypeSpec.options``); ``export.SHARED_OPTIONS`` keeps the opti
 yet moved into specs share, and ``export.OPTIONS`` is the two together. A key declared twice with
 different meanings fails here and at import. Moving a declaration never changes what is
 generated: the byte-identical build diff of the pull request shows it.
+
+What each spec declares (``MOVED``) is in ``tests/spec_options/``, one module per family, so two
+PRs that add types to different families share no file (gen#1183). A new type's row goes in its
+family's module; ``scripts/check_no_registry_append.py`` refuses one appended here.
 """
 
 from __future__ import annotations
@@ -15,6 +19,7 @@ from dataclasses import replace
 
 import pytest
 
+from spec_options import MOVED
 from synthetic_ecommerce_data.domains.retail import (
     export,
     scale,
@@ -22,106 +27,6 @@ from synthetic_ecommerce_data.domains.retail import (
 )
 from synthetic_ecommerce_data.domains.retail.type_registry import Option, SpecError
 
-#: The options only spec types carry, by the spec that declares each: spec key -> options.
-_STORAGE = Option("storage_gb", "storage_capacity", "Storage (GB)")
-_RAM = Option("ram_gb", "ram", "Memory (GB)")
-_SCREEN = Option("screen_size_in", "screen_size", "Screen size", "INH")
-_LENGTH = Option("length_m", "item_length", "Item length", "MTR")
-_DROP = Option("drop_cm", "drop_length", "Drop length", "CMT")
-_THICKNESS = Option("thickness_mm", "thickness", "Thickness", "MMT")
-_WEIGHT = Option("weight_kg", "weight", "Weight", "KGM")
-_VEHICLE = Option("vehicle_fit", "vehicle_fit", "Vehicle fit", None)
-_COVERAGE = Option("coverage", "coverage", "Coverage", None)
-MOVED = {
-    "parasol": [Option("canopy_m", "canopy_diameter", "Canopy diameter", "MTR")],
-    "garden_furniture_set": [Option("seats", "seats", "Seats", "C62")],
-    "analog_watch": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
-    "digital_watch": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
-    "fitness_band": [Option("case_mm", "case_diameter", "Case diameter", "MMT")],
-    "watch_strap": [Option("lug_mm", "lug_width", "Lug width", "MMT")],
-    "dolls_house": [Option("house_style", "style", "Style")],
-    "tracksuit": [Option("sold_as", "sold_as", "Sold as")],
-    "sun_cream": [Option("spf", "spf", "SPF")],
-    "garden_hose": [Option("length_m", "item_length", "Item length", "MTR")],
-    # a new phone is sold unlocked or carrier-locked, its third SKU axis (gen#1117)
-    "smartphone": [_STORAGE, Option("network_lock", "network_lock", "Network lock")],
-    "tablet": [_STORAGE],
-    "e_reader": [_STORAGE],
-    "laptop": [_STORAGE, _RAM, _SCREEN],
-    "desktop": [_STORAGE, _RAM],
-    "cable": [_LENGTH],
-    "laptop_sleeve": [_SCREEN],
-    "monitor": [_SCREEN],
-    "baseball_glove": [Option("glove_size_in", "glove_size", "Glove size", "INH")],
-    "batting_helmet": [Option("head_cm", "head_circumference", "Head circumference", "CMT")],
-    "swim_armbands": [Option("max_load_kg", "max_load_kg", "Maximum load", "KGM")],
-    "football": [Option("ball_size", "ball_size", "Ball size", "C62")],
-    "badminton_set": [Option("players", "players", "Players", "C62")],
-    "resistance_band": [Option("resistance", "resistance_level", "Resistance level")],
-    "camping_lantern": [Option("brightness_lm", "brightness", "Brightness (lm)")],
-    "tennis_racket": [Option("grip", "grip_size", "Grip size")],
-    "hair_dryer": [Option("attachments", "attachments", "Attachments")],
-    "hair_straightener": [Option("plate_width", "plate_width", "Plate width")],
-    "razor": [Option("cartridges", "cartridges", "Cartridges", "C62")],
-    "skateboard": [Option("deck_width_in", "deck_width", "Deck width", "INH")],
-    "bicycle": [Option("frame_cm", "frame_size", "Frame size", "CMT")],
-    "curtains": [_DROP],
-    "blind": [_DROP],
-    "shower_curtain": [_DROP],
-    "school_socks": [Option("shoe_size_band", "shoe_size_band", "Shoe size band")],
-    # The options the shared table still held that no shared source's row carries (#413).
-    "belt": [Option("waist_in", "waist_size", "Waist size", "INH")],
-    "hat_cap": [Option("hat_size", "hat_size", "Hat size")],
-    "gloves": [Option("glove_size_letter", "glove_size_letter", "Glove size (S to XL)")],
-    "tent": [Option("berth", "berth", "Berth", "C62")],
-    "roll_mat": [_THICKNESS],
-    "yoga_mat": [_THICKNESS],
-    "dumbbell": [_WEIGHT],
-    "kettlebell": [_WEIGHT],
-    "suitcase": [_WEIGHT, Option("luggage_size", "luggage_size", "Luggage size")],
-    "wallpaper": [Option("roll_length_m", "roll_length", "Roll length", "MTR")],
-    # a grouped sofa's version and what follows it (gen#808)
-    "sofa": [
-        Option("configuration", "configuration", "Configuration"),
-        Option("seat_count", "seat_count", "Seat count", "C62"),
-        Option("depth_cm", "item_depth", "Item depth", "CMT"),
-    ],
-    # a wiper blade's length in inches, the SKU axis (gen#970)
-    "wiper_blade": [Option("blade_length_in", "blade_length", "Blade length", "INH")],
-    # a diaper's size, Size 1 to Size 6 (#965)
-    "diapers": [Option("diaper_size", "diaper_size", "Diaper size")],
-    # a fishing reel's size and a golf club's hand (gen#959), declared by their specs from the start
-    "fishing_reel": [Option("reel_size", "reel_size", "Reel size")],
-    "golf_club": [Option("handedness", "handedness", "Handedness")],
-    "book": [Option("format", "format", "Format")],
-    # a table tennis bat's handle shape (gen#959 slice 2), declared by its spec from the start
-    "table_tennis_bat": [Option("handle_shape", "handle_shape", "Handle shape")],
-    # a bike light's output in lumens (gen#959 slice 3), declared by its spec from the start
-    "bike_light": [Option("light_output", "light_output", "Light output")],
-    # the car a trunk liner, steering wheel cover or sun shade is cut to (gen#970 slice 3)
-    "trunk_liner": [_VEHICLE],
-    "steering_wheel_cover": [_VEHICLE],
-    "sun_shade": [_VEHICLE],
-    # how much of the seat or floor a cover or mat spans (gen#970 slice 3)
-    "seat_cover": [_COVERAGE],
-    "floor_mat": [_COVERAGE],
-    # a smart bulb's light, connection and brightness (#956)
-    "smart_bulb": [
-        Option("bulb_light", "bulb_light", "Light"),
-        Option("connectivity", "connectivity", "Connectivity"),
-        Option("brightness_lm", "brightness", "Brightness (lm)"),
-    ],
-    # a bouquet's stems and a house plant's pot (gen#1115)
-    "bouquet": [Option("stem_count", "stem_count", "Stem count", "C62")],
-    "house_plant": [Option("pot_size_cm", "pot_size", "Pot size", "CMT")],
-    # a fabric's cut, a fat quarter to 2 meters (gen#1118), declared by its spec from the start
-    "fabric": [Option("fabric_cut", "fabric_cut", "Fabric cut")],
-    # a knitting needle's and a crochet hook's size in millimeters (gen#1118, cut 2)
-    "knitting_needles": [Option("needle_mm", "needle_size", "Needle size", "MMT")],
-    "crochet_hook": [Option("hook_mm", "hook_size", "Hook size", "MMT")],
-    # the platform a video game SKU is sold on: PC or an invented console family (gen#1120)
-    "video_game": [Option("platform", "platform", "Platform")],
-}
 MOVED_OPTIONS = sorted({o.option for opts in MOVED.values() for o in opts})
 
 
