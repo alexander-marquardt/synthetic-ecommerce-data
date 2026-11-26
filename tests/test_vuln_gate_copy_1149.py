@@ -4,9 +4,9 @@ The copy is rendered by elastic/prism's ``scripts/sister_vuln_gate.py write`` an
 as is: ``.github/vuln-gate/`` (the gate's scripts, ``verify_pin.py`` and ``PIN.json``) and
 ``.github/workflows/vuln-gate.yaml``. The allowlist ``.github/vuln-allowlist.json`` is this
 repository's own. These tests hold what a change here could break: the pin, the workflow's
-triggers, the allowlist's shape, the required check a merge waits for, and ruff leaving the
-vendored scripts alone (they are linted in core, under core's Python, and a fix here would break
-the pin). Docs: docs/vulnerability-gate.md.
+triggers, the allowlist's shape, the check being left off the required list (#1256), and ruff
+leaving the vendored scripts alone (they are linted in core, under core's Python, and a fix here
+would break the pin). Docs: docs/vulnerability-gate.md.
 """
 
 from __future__ import annotations
