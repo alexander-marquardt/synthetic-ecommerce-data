@@ -224,4 +224,8 @@ reads the type.
 
 ## What comes next
 
-The range's types are all built. What remains is the final count on gen#837, once cut 4 merges.
+Nothing: the range's types are all built, and its count is recorded on gen#837. Before gen#1113 the
+range held 367 SKUs on the ceiling build; after its four cuts it holds 2,700 (+2,333). The SKUs
+each type added are rows of the table in
+[catalogue-mix-837.md](../catalogue-mix-837.md#counts-added-by-the-gap-issues), which
+`tests/test_retail_jewellery_range_1113.py` holds against the build.
