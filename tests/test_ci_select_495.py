@@ -506,6 +506,41 @@ def test_the_smoke_tests_run_with_any_change(tmp_path: Path) -> None:
     assert _picked(tree, "src/m.py") == [smoke]
 
 
+def test_a_github_file_outside_the_workflows_selects_the_tests_that_read_it(
+    tmp_path: Path,
+) -> None:
+    """A required-check list or an allowlist under ``.github/`` is read by a few tests, not by
+    pytest: #1272 changed ``required-checks.json`` and ran all 580 files, 141 job-minutes
+    (#1035)."""
+    tree = _tree(
+        tmp_path,
+        {
+            ".github/required-checks.json": "[]\n",
+            "tests/test_a.py": 'P = ".github/required-checks.json"\n',
+            "tests/test_b.py": "y = 2\n",
+        },
+    )
+    assert _picked(tree, ".github/required-checks.json") == ["tests/test_a.py"]
+
+
+def test_a_change_under_a_pinned_copy_selects_the_test_that_checks_its_pin(
+    tmp_path: Path,
+) -> None:
+    """The copy test runs the copy's ``verify_pin.py``, which hashes every file under it: a
+    file it never names fails the pin when edited, so the copy's prefix selects it (#1035)."""
+    prefix, copy_test = ".github/vuln-gate/", "tests/test_vuln_gate_copy_1149.py"
+    tree = _tree(
+        tmp_path,
+        {
+            f"{prefix}verify_pin.py": "FILES = []\n",
+            f"{prefix}scripts/gate.py": "G = 1\n",
+            copy_test: "x = 1\n",
+            "tests/test_b.py": "y = 2\n",
+        },
+    )
+    assert _picked(tree, f"{prefix}scripts/gate.py") == [copy_test]
+
+
 # --- the real tree --------------------------------------------------------------------------
 
 
@@ -766,6 +801,37 @@ def test_a_change_to_the_merge_path_selects_the_merge_script_tests(
     assert set(_MERGE_SCRIPT_TESTS) <= set(chosen), path
 
 
+@pytest.mark.parametrize(
+    ("path", "reader"),
+    [
+        (".github/required-checks.json", "tests/test_vuln_gate_copy_1149.py"),
+        (".github/vuln-gate/.github/scripts/vuln_gate.py", "tests/test_vuln_gate_copy_1149.py"),
+        (
+            ".github/dependency-review/scripts/dependency_review.py",
+            "tests/test_dependency_review_copy_1180.py",
+        ),
+    ],
+)
+def test_a_github_change_outside_the_workflows_is_not_a_full_run(
+    real: ci_select.Tree, path: str, reader: str
+) -> None:
+    chosen = ci_select.select([path], real)[0]
+    every = [p for p in real.py if ci_select.is_test_file(p)]
+    assert reader in chosen, path
+    assert len(chosen) < len(every) / 4, f"{path} selects {len(chosen)} of {len(every)} files"
+
+
+def test_every_pinned_copy_under_github_has_a_row() -> None:
+    pins = sorted(
+        p.parent.relative_to(REPO).as_posix() + "/"
+        for p in (REPO / ".github").rglob("verify_pin.py")
+    )
+    assert pins, "the tree holds a pinned copy under .github/"
+    assert sorted(ci_select.PINNED_COPIES) == pins
+    for test in ci_select.PINNED_COPIES.values():
+        assert "verify_pin.py" in (REPO / test).read_text(encoding="utf-8"), test
+
+
 def test_the_tables_name_files_that_exist() -> None:
     for name in ci_select.SMOKE:
         assert (REPO / name).is_file(), f"SMOKE names {name}, which is not a file"
@@ -780,7 +846,7 @@ def test_the_tables_name_files_that_exist() -> None:
             f"FULL_RUN names {entry}"
         )
     for must in (
-        ".github/",
+        ".github/workflows/",
         "pyproject.toml",
         "uv.lock",
         "scripts/ci_select.py",

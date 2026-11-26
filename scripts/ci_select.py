@@ -98,6 +98,9 @@ FULL_RUN: tuple[str, ...] = (
     "scripts/ci_type_free.json",
 )
 
+#: A copy under ``.github/`` pinned by the ``verify_pin.py`` in it -> the test that runs that pin.
+PINNED_COPIES: dict[str, str] = {}
+
 #: The test files a run saw read no type table (``scripts/ci_type_free.py``, #1035), held there by
 #: ``tests/type_reads.py``. For one of them the imports of ``TYPE_LOADERS`` are not followed.
 TYPE_FREE_FILE = "scripts/ci_type_free.json"
