@@ -79,7 +79,8 @@ uv run python -m synthetic_ecommerce_data.picture_products MANIFEST OUT_DIR
 ```
 
 It writes `OUT_DIR/products.jsonl` and `OUT_DIR/images/<product id>.svg`, one per picture of a
-type the book describes.
+type the book describes. Since gen#1093 the book describes every type the manifest names
+([every type](picture-products-every-type-1093.md)).
 
 ## The separation
 
