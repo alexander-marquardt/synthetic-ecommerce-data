@@ -50,7 +50,7 @@ __all__ = [
 #: table's, a bookcase's and a mirror's smallest size draws at 0.84 / 0.90 = 0.93 of its largest,
 #: so it too holds half of the product area (#1214).
 BOTTOMS: dict[str, float] = {
-    "bicycle": 0.74, "bookcase": 0.84, "dining_table": 0.84, "mirror": 0.84,
+    "bicycle": 0.74, "bookcase": 0.84, "dining_table": 0.84, "mirror": 0.84, "sofa_bed": 0.84,
 }  # fmt: skip
 
 
