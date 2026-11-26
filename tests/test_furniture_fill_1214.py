@@ -4,7 +4,7 @@ Every SKU of every built template that draws one of these shapes is rendered as 
 and measured with #1129's sweep (``picture_fill_1129.measure``): the share of the product area
 (``house_styles.TURN_AREA``) it paints, its highlight and its shadow. A product sold in sizes or
 packs is measured at each of them. Slice 1 is ``kit_furniture``'s seven types, slice 2 the sofas
-of ``kit_seating``."""
+of ``kit_seating``, slice 3 its armchair and footstool."""
 
 from __future__ import annotations
 
@@ -39,6 +39,8 @@ TYPES = {
     "modular_sofa": "Modular Sofa",
     "recliner_sofa": "Recliner Sofa",
     "sofa_bed": "Sofa Bed",
+    "armchair": "Armchair",
+    "footstool": "Footstool",
 }
 #: The SKUs a shape's built templates hold at least, so an emptied shape cannot pass unseen.
 FEWEST = {"u_sofa": 4}
@@ -82,13 +84,23 @@ def test_a_size_of_furniture_is_drawn_smaller_but_not_under_the_floor(shape):
     assert 0.80 <= kept < 0.95, (shape, kept)
 
 
-SOFAS = [shape for shape in TYPES if "sofa" in shape]
+SEATING = [shape for shape in TYPES if "sofa" in shape] + ["armchair", "footstool"]
 
 
-@pytest.mark.parametrize("shape", SOFAS)
-def test_a_sofa_stands_on_a_ground_shadow_the_fill_does_not_count(shape):
-    rec = next(r for r in scale.templates() if r["drawing"]["shape"] == shape)
+def _forms(shape: str) -> list[dict]:
+    """One built template of ``shape`` per params it draws (a round and a rectangular footstool)."""
+    seen: dict[str, dict] = {}
+    for rec in scale.templates():
+        if rec["drawing"]["shape"] == shape:
+            seen.setdefault(repr(sorted((rec["drawing"].get("params") or {}).items())), rec)
+    return list(seen.values())
+
+
+@pytest.mark.parametrize(
+    "rec", [r for shape in SEATING for r in _forms(shape)], ids=lambda r: r["drawing"]["shape"]
+)
+def test_a_seat_stands_on_a_ground_shadow_the_fill_does_not_count(rec):
     svg = image_release.render(rec, rec["skus"][0], styled=False)
     assert b'class="ground"' in svg
     counted = pf.measure(svg, pf.TURN_AREA, skip=()).cover
-    assert pf.measure(svg, pf.TURN_AREA).cover < counted, "the shadow shows past the sofa's edge"
+    assert pf.measure(svg, pf.TURN_AREA).cover < counted, "the shadow shows past the seat's edge"

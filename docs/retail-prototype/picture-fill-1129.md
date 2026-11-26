@@ -199,7 +199,7 @@ templates', to the hundred from 1,000 up):
 | 33 | Industrial breadth types (storage, workwear, hand tools, vises and the rest) | gen#1216 | `industrial/breadth_shapes` | 95 | 184 | 12% | 2 |
 | 34 | Safety glasses and cut-resistant gloves | gen#1217 | `industrial/cut_resistant_gloves`, `industrial/safety_glasses` | 2 | 120 | 19% | 0 |
 
-Row 31's first two slices, the seven `kit_furniture` types and the sofas of `kit_seating`, are redrawn ([furniture-fill-1214](furniture-fill-1214.md)); the table is the sweep's, before any redraw. Row 32 is redrawn in full: the industrial types ([drawings](../drawings.md)) and the nine `kit_drills` types ([retail-drills-191](../retail-drills-191.md)).
+Row 31's first three slices, the seven `kit_furniture` types and the sofas, armchairs and footstools of `kit_seating`, are redrawn ([furniture-fill-1214](furniture-fill-1214.md)); the table is the sweep's, before any redraw. Row 32 is redrawn in full: the industrial types ([drawings](../drawings.md)) and the nine `kit_drills` types ([retail-drills-191](../retail-drills-191.md)).
 
 Tests: `tests/test_picture_fill_1129.py` holds the readers to fixed SVGs:
 

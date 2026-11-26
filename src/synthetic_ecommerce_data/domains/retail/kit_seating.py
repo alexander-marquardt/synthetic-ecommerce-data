@@ -10,8 +10,10 @@ A sofa fills half the product area or more (gen#1214): it is fitted to the produ
 from above (:data:`SOFA`) so its seats show, and stands on a ground shadow
 (:func:`.ground_shadow.ellipse`) the fill measure does not count. A long run (four seats or more, a U) is seen from higher up and more from
 the front (:data:`LONG`), and a sofa bed folded out, its mattress deep in front, from lower down
-(:data:`BED`), so each fills the square area rather than a strip of it. An armchair and a footstool
-keep the lower view they had (:data:`CHAIR`).
+(:data:`BED`), so each fills the square area rather than a strip of it. An armchair is fitted to the
+same area, from in front and a little above (:data:`CHAIR`), a footstool from higher up, so its
+buttoned top shows (:data:`STOOL`), and a round footstool's drum is scaled to the area; each
+stands on its ground shadow.
 
 ==============  ===============================================  ===============================
 shape           draws                                            params
@@ -92,8 +94,13 @@ FRAME = "#55575e"
 
 #: The product area (``house_styles.TURN_AREA``) less a strip at its foot for the ground shadow.
 AREA = (PRODUCT_TOP, PRODUCT_TOP, SIZE - PRODUCT_TOP, PRODUCT_TOP + PRODUCT_SPAN - 8.0)
-#: An armchair or a footstool: from in front and a little above, in a smaller area.
-CHAIR = View(0.34, 0.46, (34.0, 78.0, 366.0, 336.0))
+#: An armchair: from in front and a little above, fitted to the product area.
+CHAIR = View(0.34, 0.46, AREA, ground=True)
+#: A swivel chair: as :data:`CHAIR`, the fit raised by its foot, a disc that reaches about 12.5
+#: units below the pedestal (32 on the sheet), so the foot and its shadow stay in the area.
+SWIVEL = View(CHAIR.kx, CHAIR.ky, (*AREA[:3], AREA[3] - 34.0), ground=True)
+#: A footstool: from higher up, so the low box reads by its buttoned top and is not a strip.
+STOOL = View(0.3, 0.9, AREA, ground=True)
 #: A sofa: higher, so its seats show, and less from the side, so the drawing is not sheared wide.
 SOFA = View(0.25, 0.8, AREA, ground=True)
 #: A long sofa (a straight run of four seats or more, a U): higher still, and from the front.
@@ -600,7 +607,7 @@ def armchair(paint: str, fill: Fill, label: str | None, style: str = "accent", l
     a round pedestal. ``nursing``: a high armless back. ``recliner``: chunky arms, its footrest
     raised.
     """
-    w, d = SEAT + 8, DEPTH - 6
+    w, d = SEAT + (24 if style == "nursing" else 8), DEPTH - 6  # an armless nursing chair is wide in the seat
     leg_h = {"accent": 22.0, "nursing": 18.0, "swivel": 28.0}.get(style, LEG)
     lift = leg_h - LEG
     arm_h = {"accent": 56.0, "wingback": 64.0, "tub": 76.0, "swivel": 76.0, "nursing": 0.0, "recliner": 62.0}[style]
@@ -614,7 +621,7 @@ def armchair(paint: str, fill: Fill, label: str | None, style: str = "accent", l
         boxes += [Box(b.x0, b.x1, 0.0, leg_h, b.z0, b.z1, b.paint) for b in _legs(-reach, w + reach, 0.0, d, legs)]
     boxes += [
         Box(0.0, w, BASE + lift, back_h - 6, d - 14, d, "fill"),
-        Box(1.0, w - 1, CUSHION + lift - 2, back_h, d - 30, d - 14, "fill"),
+        Box(1.0, w - 1, CUSHION + lift - 2, back_h, d - 30, d - 14, "fill", front=0.08),
     ]
     if style == "wingback":
         boxes += [Box(w - 10, w, 60.0 + lift, back_h - 4, d - 40, d - 10, "fill")]
@@ -637,31 +644,38 @@ def armchair(paint: str, fill: Fill, label: str | None, style: str = "accent", l
         steel = LEG_FINISHES["chrome"]
         return [f'<ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{rx * 0.32:.1f}" fill="{steel}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>']
 
-    out = _draw(boxes, paint, fill, None)
-    if style == "swivel":
-        sheet = _Sheet(boxes)
-        out = base(sheet) + out
+    view = SWIVEL if style == "swivel" else CHAIR
+    out = _draw(boxes, paint, fill, None, view=view)
+    if style == "swivel":  # the pedestal's foot, over the ground shadow and under the chair
+        out = out[:1] + base(_Sheet(boxes, view)) + out[1:]
     return out
 
 
 def footstool(paint: str, fill: Fill, label: str | None, form: str = "rectangular", storage: str = "no", legs: str = "oak") -> list[str]:
     """A padded footstool, buttoned on top: a box on four legs, or a drum; a storage stool's lid shows."""
     if form == "round":
-        cx, top, bottom, rx, ry = 200.0, 176.0, 286.0, 112.0, 40.0
+        # The drum of 224 x 110 on legs 18 below it, scaled to 0.9 of the product area and centred.
+        left, high, right, low = AREA
+        k = 0.9 * min((right - left) / 224.0, (low - high) / 208.0)
+        cx, rx, ry, h = (left + right) / 2, 112.0 * k, 40.0 * k, 110.0 * k
+        top = (high + low) / 2 - (h + 18.0 * k) / 2
+        bottom = top + h
         body = f"M{cx - rx:g},{top:g} L{cx - rx:g},{bottom:g} A{rx:g},{ry:g} 0 0 0 {cx + rx:g},{bottom:g} L{cx + rx:g},{top:g} Z"
         leg = LEG_FINISHES[legs]
+        foot = bottom + ry + 18 * k
         out = [
-            *[f'<path d="M{x - 6:g},{bottom + ry - 12:g} L{x + 6:g},{bottom + ry - 12:g} L{x + 4:g},{bottom + ry + 18:g} L{x - 4:g},{bottom + ry + 18:g} Z" fill="{leg}" stroke="{INK}" stroke-width="{LW_DETAIL}" stroke-linejoin="round"/>' for x in (cx - rx * 0.62, cx + rx * 0.62)],
+            ground_shadow.ellipse(cx, foot, rx + 6, 8.0),
+            *[f'<path d="M{x - 6 * k:.1f},{bottom + ry - 12 * k:.1f} L{x + 6 * k:.1f},{bottom + ry - 12 * k:.1f} L{x + 4 * k:.1f},{foot:.1f} L{x - 4 * k:.1f},{foot:.1f} Z" fill="{leg}" stroke="{INK}" stroke-width="{LW_DETAIL}" stroke-linejoin="round"/>' for x in (cx - rx * 0.62, cx + rx * 0.62)],
             _path(body, paint),
-            _shade_over(f"M{cx - rx:g},{bottom - 30:g} L{cx - rx:g},{bottom:g} A{rx:g},{ry:g} 0 0 0 {cx + rx:g},{bottom:g} L{cx + rx:g},{bottom - 30:g} A{rx:g},{ry:g} 0 0 1 {cx - rx:g},{bottom - 30:g} Z", 0.12),
+            _shade_over(f"M{cx - rx:g},{bottom - 30 * k:g} L{cx - rx:g},{bottom:g} A{rx:g},{ry:g} 0 0 0 {cx + rx:g},{bottom:g} L{cx + rx:g},{bottom - 30 * k:g} A{rx:g},{ry:g} 0 0 1 {cx - rx:g},{bottom - 30 * k:g} Z", 0.12),
             f'<ellipse cx="{cx:g}" cy="{top:g}" rx="{rx:g}" ry="{ry:g}" fill="{paint}" stroke="{INK}" stroke-width="{LW}"/>',
             _lift(f"M{cx - rx:g},{top:g} A{rx:g},{ry:g} 0 0 1 {cx + rx:g},{top:g} A{rx:g},{ry:g} 0 0 1 {cx - rx:g},{top:g} Z", 0.14),
-            *[f'<circle cx="{cx + dx:g}" cy="{top + dy:g}" r="3" fill="{_shade(fill.base, 0.35)}" stroke="{INK}" stroke-width="0.8"/>' for dx, dy in ((0, 0), (-50, -10), (50, -10), (-50, 10), (50, 10), (0, -22), (0, 22))],
+            *[f'<circle cx="{cx + dx * k:.1f}" cy="{top + dy * k:.1f}" r="{3 * k:.1f}" fill="{_shade(fill.base, 0.35)}" stroke="{INK}" stroke-width="0.8"/>' for dx, dy in ((0, 0), (-50, -10), (50, -10), (-50, 10), (50, 10), (0, -22), (0, 22))],
         ]
         if storage == "yes":
-            lid = top + 26
+            lid = top + 26 * k
             out.append(_path(f"M{cx - rx:g},{lid:g} A{rx:g},{ry:g} 0 0 0 {cx + rx:g},{lid:g}", "none", 3.2))
-            out.append(_path(f"M{cx - 18:g},{lid + ry + 4:g} L{cx + 18:g},{lid + ry + 4:g}", "none", 4.0))
+            out.append(_path(f"M{cx - 18 * k:g},{lid + ry + 4 * k:g} L{cx + 18 * k:g},{lid + ry + 4 * k:g}", "none", 4.0))
         return out
     w, d, h = 100.0, 60.0, 32.0
     boxes = [*_legs(0.0, w, 0.0, d, legs), Box(0.0, w, LEG, LEG + h, 0.0, d, "fill", tufted=True)]
@@ -673,7 +687,7 @@ def footstool(paint: str, fill: Fill, label: str | None, form: str = "rectangula
         return [_path(f"M{sheet.p(0.0, y, 0.0)} L{sheet.p(w, y, 0.0)} M{sheet.p(0.0, y, 0.0)} L{sheet.p(0.0, y, d)}", "none", 3.2),
                 _path(f"M{sheet.p(w * 0.4, y - 4, 0.0)} L{sheet.p(w * 0.6, y - 4, 0.0)}", "none", 4.0)]
 
-    return _draw(boxes, paint, fill, lid)
+    return _draw(boxes, paint, fill, lid, view=STOOL)
 
 
 SHAPES = {
