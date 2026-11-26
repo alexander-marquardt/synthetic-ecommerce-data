@@ -220,7 +220,7 @@ GROUPS = (
     Group("Lighting and decor", ("kit_lighting", "kit_decor"), 1205),
     Group(
         "Household goods and sewing",
-        ("kit_goods", "kit_plain_goods", "kit_sewing", "kit_sewing_tools"),
+        ("kit_goods", "kit_plain_goods", "kit_sewing", "kit_sewing_tools", "kit_sewing_notions"),
         1212,
     ),
     Group(
