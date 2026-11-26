@@ -71,6 +71,15 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1114 (bags) | Clothing | Messenger Bag | 440 |
 | gen#1114 (bags) | Clothing | Laptop Bag | 663 |
 | gen#1114 (bags) | Clothing | Card Holder | 261 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Yarn | 339 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Fabric | 210 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Thread | 141 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Pins | 104 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Knitting Needles | 99 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Crochet Hook | 72 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Needles | 48 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Embroidery Kit | 45 |
+| gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Machine | 44 |
 
 ## The mix
 
