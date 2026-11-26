@@ -13,6 +13,7 @@ import pytest
 from retail_ceiling import ceiling_build
 from synthetic_ecommerce_data.domains.retail import baseline_rank as br
 from synthetic_ecommerce_data.domains.retail import kit_jewellery, scale, type_registry
+from synthetic_ecommerce_data.domains.retail.kit import Fill
 from synthetic_ecommerce_data.domains.retail.main_color_hex import MAIN_COLORS
 
 NEW = {"jewellery_set": "Jewellery Set", "kids_watch": "Kids Watch"}
@@ -112,10 +113,11 @@ def test_a_sports_watch_is_water_resistant_and_draws_its_dial(build: scale.Scale
 def test_a_param_changes_the_drawing(shape: str, param: str, values: tuple[str, ...]) -> None:
     draw = getattr(kit_jewellery, shape)
     stone = {"stone": "emerald"} if shape == "jewellery_set" else {}
-    drawn = {"".join(draw("#d4af37", None, None, **stone, **{param: v})) for v in values}
+    fill = Fill("solid", "#d4af37")
+    drawn = {"".join(draw("#d4af37", fill, None, **stone, **{param: v})) for v in values}
     assert len(drawn) == len(values)
     with pytest.raises(ValueError):
-        draw("#d4af37", None, None, **{param: "nonsense"})
+        draw("#d4af37", fill, None, **{param: "nonsense"})
 
 
 def test_a_set_stone_is_drawn_and_one_the_kit_cannot_draw_is_refused() -> None:

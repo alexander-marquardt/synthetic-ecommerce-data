@@ -87,7 +87,7 @@ SPEC = TypeSpec(
              "A thin analog dress watch with a slim case and a leather strap in a hand finished tan.",
              (BROWN, BLACK), "leather", "gold", 30, "Leather", "Dress"),
         _row("ANWWDR", "Womens Dress Watch with Leather Strap", LARKMOOR, WOMENS, 59.0,
-             "A slim analog dress watch with a rose gold tone case, a plain white dial and a fine leather strap.",
+             "A slim analog dress watch with a small polished case, a plain dial and a fine leather strap.",
              (BLACK, BROWN, RED), "leather", "rose", 30, "Leather", "Dress"),
         _row("ANWWDM", "Womens Dress Watch on a Mesh Bracelet", CALDERBY, WOMENS, 69.0,
              "An analog dress watch with a thin gold tone case and a fine mesh bracelet that closes with a sliding clasp.",

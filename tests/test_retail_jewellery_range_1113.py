@@ -29,9 +29,10 @@ METAL_COLOR = {
 }  # fmt: skip
 #: Hand-written bracelets (authored samples) that state no metal, as before this cut.
 NO_METAL = {"PLT-DY70", "PLT-DY74", "PLT-DY549"}
-#: The SKUs of the range on the ceiling build, all 19 Womens and Mens types (456 before cut 2,
-#: 2,028 after it; cut 3's charms, brooches and jewellery boxes take it to 2,309).
-RANGE_FLOOR = 2_300
+#: The SKUs of the range on the ceiling build, its Womens, Mens and Kids types (456 before cut 2,
+#: 2,028 after it; cut 3's charms, brooches and jewellery boxes take it to 2,309; cut 4's
+#: jewellery sets, kids' watches and sports and dress watches take it to 2,700).
+RANGE_FLOOR = 2_690
 
 
 @pytest.fixture(scope="module")
@@ -182,6 +183,6 @@ def test_the_range_reaches_its_floor(build: scale.Scaled) -> None:
     types = {*TYPES, "Fitness Band", "Watch", "Earrings"}
     skus = sum(
         r["sku_count"] for r in build.records
-        if r["product_type"] in types and r["category_path"][0] in {"Womens", "Mens"}
+        if r["product_type"] in types and r["category_path"][0] in {"Womens", "Mens", "Kids"}
     )  # fmt: skip
     assert skus >= RANGE_FLOOR, skus
