@@ -12,8 +12,10 @@ hoop_earrings   a pair of hoops hung from ear wires                 size (small,
                                                                     band (plain, twisted, beaded)
 drop_earrings   a pair of posts, each with a hanging drop           drop (pearl, teardrop, bar),
                                                                     gem (a color, default pearl)
-analog_watch    a round case, dial and hands on a strap             strap (leather, mesh, fabric),
-                                                                    case (steel, gold, rose)
+analog_watch    a round case, dial and hands on a strap             strap (leather, mesh, fabric,
+                                                                    silicone), case (steel, gold,
+                                                                    rose), dial (plain, chrono,
+                                                                    dive; gen#1113)
 digital_watch   a square case with an LCD and side buttons          buttons (2, 4)
 fitness_band    a slim touch screen on a ribbed silicone band       screen (heart, steps, clock)
 stud_earrings   a pair of studs, each on a post with a butterfly    stud (ball, gem, pearl, knot),
@@ -34,6 +36,10 @@ brooch          a brooch over the ends of its pin (gen#1113)        motif (flowe
                                                                     pearl, stone), stone
 jewellery_box   a jewelry box, its covering in the record's color   style (case, mirror, drawers,
                 (gen#1113)                                          travel)
+jewellery_set   a matching necklace and pair of earrings, and a     pieces (2, 3), motif (plain,
+                bracelet in a set of three (gen#1113)               heart, pearl, stone), stone
+kids_watch      a kids' watch: a time teacher dial or an LCD in a   face (teacher, digital)
+                round case on a silicone strap (gen#1113)
 ==============  ==================================================  ===========================
 
 Every params value is a string, as a style row's ``params`` carry it.
@@ -130,18 +136,50 @@ def drop_earrings(paint: str, fill: Fill, label: str | None, drop: str = "pearl"
     return out
 
 
-def _dial_ticks(cx: float, cy: float, r: float) -> str:
+def _dial_ticks(cx: float, cy: float, r: float, color: str = INK) -> str:
     ticks = []
     for k in range(12):
         a = math.radians(k * 30)
         r0 = r - (6 if k % 3 else 12)
         ticks.append(f"M{cx + r0 * math.sin(a):.1f},{cy - r0 * math.cos(a):.1f} L{cx + r * math.sin(a):.1f},{cy - r * math.cos(a):.1f}")
-    return _line(" ".join(ticks), 1.8)
+    return _line(" ".join(ticks), 1.8, "", color)
 
 
-def analog_watch(paint: str, fill: Fill, label: str | None, strap: str = "leather", case: str = "steel") -> list[str]:
-    """An analog wristwatch: a round case in ``case`` metal, a dial with hands and a ``leather`` (stitched, with a buckle), ``mesh`` or ``fabric`` (striped) strap in the record's fill."""
-    _choice("strap", strap, ("leather", "mesh", "fabric"))
+#: An analog watch's dial (gen#1113): plain, a chronograph's three sub-dials and pushers, or a
+#: dive watch's turning bezel with its minute marks.
+DIALS = ("plain", "chrono", "dive")
+
+
+def _silicone_strap(paint: str, metal: str) -> list[str]:
+    """A plain silicone strap's adjustment holes, its keeper and its buckle."""
+    return [
+        *[_circle(200, y, 3, INK, 1) for y in (276, 290, 304, 318, 332)],
+        _path("M176,344 L224,344 L224,358 L176,358 Z", _shade(metal, 0.1), LW_DETAIL),
+    ]
+
+
+def _dial(kind: str, metal: str) -> list[str]:
+    """The face inside an analog case: the dial, its ticks and the extras of a ``chrono`` or a ``dive`` dial."""
+    if kind == "dive":
+        bezel = _path("M130,200 A70,70 0 1 0 270,200 A70,70 0 1 0 130,200 Z M144,200 A56,56 0 1 1 256,200 A56,56 0 1 1 144,200 Z", "#2d2d33", LW, ' fill-rule="evenodd"')
+        marks = " ".join(f"M{200 + 58 * math.sin(math.radians(k)):.1f},{200 - 58 * math.cos(math.radians(k)):.1f} L{200 + 66 * math.sin(math.radians(k)):.1f},{200 - 66 * math.cos(math.radians(k)):.1f}" for k in range(30, 360, 30))
+        return [
+            _circle(200, 200, 70, metal), bezel, _line(marks, 2.2, "", "#ffffff"),
+            _path("M200,134 L192,146 L208,146 Z", "#ffffff", 1.2),
+            _circle(200, 200, 52, "#1f2a38", LW_DETAIL), _dial_ticks(200, 200, 46, "#ffffff"),
+        ]
+    out = [_circle(200, 200, 70, metal), _circle(200, 200, 58, "#fbf8f2", LW_DETAIL), _dial_ticks(200, 200, 52)]
+    if kind == "chrono":
+        out += [_circle(x, y, 12, "#ece6da", 1.4) for x, y in ((200, 170), (174, 212), (226, 212))]
+        out += [_line(f"M{x},{y} L{x},{y - 9}", 1.4) for x, y in ((200, 170), (174, 212), (226, 212))]
+        out += [_path("M258,146 L272,138 L278,150 L264,158 Z", metal, LW_DETAIL), _path("M258,254 L272,262 L278,250 L264,242 Z", metal, LW_DETAIL)]
+    return out
+
+
+def analog_watch(paint: str, fill: Fill, label: str | None, strap: str = "leather", case: str = "steel", dial: str = "plain") -> list[str]:
+    """An analog wristwatch: a round case in ``case`` metal, a ``dial`` (plain, chrono or dive) with hands and a ``leather`` (stitched, with a buckle), ``mesh``, ``fabric`` (striped) or ``silicone`` (with holes) strap in the record's fill."""
+    _choice("strap", strap, ("leather", "mesh", "fabric", "silicone"))
+    _choice("dial", dial, DIALS)
     metal = CASES[_choice("case", case, tuple(CASES))]
     upper, lower = "M170,30 L230,30 L238,150 L162,150 Z", "M162,250 L238,250 L230,370 L170,370 Z"
     out = [_path(upper, paint), _path(lower, paint)]
@@ -156,6 +194,8 @@ def analog_watch(paint: str, fill: Fill, label: str | None, strap: str = "leathe
         rows = " ".join(f"M{166 + (y - 30) * 0.06:.1f},{y} L{234 - (y - 30) * 0.06:.1f},{y}" for y in range(36, 150, 6))
         rows += " " + " ".join(f"M{162 + (y - 250) * 0.06:.1f},{y} L{238 - (y - 250) * 0.06:.1f},{y}" for y in range(256, 370, 6))
         out += [_line(rows, 0.8, ' stroke-opacity=".45"'), _path("M174,330 L226,330 L225,348 L175,348 Z", metal, LW_DETAIL)]
+    elif strap == "silicone":
+        out += _silicone_strap(paint, metal)
     else:
         stripe = _shade(fill.accent or fill.base, 0.1)
         out += [
@@ -165,10 +205,8 @@ def analog_watch(paint: str, fill: Fill, label: str | None, strap: str = "leathe
         ]
     out += [
         _path("M262,188 L280,188 L280,212 L262,212 Z", metal, LW_DETAIL),
-        _circle(200, 200, 70, metal),
-        _circle(200, 200, 58, "#fbf8f2", LW_DETAIL),
-        _dial_ticks(200, 200, 52),
-        _line("M200,200 L200,164 M200,200 L226,212", 3.4),
+        *_dial(dial, metal),
+        _line("M200,200 L200,164 M200,200 L226,212", 3.4, "", "#ffffff" if dial == "dive" else INK),
         _line("M200,200 L174,226", 1.2, "", "#c8312e"),
         _circle(200, 200, 4, INK, 1),
         _highlight("M148,166 Q160,142 186,134", 5, 0.5),
@@ -516,4 +554,74 @@ def jewellery_box(paint: str, fill: Fill, label: str | None, style: str = "case"
     return out
 
 
-register({"charm": charm, "brooch": brooch, "jewellery_box": jewellery_box, "pendant": pendant, "anklet": anklet, "watch_strap": watch_strap,"hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})
+#: What a jewellery set's pieces show (gen#1113): a polished disc, a heart, a pearl or a set stone.
+SET_MOTIFS = ("plain", "heart", "pearl", "stone")
+
+
+def _heart(cx: float, cy: float, r: float) -> str:
+    return (f"M{cx},{cy - r * 0.35} C{cx - r * 0.5},{cy - r * 1.1} {cx - r * 1.3},{cy - r * 0.6} {cx - r},{cy + r * 0.05} "
+            f"C{cx - r * 0.75},{cy + r * 0.55} {cx - r * 0.2},{cy + r * 0.8} {cx},{cy + r} "
+            f"C{cx + r * 0.2},{cy + r * 0.8} {cx + r * 0.75},{cy + r * 0.55} {cx + r},{cy + r * 0.05} "
+            f"C{cx + r * 1.3},{cy - r * 0.6} {cx + r * 0.5},{cy - r * 1.1} {cx},{cy - r * 0.35} Z")  # fmt: skip
+
+
+def _set_piece(cx: float, cy: float, r: float, paint: str, motif: str, stone: str) -> list[str]:
+    if motif == "heart":
+        return [_path(_heart(cx, cy, r), paint)]
+    if motif == "pearl":
+        return [_circle(cx, cy - r * 0.9, r * 0.35, paint, LW_DETAIL), _circle(cx, cy, r * 0.85, PEARL)]
+    if motif == "stone":
+        return [_circle(cx, cy, r, paint), _circle(cx, cy, r * 0.8, _shade(paint, -0.12), 1.4), *_gem(cx, cy - r * 0.05, r * 0.62, stone)]
+    return [_circle(cx, cy, r, paint), _circle(cx, cy, r * 0.75, "none", 1.4)]
+
+
+def jewellery_set(paint: str, fill: Fill, label: str | None, pieces: str = "2", motif: str = "plain", stone: str = "") -> list[str]:
+    """A matching set in the record's metal: a pendant necklace and a pair of drop earrings, and with ``pieces`` 3 a chain bracelet; each piece shows the set's ``motif``, a stone motif the ``stone`` named (gen#1113)."""
+    n = _choice("pieces", pieces, ("2", "3"))
+    _choice("jewellery set motif", motif, SET_MOTIFS)
+    if motif == "stone" and stone.lower() not in STONES:
+        raise ValueError(f"unknown jewellery set stone {stone!r}; {', '.join(STONES)}")
+    out = [*_chain("M60,28 Q100,112 200,140 Q300,112 340,28", paint, 5), *_ring(200, 150, 9, paint, 4)]
+    out += _set_piece(200, 196, 38, paint, motif, stone)
+    for x in (92, 308):
+        out += [_line(f"M{x - 10},{220} Q{x - 14},{196} {x},{194} Q{x + 12},{198} {x + 6},{214}", 3.4, "", paint), *_ring(x, 238, 6, paint, 3)]
+        out += _set_piece(x, 270, 24, paint, motif, stone)
+    if n == "3":
+        out += [*_chain(_oval(200, 318, 74, 24), paint, 4.5), *_set_piece(200, 342, 16, paint, motif, stone)]
+    out.append(_highlight("M176,184 Q178,170 190,164", 4, 0.5))
+    if label:
+        out.append(_word(label, 200, 388, 200, 20))
+    return out
+
+
+def kids_watch(paint: str, fill: Fill, label: str | None, face: str = "teacher") -> list[str]:
+    """A kids' watch on a silicone strap in the record's fill: a ``teacher`` dial (the hours and the minutes printed, a red hour hand, a blue minute hand) or a ``digital`` LCD, in a round plastic case (gen#1113)."""
+    _choice("face", face, ("teacher", "digital"))
+    case = _mix(paint, "#ffffff", 0.45)
+    out = [
+        _path("M168,40 L232,40 L236,150 L164,150 Z", paint),
+        _path("M164,250 L236,250 L232,360 L168,360 Z", paint),
+        *[_circle(200, y, 3, INK, 1) for y in (274, 288, 302, 316, 330)],
+        _path("M178,340 L222,340 L222,352 L178,352 Z", _shade(paint, 0.2), LW_DETAIL),
+        _circle(200, 200, 78, case),
+        _path("M276,188 L290,188 L290,212 L276,212 Z", case, LW_DETAIL),
+    ]
+    if face == "teacher":
+        out += [_circle(200, 200, 64, "#fbf8f2", LW_DETAIL), _dial_ticks(200, 200, 60)]
+        for k in range(1, 13):
+            ang = math.radians(k * 30)
+            out.append(_word(str(k), 200 + 44 * math.sin(ang), 205 - 44 * math.cos(ang), 16, 13))
+        out += [_line("M200,200 L200,160", 3, "", "#3f6fb5"), _line("M200,200 L222,212", 4.4, "", "#c8312e"), _circle(200, 200, 4, INK, 1)]
+    else:
+        out += [
+            f'<rect x="146" y="166" width="108" height="68" rx="10" fill="{SCREEN}" stroke="{INK}" stroke-width="{LW_DETAIL}"/>',
+            _word("10:09", 200, 208, 90, 30, "#33403a"),
+            _circle(158, 266, 6, case, LW_DETAIL), _circle(242, 266, 6, case, LW_DETAIL),
+        ]
+    out.append(_highlight("M140,170 Q152,140 182,128", 5, 0.5))
+    if label:
+        out.append(_word(label, 200, 388, 200, 20))
+    return out
+
+
+register({"jewellery_set": jewellery_set, "kids_watch": kids_watch, "charm": charm, "brooch": brooch, "jewellery_box": jewellery_box, "pendant": pendant, "anklet": anklet, "watch_strap": watch_strap,"hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})
