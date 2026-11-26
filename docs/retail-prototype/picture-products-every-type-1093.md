@@ -50,8 +50,48 @@ only. The tests pin:
 - every word of a title or a description is the book's own, a number or glue;
 - each product's picture is drawn again in the `brand` finish.
 
+## The products ship in the retail build
+
+The WANDS persona's full picture manifest (one row per persona picture, elastic/prism-wands#15)
+is pinned byte for byte at `src/synthetic_ecommerce_data/picture_products/pictures.jsonl`. Its
+sha256 is `picture_products.shipped.SHA256`, the one elastic/prism-wands records for its pinned
+image set. It has 42,994 rows: 13,373 of a drawn type and 29,621 department fallbacks.
+
+- `picture_products.shipped.docs()` writes the documents through `writer.docs()`, and draws no
+  picture: the build draws each SKU's picture from the document's `drawing`.
+- `domains/retail/picture_products.py` is a build source of its own, the `"picture_products"`
+  entry in `type_registry.BUILD_SOURCES`, last before grocery. It is a source of 28 types, not a
+  type, so no one spec could hold it. The 21 types that had no spec have one now, with no rows of
+  their own; those 21 and the 7 that had one (bookcase, wardrobe, chest of drawers, sofa, rug,
+  artificial flowers and sideboard) each name `Home("picture_products", False)`. The scaled build
+  derives no style from them.
+- The main-color and sale passes leave them out, and they take a pass of their own after, as the
+  films do. A product takes a main color only where no other style completes the group, so no
+  style above it loses a main color or a sale price.
+
+**One product per spec, not per picture.** Many pictures repeat a drawn spec, most of all where a
+type's size range pins the measured size (tiles, cabinet hardware, faucets, rugs). Two such
+pictures that land on one brand and range would be two products that differ at most in color,
+which the product-split audit refuses. `writer.docs()` makes them one product: the first
+picture's, sold in each picture's color, first seen first, and its description names each color.
+So the 13,373 pictures make 11,178 products and 12,273 SKUs. `writer.write()`, the step-2 command
+of the combined demo, still writes one product and one picture per picture.
+
+**What it adds.** At the ceiling build (seed 0) the build grows from 38,339 records and 384,634
+SKUs to 49,504 and 396,796. The per-type count is on [#837's page](../catalogue-mix-837.md). Some
+derived styles in the leaves the new products share are drawn again, because the
+scaled build's duplicate guards (a title, a twin and a near-duplicate listing in the leaf) now
+see the new products. Most of the changes are a range-name swap, and the derived styles lose 13
+records and 111 SKUs.
+
+**The audits.** `tests/test_picture_products_ship_1093.py` runs both on every wands-inspired
+product in the ceiling build: the product-split audit and the non-copying audit of
+[the sideboard page](sideboard-ships-1022.md#the-audits). It also holds the pinned sha256, the
+spec homes and #837's per-type rows against the build.
+
 ## What comes next
 
-The next cut ships the products of the full picture manifest (one row per WANDS persona picture,
-elastic/prism-wands#15) in the retail and combined build. It also runs the non-copying and
-product-split audits on that build and records the count per type and department on #837.
+elastic/prism-wands's own check of these products against the benchmark (its
+`transform_wands.py --products`) finds no title and no run of five words. It refuses 70 products,
+each for a whole-centimeter size whose number equals a WANDS inch figure, and so a different size.
+elastic/prism-wands#40 makes that a count, not a refusal.

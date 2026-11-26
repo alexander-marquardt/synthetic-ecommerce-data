@@ -20,7 +20,7 @@ from the picture the manifest was made from, and its name is the product id.
 from __future__ import annotations
 
 import inspect
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from synthetic_ecommerce_data import drawings
@@ -116,7 +116,21 @@ def title(picture: Picture, range_: str) -> str:
     return " ".join([*words, _noun(picture, parts)])
 
 
-def description(picture: Picture, brand: str, range_: str, size: tuple[int, int, int]) -> str:
+def _either(colors: Sequence[str]) -> str:
+    """``tan``, ``tan or grey``, ``tan, grey or navy``."""
+    words = [c.lower() for c in colors]
+    return words[0] if len(words) == 1 else f"{', '.join(words[:-1])} or {words[-1]}"
+
+
+def description(
+    picture: Picture,
+    brand: str,
+    range_: str,
+    size: tuple[int, int, int],
+    colors: Sequence[str] = (),
+) -> str:
+    """The product's description; ``colors`` are the colors it is sold in, the picture's own
+    when none are given."""
     parts = _parts(picture)
     w, h, d = size
     features = []
@@ -131,7 +145,7 @@ def description(picture: Picture, brand: str, range_: str, size: tuple[int, int,
     noun = _noun(picture, dict(parts))
     text = (
         f"The {range_} {noun} from {brand}, {w} cm wide, {h} cm high and {d} cm deep, "
-        f"in {picture.color.lower()}."
+        f"in {_either(colors or (picture.color,))}."
     )
     return f"{text} Features: {'; '.join(features)}." if features else text
 
@@ -167,17 +181,27 @@ def doc(picture: Picture) -> dict:
     return _written(picture)[0]
 
 
-def _written(picture: Picture) -> tuple[dict, tuple[int, int, int]]:
+def _style(picture: Picture) -> tuple[str, str, str, tuple[int, int, int]]:
+    """The code, brand, range and size of the product around ``picture``, each from its image
+    id's hash."""
     code = "PC" + stable_ids.digest("picture-product", picture.image_id)[:8].upper()
     product_id = f"BRD-{code}"
     brand = stable_ids.pick(sorted(book.RANGES), "picture-brand", product_id)
     range_ = stable_ids.pick(list(book.RANGES[brand]), "picture-range", product_id)
-    size = measure(picture, product_id)
+    return code, brand, range_, measure(picture, product_id)
+
+
+def _written(
+    picture: Picture, colors: Sequence[str] = ()
+) -> tuple[dict, tuple[int, int, int]]:
+    """The document around ``picture``, sold in ``colors`` (the picture's own when none)."""
+    code, brand, range_, size = _style(picture)
+    shown = tuple(colors) or (picture.color,)
     tb = book.TYPES[picture.type]
     doc_ = Row(
         code, title(picture, range_), brand, DEPARTMENT, tb.path, tb.product_type,
-        price(picture, size), picture.type, description(picture, brand, range_, size),
-        (cw(picture.color, COLORS[picture.color]),), attributes(picture, size),
+        price(picture, size), picture.type, description(picture, brand, range_, size, shown),
+        tuple(cw(c, COLORS[c]) for c in shown), attributes(picture, size),
         params=tuple(_parts(picture)), product_line=range_,
     ).doc()  # fmt: skip
     return doc_, size
@@ -215,7 +239,16 @@ def write(pictures: Iterable[Picture | Fallback]) -> list[Product]:
 
 
 def docs(pictures: Iterable[Picture | Fallback]) -> list[dict]:
-    """:func:`write`'s documents alone, with no picture drawn: the retail build's source."""
-    out = [doc(p) for p in described(pictures)]
+    """:func:`write`'s documents, with no picture drawn, as the retail build ships them.
+
+    Two pictures whose products would share a brand, a range, a size and every part are one
+    product (the product-split audit, gen#1022 item 5: no two products of one brand differ only
+    in color). It is the first picture's, sold in each picture's color, first seen first; a
+    picture whose color it already sells adds nothing (gen#1093)."""
+    groups: dict[tuple, list[Picture]] = {}
+    for p in described(pictures):
+        _code, brand, range_, size = _style(p)
+        groups.setdefault((p.type, brand, range_, size, tuple(_parts(p))), []).append(p)
+    out = [_written(g[0], tuple(dict.fromkeys(p.color for p in g)))[0] for g in groups.values()]
     _unique([d["product_id"] for d in out])
     return out
