@@ -5,10 +5,12 @@ Knitting``), the department #837's taxonomy gives crafts, and take its build rec
 (``office_rows.DEPARTMENT``), which keys the brand pools. Each type is a spec of its own
 (``type_specs/sewing_thread.py``, ``yarn.py``, ``fabric.py``) drawn by :mod:`kit_sewing`, and
 cut 2's tools (``sewing_machine.py``, ``knitting_needles.py``, ``crochet_hook.py``) drawn by
-:mod:`kit_sewing_tools`. A style offers the six main colors (gen#275) and no more, or three of
-them for a needle or a hook sold in three sizes: the range is sized to its share of the issue's
-+900 SKUs (``docs/retail-prototype/sewing-knitting-1118.md``), so each type sells two brands and
-its SKU axis the fewest steps a shopper expects. Every brand here is invented.
+:mod:`kit_sewing_tools`, and cut 3's notions (``sewing_needles.py``, ``sewing_pins.py``,
+``embroidery_kit.py``) drawn by :mod:`kit_sewing_notions`. A style offers the six main colors
+(gen#275) and no more, or three of them for a style sold in several sizes or packs: the range
+is sized to its share of the issue's +900 SKUs (``docs/retail-prototype/sewing-knitting-1118.md``),
+so each type sells two brands and its SKU axis the fewest steps a shopper expects. Every brand
+here is invented.
 """
 
 from __future__ import annotations
@@ -26,6 +28,9 @@ FABRIC = (*NODE, "Fabric")
 MACHINE = (*NODE, "Sewing Machines")
 NEEDLES = (*NODE, "Knitting Needles")
 HOOKS = (*NODE, "Crochet Hooks")
+SEWING_NEEDLES = (*NODE, "Sewing Needles")
+PINS = (*NODE, "Sewing Pins")
+EMBROIDERY = (*NODE, "Embroidery Kits")
 
 #: The range's own invented brands; the stationery brands of :mod:`office_rows` sell it too.
 BOBBINMERE = "Bobbinmere"
