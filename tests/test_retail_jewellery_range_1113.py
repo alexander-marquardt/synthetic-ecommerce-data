@@ -18,7 +18,7 @@ from synthetic_ecommerce_data.domains.retail import kit_jewellery, scale, scale_
 TYPES = scale_text.JEWELLERY_TYPES
 METAL_TYPES = (
     "Hoop Earrings", "Drop Earrings", "Stud Earrings", "Bangle", "Bracelet", "Necklace", "Pendant",
-    "Anklet", "Ring", "Cufflinks",
+    "Anklet", "Ring", "Cufflinks", "Charm", "Brooch",
 )  # fmt: skip
 NEW = {"pendant": "Pendant", "anklet": "Anklet", "watch_strap": "Watch Strap"}
 #: The color a metal may have: a gold plated SKU is gold, and nothing else.
@@ -29,8 +29,9 @@ METAL_COLOR = {
 }  # fmt: skip
 #: Hand-written bracelets (authored samples) that state no metal, as before this cut.
 NO_METAL = {"PLT-DY70", "PLT-DY74", "PLT-DY549"}
-#: The SKUs of the range on the ceiling build, all 16 Womens and Mens types (456 before this cut).
-RANGE_FLOOR = 2_000
+#: The SKUs of the range on the ceiling build, all 19 Womens and Mens types (456 before cut 2,
+#: 2,028 after it; cut 3's charms, brooches and jewellery boxes take it to 2,309).
+RANGE_FLOOR = 2_300
 
 
 @pytest.fixture(scope="module")

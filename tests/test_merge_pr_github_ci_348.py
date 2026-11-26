@@ -74,6 +74,7 @@ verdict() {
   j 6 red-commit-proof success
   j 7 customer-name-check success
   j 9 no-derived-files success
+  j 11 dependency-review success
   printf '8\tmain-merged-tree\tcompleted\tskipped\t%s/job/8\n' "$RUN_URL"
 }
 if [ "$1 $2" = "workflow run" ]; then

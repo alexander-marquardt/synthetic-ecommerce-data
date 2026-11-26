@@ -68,5 +68,5 @@ PINS_REBUILD=(python scripts/measure_pins.py)
 #: runs only on a Review-Verdict: comment or review event, never on the PR's own
 #: run (#708). Each required job's cancel-on-red job runs only when that job is red (#1175).
 #: Pinned to the workflows by tests/test_merge_pr.py.
-REQUIRED_CI=(lint ceiling-catalogue tests commit-messages file-size red-commit-proof customer-name-check no-derived-files)
+REQUIRED_CI=(lint ceiling-catalogue tests commit-messages file-size red-commit-proof customer-name-check no-derived-files dependency-review)
 SKIPPED_BY_DESIGN_CI=(main-merged-tree review-verdict-rerun "${REQUIRED_CI[@]/#/cancel-on-red-}")
