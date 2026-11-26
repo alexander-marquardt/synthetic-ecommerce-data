@@ -70,6 +70,7 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1114 (bags) | Clothing | Belt Bag | 227 |
 | gen#1114 (bags) | Clothing | Messenger Bag | 440 |
 | gen#1114 (bags) | Clothing | Laptop Bag | 663 |
+| gen#1114 (bags) | Clothing | Card Holder | 261 |
 
 ## The mix
 

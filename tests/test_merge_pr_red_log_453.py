@@ -40,6 +40,7 @@ _OTHERS_GREEN = {
     "red-commit-proof": "true",
     "customer-name-check": "true",
     "no-derived-files": "true",
+    "dependency-review": "true",
 }
 
 

@@ -29,6 +29,7 @@ _JOBS = {
     "red-commit-proof": "true",
     "customer-name-check": "true",
     "no-derived-files": "true",
+    "dependency-review": "true",
 }
 _HOG = 'python3 -c "import time; b = bytearray([1]) * (%d * 1024 * 1024); time.sleep(%d)"'
 
