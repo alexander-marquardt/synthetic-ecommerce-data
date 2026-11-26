@@ -14,9 +14,9 @@ a file with no entry weighs 20 s, so a new test file needs no edit anywhere. The
 
 | Change               | Where                                                                                                      |
 | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| more or fewer shards | the matrix list in `ci.yaml`, and `--of` in its `Plan the test shards` step (`tests/test_ci_plan_1035.py` holds the two equal) |
+| more or fewer shards | the matrix list in `ci.yaml`, and `--of` in its `Plan the test shards` step (`tests/test_ci_plan_1035.py` holds the two equal; `tests/test_ci_one_wave_1035.py` holds the count to the CI host's slots, below) |
 | refresh the weights  | download the `junit-*` artifacts of a green run, then `python3 scripts/ci_shards.py --refresh junit-*.xml` |
-| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 20` prints its files                                          |
+| run one shard here   | `python3 scripts/ci_shards.py --shard 3 --of 12` prints its files                                          |
 | refresh the peaks    | download the `module-peaks-*` artifacts of green runs, then `python3 scripts/ci_shards.py --refresh-peaks module-peaks-*.json` |
 
 A file too heavy for one shard is split: `SPLIT_FILES` in `scripts/ci_shards.py` (now
@@ -85,7 +85,7 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   `tests/pinned.py` lists, not on every script. A retail change went from 363 files (138 min of the
   weights) to 356 (132 min), and a module of `pinned.MODULES` now selects the tests that measure it.
 - A run plans its shards once (#1035). The ceiling leg of `ceiling-catalogue`, which `tests` needs,
-  runs `ci_shards.py --plans-out DIR --of 20` before it builds anything, and uploads
+  runs `ci_shards.py --plans-out DIR --of 12` before it builds anything, and uploads
   `test-plan-K.txt` for every shard as the `test-plans` artifact: a planner that crashes is red
   there and no shard starts. A shard downloads the artifact before it checks out, and its `select` and `Tests`
   steps read its own file; a file that is missing or does not start with `shards=N` is a red step,
@@ -112,10 +112,10 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   heaviest dealt shard, a split file's share included, is within the budget (#704). A shard past
   that count prints no file, and its job ends before the checkout.
   With no base and head, `--plan` is `--shard`: every file on every shard. `--plan all` prints
-  every file, for a local run. A full run deals the files to 20 shards of about 547 s of the
-  weights each, since the refresh from run 45347596547 (182 minutes of test seconds, after the
-  memo of #1227); the counts below are by the tables of their time. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
-  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949); at 18 the one test file of #1052 put it at 1200.4 s, so it is 19 now (#1052); the smart home test file (#956) deals within the 19; at 19 the two test files of #1175 put the heaviest at 1200.5 s with the next one, so it is 20 now (#1175).
+  every file, for a local run. A full run deals the files to 12 shards of about 960 s of the
+  weights each (578 files, 192 minutes of test seconds by the table refreshed from run
+  45347596547, after the memo of #1227); the counts below are by the tables of their time. At 16 the heaviest of main's 376 files was 1199.7 s, so one new test file at the
+  20 s default put it at 1201.1 s, past the budget; at 17 that file dealt 1130.5 s (#852); at 17 the files of #949 put the heaviest at 1200.8 s, so it is 18 now (#949); at 18 the one test file of #1052 put it at 1200.4 s, so it is 19 now (#1052); the smart home test file (#956) deals within the 19; at 19 the two test files of #1175 put the heaviest at 1200.5 s with the next one, so it was 20 (#1175). It is 12 now, the CI host's slots, so a push run is one wave (#1035, "One wave on the runner slots" below); main's files deal 960 s a shard at 12, within the budget.
   `tests/test_ci_shard_budget_704.py` deals main's files plus one unweighted file at the matrix
   count, so the shard to add is named before the pull request that would need it.
 - The budget is below the job's `timeout-minutes: 25` (1500 s) by the wall clock a weight second
@@ -228,7 +228,7 @@ push runs 45707103035, 45743453354 and 45757600755 (2026-11-25 and 26, after #12
 refresh, 33 of the 577 test files had no figure and counted as heavy, so no shard of a full run
 got three workers. After it, 3 files had none, and 8 of the 20 shards got three workers. A test
 file added later has no figure until the next refresh: with #1118's
-`test_retail_sewing_cut3_1118` (578 files, 4 with none), 7 of the 20 shards get three. The 3 are `test_merge_pr_red_log_453`, `test_type_bar_stock_hex` and `test_type_turnbuckles`:
+`test_retail_sewing_cut3_1118` (578 files, 4 with none), 7 of the 20 shards get three; at the 12 shards of #1035, with more modules a shard, one gets three. The 3 are `test_merge_pr_red_log_453`, `test_type_bar_stock_hex` and `test_type_turnbuckles`:
 each read just over 1,500 MB on an earlier module's leftovers, and never its shard's highest.
 
 On Linux, a shard also prints a `module over its recorded peak:` line when a module measured more
@@ -457,7 +457,7 @@ in the list: it runs only on a push to main, so a PR's head never carries it.
 | the push run on `main` | the train's wait every batch | under 15 (#790) | 22 to 37 min |
 
 The 10 and the 15 are kept, each for its mode. The push run on `main` had no target; it has the
-`--github-ci` one now, since it runs the same 20 shards on the same runners. The `Measured`
+`--github-ci` one now, since it runs the same shards on the same runners. The `Measured`
 column comes from `gh run list --workflow ci.yaml --limit 40` on 11-02: 12 push runs on `main`
 from 11-01 06:16Z to 11-02 00:27Z took 22.4 to 37.3 minutes, and one took 82.0.
 
@@ -470,6 +470,34 @@ What sets a push run's time is its job-minutes over the runner slots it gets. Ru
 `slowest 10 durations` lines) add up to 8,832 s of about 19,300 worker-seconds. Worker peaks
 (`peak worker memory:`) run from 0.4 to 3.5 GB, and in 13 of the 16 shards one of the two
 workers stays under 1.2 GB. Cutting those tests, and the worker count they hold down, is #790.
+
+### One wave on the runner slots (#1035)
+
+A full run has as many `tests` shards as the CI host has slots: 12, the `CI_MAX_JOBS` of
+`alex-prism-generator-ci` (agent-ops `vm/ci_runner/README.md`, "Two hosts"), which ran 18 to 20
+of the 20 shards of each push run below. `tests/test_ci_one_wave_1035.py` holds the matrix to
+that count; a change of the host's slots changes the test's `RUNNER_SLOTS`, the matrix and `--of`.
+
+At 20 shards a push run ran in two waves: the push run of #1270's merge (45773051124, on
+685921c1) ran 13 shards at once and 7 from +7.7 min, and took 17.2 min wall-clock and 139.7
+job-minutes. The three before it (45757600755, 45743453354, 45707103035) took 18.1, 16.4 and
+18.0 min, at most 12, 12 and 14 jobs at once. Done-when 2 of #1035 is under 15.
+
+By the junit of runs 45757600755 and 45773051124, about 85 s of a shard is fixed: about 45 s
+of job (checkout, uv, the artifacts) and 20 to 90 s of pytest start and worker tail past the
+tests' own seconds. The rest is in proportion to the shard's weight. On 12 slots, 20 shards left
+8 slots with two shards and 4 with one. Estimated by these figures:
+
+| shards | waves on 12 slots | push run wall | test job-minutes |
+|---|---|---|---|
+| 20 (until #1035) | 2 | 16.4 to 18.1 min, measured | 130 to 140, measured |
+| 24 | 2 | about 16 min | about 145 |
+| 12 | 1 | about 14.5 to 15.5 min | about 119 |
+
+The `ceiling-catalogue` job's 2.75 min comes first in each. A pull request's deal does not
+change: it is dealt to as few shards as keep each within the budget (10 for a full selection), and
+its run has 8 fewer `tests` jobs with nothing to run. At 12, one shard of a full run gets three
+workers, not seven of 20, which the estimate counts. The push runs after #1035 merges measure it.
 
 ## Where the jobs run (#596)
 
@@ -488,7 +516,7 @@ the merge train's batch run: a `workflow_dispatch` on a `ci/batch-*` ref (agent-
 `merge_pr.sh --github-ci` on `ci/merge-<N>`) keep `[self-hosted, synth-ci]`. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
 `vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
-full run is 28 jobs (20 of them `tests` shards; a push run is 24) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
+full run is 20 jobs (12 of them `tests` shards; a push run is 16) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
 minutes (one runner is worse than the shared pool, four about 37 minutes). Set the variable
 to `false` to send main pushes and batch runs back to the shared pool with no commit. `tests/test_ci_runs_on_596.py` holds every job to the expression, but for the `cancel-on-red-*` jobs (#1175), which are
 hosted.
