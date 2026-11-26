@@ -302,7 +302,7 @@ SHOPPER_FABRICS = frozenset({
 TEXTILE_DEPARTMENTS = frozenset({"Clothing", "Lingerie & Nightwear"})
 NON_TEXTILE_TYPES = frozenset({
     "Analog Watch", "Backpack", "Baby Beakers", "Belt", "Belt Bag", "Bracelet",
-    "Brooch", "Card Holder", "Charm", "Jewellery Box",
+    "Brooch", "Card Holder", "Charm", "Jewellery Box", "Jewellery Set", "Kids Watch",
     "Clutch Bag", "Crossbody Bag", "Digital Watch", "Drop Earrings", "Earrings", "Fitness Band",
     "Handbag",
     "Hoop Earrings", "Key Clips", "Laptop Bag", "Messenger Bag", "Necklace", "Purse", "Ring",

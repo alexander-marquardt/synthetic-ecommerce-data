@@ -128,9 +128,9 @@ RENAMES: dict[str, tuple[str, str]] = {
 #: (authored key, product type) -> the (key, name) it is published under on that type alone. A
 #: Suit Jacket's Short/Regular/Long ``length`` is the height fit of a garment with no leg, a
 #: Skirt's ``fit_length`` (the 11-03 ruling): not a leg, and not the style's length. A watch's
-#: ``strap``, and a Watch Strap's, is what the strap is made of; every other type's is its form
-#: (the 10-18 ruling, "Split"). A lampshade's and a soft toy's cloth is a material: ``fabric`` is
-#: apparel's.
+#: ``strap``, a Kids Watch's and a Watch Strap's, is what the strap is made of; every other
+#: type's is its form (the 10-18 ruling, "Split"). A lampshade's and a soft toy's cloth is a
+#: material: ``fabric`` is apparel's.
 BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
     ("length", "Jeans"): LEG,
     ("length", "Suit Jacket"): FIT,
@@ -139,6 +139,7 @@ BY_TYPE: dict[tuple[str, str], tuple[str, str]] = {
     ("strap", "Digital Watch"): STRAP_MATERIAL,
     ("strap", "Fitness Band"): STRAP_MATERIAL,
     ("strap", "Watch Strap"): STRAP_MATERIAL,
+    ("strap", "Kids Watch"): STRAP_MATERIAL,
     ("fabric", "Lampshade"): ("shade_material", "Shade material"),
     ("fabric", "Soft Toy"): ("material", "Material"),
 }
