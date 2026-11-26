@@ -2,7 +2,8 @@
 
 Each row puts one of the redraw's lines back (the shared size ladder, a small round mirror, a
 bookcase or a chair with no light and shade, a long sofa seen as a short one, a sofa with no
-shadow) and names the test that must go red. A row is
+shadow, an armchair or a footstool in its old small box) and names the test that must go red.
+A row is
 ``(name, file, old, new, tests, property)``.
 """
 
@@ -75,8 +76,48 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "kit_seating.py",
         "out = [_ground(sheet, boxes)] if view.ground else []",
         "out = []",
-        f"{_T} -k a_sofa_stands_on_a_ground_shadow",
+        f"{_T} -k a_seat_stands_on_a_ground_shadow",
         "a sofa stands on a ground shadow",
+    ),
+    (
+        "an armchair is fitted to its old small box",
+        "kit_seating.py",
+        "CHAIR = View(0.34, 0.46, AREA, ground=True)",
+        "CHAIR = View(0.34, 0.46, (34.0, 78.0, 366.0, 336.0))",
+        f"{_FILL}[armchair]",
+        "an armchair fills half of the product area",
+    ),
+    (
+        "a footstool is seen as low as a chair",
+        "kit_seating.py",
+        "return _draw(boxes, paint, fill, lid, view=STOOL)",
+        "return _draw(boxes, paint, fill, lid, view=CHAIR)",
+        f"{_FILL}[footstool]",
+        "a rectangular footstool fills half of the product area",
+    ),
+    (
+        "a round footstool keeps its old size",
+        "kit_seating.py",
+        "k = 0.9 * min(",
+        "k = 0.6 * min(",
+        f"{_FILL}[footstool]",
+        "a round footstool fills half of the product area",
+    ),
+    (
+        "an armchair's back cushion has no shade",
+        "kit_seating.py",
+        'back_h, d - 30, d - 14, "fill", front=0.08)',
+        'back_h, d - 30, d - 14, "fill")',
+        f"{_FILL}[armchair]",
+        "no one solid color paints most of an armchair",
+    ),
+    (
+        "a swivel chair's foot hangs below the area",
+        "kit_seating.py",
+        'view = SWIVEL if style == "swivel" else CHAIR',
+        "view = CHAIR",
+        f"{_T} -k a_seat_stands_on_a_ground_shadow",
+        "a swivel chair's shadow shows under its foot",
     ),
 ]
 
