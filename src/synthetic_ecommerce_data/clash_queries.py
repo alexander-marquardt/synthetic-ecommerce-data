@@ -44,6 +44,9 @@ FLAT: Where = {"product_type": ("washer_flat",)}
 COOKERS: Where = {"product_type": ("Range Cooker",)}
 IRONS: Where = {"product_type": ("Steam Iron",)}
 FREEZERS: Where = {"appliance_type": ("Chest Freezer", "Upright Freezer")}
+SEWING: Where = {"product_type": ("Sewing Thread",)}
+#: The thread queries of gen#1118, stubbed for the red commit.
+THREADS: tuple = ()
 
 
 @dataclass(frozen=True)
