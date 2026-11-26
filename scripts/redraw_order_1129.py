@@ -97,6 +97,7 @@ GROUPS = (
             "kit_luggage",
             "kit_bags",
             "kit_bags_carry",
+            "card_holder",
         ),
         1198,
     ),

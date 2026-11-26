@@ -28,6 +28,12 @@ anklet          a fine chain laid in a round, with a clasp and an   style (chain
                 extender (gen#1113)                                 double)
 watch_strap     the two parts of a strap, side by side (gen#1113)   material (leather, silicone,
                                                                     fabric, mesh)
+charm           one charm on a lobster clasp, or a bead threaded    motif (heart, star, moon, cross,
+                on a strand (gen#1113)                              clover, paw, bead, stone), stone
+brooch          a brooch over the ends of its pin (gen#1113)        motif (flower, bee, bow, leaf,
+                                                                    pearl, stone), stone
+jewellery_box   a jewelry box, its covering in the record's color   style (case, mirror, drawers,
+                (gen#1113)                                          travel)
 ==============  ==================================================  ===========================
 
 Every params value is a string, as a style row's ``params`` carry it.
@@ -46,6 +52,7 @@ from synthetic_ecommerce_data.domains.retail.kit import (
     Fill,
     _highlight,
     _line,
+    _mix,
     _path,
     _shade,
     _word,
@@ -323,9 +330,7 @@ def pendant(paint: str, fill: Fill, label: str | None, charm: str = "heart", sto
     elif charm == "pearl":
         out += [_path("M178,142 Q200,128 222,142 L232,172 Q200,160 168,172 Z", paint), _circle(200, 246, 88, PEARL)]
     else:
-        if stone.lower() not in STONES:
-            raise ValueError(f"unknown pendant stone {stone!r}; {', '.join(STONES)}")
-        out += [_circle(200, 242, 98, paint), _circle(200, 242, 84, _shade(paint, -0.12), 1.4), *_gem(200, 240, 72, stone)]
+        out += _stone_setting(200, 242, 98, paint, stone, "pendant")
     out.append(_highlight("M150,232 Q152,200 178,186", 6, 0.5))
     if label:
         out.append(_word(label, 200, 382, 200, 22))
@@ -397,4 +402,118 @@ def watch_strap(paint: str, fill: Fill, label: str | None, material: str = "leat
     return out
 
 
-register({"pendant": pendant, "anklet": anklet, "watch_strap": watch_strap, "hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})
+def _stone_setting(cx: float, cy: float, r: float, paint: str, stone: str, what: str) -> list[str]:
+    """A faceted ``stone`` in a round metal setting; a stone the kit has no color for is refused."""
+    if stone.lower() not in STONES:
+        raise ValueError(f"unknown {what} stone {stone!r}; {', '.join(STONES)}")
+    return [_circle(cx, cy, r, paint), _circle(cx, cy, r - 14, _shade(paint, -0.12), 1.4), *_gem(cx, cy - 2, r - 26, stone)]
+
+
+#: What a charm draws: a pendant's outlines, two of its own, a threaded bead or a set stone.
+CHARM_MOTIFS = (*CHARMS, "clover", "paw", "bead", "stone")
+
+
+def charm(paint: str, fill: Fill, label: str | None, motif: str = "heart", stone: str = "") -> list[str]:
+    """One charm in the record's metal, hung from a lobster clasp that clips onto a charm bracelet: a ``motif`` outline (heart, star, moon, cross, a four leaf clover, a paw print) or a faceted ``stone`` of the stone named; a ``bead`` is threaded on a strand instead (gen#1113)."""
+    _choice("charm motif", motif, CHARM_MOTIFS)
+    if motif == "bead":
+        out = [*_chain("M16,240 L384,240", paint, 6)]
+        out += [_path("M146,160 Q200,144 254,160 Q296,240 254,320 Q200,336 146,320 Q104,240 146,160 Z", paint)]
+        out += [_line("M130,200 Q200,186 270,200", 2.4), _line("M130,280 Q200,294 270,280", 2.4)]
+        out.append(_highlight("M140,236 Q142,196 168,176", 6, 0.5))
+    else:
+        clasp = "M186,52 Q200,30 214,52 L220,110 Q200,130 180,110 Z"
+        out = [_path(clasp, paint), _line("M192,62 Q186,86 192,108", 3), *_ring(200, 134, 13, paint, 5)]
+        if motif in CHARMS:
+            out.append(_path(CHARMS[motif], paint))
+        elif motif == "clover":
+            out.append(_line("M200,250 Q226,306 262,346", 9))
+            out.append(_line("M200,250 Q226,306 262,346", 5, stroke=paint))
+            out += [_circle(200 + dx, 250 + dy, 44, paint) for dx, dy in ((0, -48), (48, 0), (0, 48), (-48, 0))]
+            out.append(_circle(200, 250, 12, _shade(paint, 0.15), 1.4))
+        elif motif == "paw":
+            out.append(_path(_oval(200, 286, 64, 52), paint))
+            out += [_circle(x, y, 26, paint) for x, y in ((128, 214), (172, 176), (228, 176), (272, 214))]
+        else:
+            out += _stone_setting(200, 244, 96, paint, stone, "charm")
+        out.append(_highlight("M150,232 Q152,200 178,186", 6, 0.5))
+    if label:
+        out.append(_word(label, 200, 382, 200, 22))
+    return out
+
+
+BROOCH_MOTIFS = ("flower", "bee", "bow", "leaf", "pearl", "stone")
+
+
+def brooch(paint: str, fill: Fill, label: str | None, motif: str = "flower", stone: str = "") -> list[str]:
+    """A brooch in the record's metal, the ends of its pin (a hinge and a safety catch) showing at each side: a ``flower``, a ``bee``, a ``bow``, a ``leaf``, a ``pearl`` cluster, or a faceted ``stone`` of the stone named in an oval setting with a beaded edge (gen#1113)."""
+    _choice("brooch motif", motif, BROOCH_MOTIFS)
+    out = [_line("M44,200 L356,200", 9), _line("M44,200 L356,200", 4, stroke=STEEL), _circle(44, 200, 12, STEEL, 2)]
+    out.append(f'<rect x="338" y="184" width="30" height="32" rx="6" fill="{STEEL}" stroke="{INK}" stroke-width="2"/>')
+    if motif == "flower":
+        out += [_circle(200 + 66 * math.sin(math.radians(k * 60)), 200 - 66 * math.cos(math.radians(k * 60)), 50, paint) for k in range(6)]
+        out += [_circle(200, 200, 38, _shade(paint, 0.15)), _circle(200, 200, 20, _shade(paint, -0.15), 1.4)]
+    elif motif == "bee":
+        wing = _mix(paint, "#ffffff", 0.55)
+        out += [_path(_oval(138, 150, 66, 40), wing), _path(_oval(262, 150, 66, 40), wing)]
+        out += [_path(_oval(200, 236, 52, 96), paint), *(_line(f"M{154 + 4 * k},{206 + 34 * k} H{246 - 4 * k}", 7) for k in range(3))]
+        out += [_circle(200, 122, 32, paint), _line("M188,94 Q176,58 150,50", 4), _line("M212,94 Q224,58 250,50", 4)]
+    elif motif == "bow":
+        out += [_path("M200,196 C144,104 52,118 62,196 C52,276 144,290 200,196 Z", paint)]
+        out += [_path("M200,196 C256,104 348,118 338,196 C348,276 256,290 200,196 Z", paint)]
+        out += [_path("M186,212 L140,350 L168,336 L188,362 L206,220 Z", paint), _path("M214,212 L260,350 L232,336 L212,362 L194,220 Z", paint)]
+        out.append(f'<rect x="176" y="168" width="48" height="58" rx="12" fill="{_shade(paint, 0.12)}" stroke="{INK}" stroke-width="{LW}"/>')
+    elif motif == "leaf":
+        out += [_path("M76,330 Q84,108 330,76 Q318,322 76,330 Z", paint), _line("M76,330 Q196,220 330,76", 4)]
+        out += [_line(f"M{x},{y} L{x + dx},{y - dy}", 2.4) for x, y, dx, dy in ((150, 260, -6, 70), (200, 208, -4, 74), (246, 152, -2, 62), (150, 262, 64, -4), (200, 210, 64, -2))]
+    elif motif == "pearl":
+        out.append(_circle(200, 200, 128, paint))
+        out += [_circle(200 + 80 * math.sin(math.radians(k * 60)), 200 - 80 * math.cos(math.radians(k * 60)), 38, PEARL) for k in range(6)]
+        out += [_circle(200, 200, 42, PEARL), _highlight("M184,186 Q188,174 200,170", 4, 0.8)]
+    else:
+        out += [_path(_oval(200, 200, 112, 146), paint), _path(_oval(200, 200, 96, 128), _shade(paint, -0.12), 1.4)]
+        out += [_circle(200 + 104 * math.sin(math.radians(k)), 200 - 137 * math.cos(math.radians(k)), 7, paint, 1.4) for k in range(0, 360, 20)]
+        if stone.lower() not in STONES:
+            raise ValueError(f"unknown brooch stone {stone!r}; {', '.join(STONES)}")
+        out += _gem(200, 196, 78, stone)
+    if label:
+        out.append(_word(label, 200, 384, 200, 22))
+    return out
+
+
+LINING = "#efe6d8"
+MIRROR = "#dce8ee"
+
+
+def _box(x: float, y: float, w: float, h: float, fill: str, rx: float = 8, width: float = LW) -> str:
+    return f'<rect x="{x:g}" y="{y:g}" width="{w:g}" height="{h:g}" rx="{rx:g}" fill="{fill}" stroke="{INK}" stroke-width="{width:g}"/>'
+
+
+def jewellery_box(paint: str, fill: Fill, label: str | None, style: str = "case") -> list[str]:
+    """A jewelry box, its covering in the record's color: a closed ``case`` with a clasp, a ``mirror`` lid open over ring rolls and compartments, a chest of two ``drawers`` with knobs under a lid, or a zipped ``travel`` case (gen#1113)."""
+    _choice("jewellery box style", style, ("case", "mirror", "drawers", "travel"))
+    stitch = ' stroke-dasharray="7 6" stroke-opacity=".55"'
+    if style == "case":
+        out = [_box(56, 170, 288, 170, paint), _box(48, 110, 304, 74, paint, 12), _line("M66,128 H334", 2, stitch)]
+        out += [_line("M74,190 H326 V322 H74 Z", 2, stitch), _box(184, 160, 32, 44, STEEL, 4, 2)]
+    elif style == "mirror":
+        out = [_box(64, 24, 272, 166, paint), _box(86, 44, 228, 126, MIRROR, 4, 2)]
+        out += [_highlight("M118,150 L176,64", 8, 0.7), _highlight("M156,150 L208,74", 5, 0.6)]
+        out += [_path("M64,190 L336,190 L360,226 L40,226 Z", LINING, 2), _box(40, 226, 320, 128, paint)]
+        out += [_line(f"M{x},196 L{x - 4 * k},222", 2) for k, x in enumerate((130, 200, 270), -1)]
+        out += [_line(f"M{60 + 30 * k},208 Q{75 + 30 * k},200 {90 + 30 * k},208", 2) for k in range(2)]
+        out += [_line("M60,246 H340", 2, stitch), _box(186, 214, 28, 28, STEEL, 4, 2)]
+    elif style == "drawers":
+        out = [_box(64, 120, 272, 228, paint), _box(52, 88, 296, 48, paint, 10), _line("M66,104 H334", 2, stitch)]
+        for y in (156, 252):
+            out += [_box(86, y, 228, 78, _shade(paint, 0.08), 6), _circle(200, y + 39, 11, STEEL, 2)]
+        out += [_box(84, 344, 32, 16, _shade(paint, 0.3), 4, 2), _box(284, 344, 32, 16, _shade(paint, 0.3), 4, 2)]
+    else:
+        out = [_box(50, 116, 300, 196, paint, 64), _line("M72,214 Q72,138 132,138 H268 Q328,138 328,214 Q328,290 268,290 H132 Q72,290 72,214 Z", 3, stitch)]
+        out += [_line("M60,214 Q60,128 132,128 H268 Q340,128 340,214", 4), _box(300, 112, 22, 38, STEEL, 5, 2), _circle(311, 160, 10, "none", 2.4)]
+    if label:
+        out.append(_word(label, 200, 380, 220, 22))
+    return out
+
+
+register({"charm": charm, "brooch": brooch, "jewellery_box": jewellery_box, "pendant": pendant, "anklet": anklet, "watch_strap": watch_strap,"hoop_earrings": hoop_earrings, "drop_earrings": drop_earrings, "analog_watch": analog_watch, "digital_watch": digital_watch, "fitness_band": fitness_band, "stud_earrings": stud_earrings, "bangle": bangle, "cufflinks": cufflinks})

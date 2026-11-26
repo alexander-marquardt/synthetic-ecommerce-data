@@ -62,6 +62,7 @@ HOSTED = {
     "cancel-on-red-red-commit-proof",
     "cancel-on-red-customer-name-check",
     "cancel-on-red-no-derived-files",
+    "cancel-on-red-dependency-review",
 }
 
 

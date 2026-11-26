@@ -101,6 +101,9 @@ LEFT_TO_CI: dict[str, str] = {
     "no-derived-files": "it reads the pull request's base and head, as red-commit-proof does,"
     " which a"
     " push does not have yet; tests/test_no_derived_files_536.py runs its command",
+    "dependency-review": "it installs the dev group and every extra the review lists, a sync of"
+    " minutes, and runs core's pinned copy of the review; tests/test_dependency_review_copy_1180.py"
+    " checks the copy against its pin",
     "ceiling-catalogue": "it plans the test shards from the pull request's base and head, builds"
     " the ceiling and measures its figures, and builds the shared 100K files, minutes of work;"
     " tests/test_ci_plan_1035.py runs its plan and tests/test_ceiling_artifact_539.py its script"

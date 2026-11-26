@@ -459,6 +459,45 @@ jobs:
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
           --pr "${PR_REF:-${GITHUB_HEAD_REF:-$(git rev-parse --abbrev-ref HEAD)}}"
 
+  dependency-review:
+    # The dependency review table matches the tree (#1180, docs/internals/dependency-review.md).
+    # Core's scripts/dependency_review.py renders docs/internals/appendix/dependency-review-table.md
+    # from pyproject.toml, uv.lock, scripts/dependency_review_data.json and every import of a
+    # dependency; --check exits 1 when the committed page differs from that render. Core is private
+    # and this repository holds no secret that reads it, so the job runs the pinned copy under
+    # .github/dependency-review/ (the form of .github/vuln-gate/, #1149) and checks the pin first.
+    # The review maps imports to the distributions installed in .venv, so the dev group and every
+    # extra `--extras` lists are installed before the check.
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install the dev group
+        run: uv sync --dev --locked
+      - name: The copy of core's dependency review matches its pin
+        run: uv run --no-sync python .github/dependency-review/verify_pin.py
+      - name: Install every extra the review lists
+        run: |
+          set -euo pipefail
+          extras=$(uv run --no-sync python .github/dependency-review/scripts/dependency_review.py --root . --extras)
+          echo "extras: ${extras:-none}"
+          if [ -n "$extras" ]; then
+            args=()
+            IFS=, read -ra names <<< "$extras"
+            for name in "${names[@]}"; do args+=(--extra "$name"); done
+            uv sync --dev --locked "${args[@]}"
+          fi
+      - name: The dependency review table matches the tree
+        run: |
+          uv run --no-sync python .github/dependency-review/scripts/dependency_review.py --root . --check || {
+            echo "Rerun it from this repository's root and commit the page:"
+            echo "  uv run python .github/dependency-review/scripts/dependency_review.py --root . --write"
+            exit 1
+          }
+
   # A pull request run's first red required check cancels the rest of the run (#1175,
   # docs/ci-sharding.md): one job per required job, started once that job has ended red. Never a
   # step of the red job, which GitHub would then record as cancelled; hosted, so it does not queue
@@ -591,6 +630,24 @@ jobs:
 
   cancel-on-red-no-derived-files:
     needs: [no-derived-files]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-dependency-review:
+    needs: [dependency-review]
     if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5

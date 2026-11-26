@@ -1,7 +1,7 @@
 # Jewellery and watches (gen#1113)
 
 Cut 1 is stud earrings, bangles and cufflinks. Cut 2 is pendants, anklets and watch straps, and it
-makes the jewellery and watch types derivable.
+makes the jewellery and watch types derivable. Cut 3 is charms, brooches and jewellery boxes.
 
 ## Cut 1: stud earrings, bangles and cufflinks
 
@@ -85,8 +85,61 @@ Retail ceiling build, seed 0, main 5ea1291a against this cut. All SKUs are in Wo
 | Earrings | 4 | 4 |
 | **The range** | **456** | **2,028** |
 
-`tests/test_retail_jewellery_range_1113.py` holds a floor of 2,000 SKUs on the range, the axes of
+`tests/test_retail_jewellery_range_1113.py` held a floor of 2,000 SKUs on the range, the axes of
 each new type and the fixed build of each derived style.
+
+## Cut 3: charms, brooches and jewellery boxes
+
+| Type | Spec | Path | Styles | SKU axis |
+|---|---|---|---|---|
+| Charm | `type_specs/charm.py` | Womens > Jewellery > Charms | heart (two), star, moon, cross, four leaf, paw print, barrel bead, six birthstones | metal; a stone style states `stone` and its `birthstone` month |
+| Brooch | `type_specs/brooch.py` | Womens > Jewellery > Brooches | flower, bee, bow, leaf, pearl cluster, five oval stones | metal; a stone style states `stone` |
+| Jewellery Box | `type_specs/jewellery_box.py` | Womens > Jewellery > Jewellery Boxes | mirror lid (two), drawers (two), case (two), travel case (two) | color of the covering, the six main colors across the styles |
+
+A charm states its `charm_style` and its `fastening`: a lobster clasp, or threaded for a bead. A
+brooch states its `brooch_style` and a pin with a safety catch. A jewellery box states its
+`box_style`, `material`, `compartments`, `mirror` and `lock`; `mirror` is Yes only on the style
+that draws a mirror.
+
+**Drawings.** `charm` takes `motif` (heart, star, moon, cross, clover, paw, bead, stone), plus a
+`stone`: a charm hangs from a lobster clasp, and a bead is threaded on a strand. `brooch` takes
+`motif` (flower, bee, bow, leaf, pearl, stone), plus a `stone`, drawn over the ends of its pin.
+`jewellery_box` takes `style` (case, mirror, drawers, travel). A stone the kit has no color for
+is refused. All three stand upright. Charm and Brooch are `main_colors.EXCEPTIONS` entries, as
+the other jewellery is; a jewellery box is colored, so it carries the six main colors.
+
+**Derived styles.** The three types are derivable. A derived style keeps its template's motif,
+stone, box style, material, compartments, mirror and lock (`scale_text.JEWELLERY_KEYS` gains
+`charm_style`, `brooch_style`, `box_style`, `compartments`, `mirror` and `lock`).
+
+**Decoys.** A silver heart charm with a gold tone edge ("gold charm"); one star charm sold to add
+to a charm bracelet ("charm bracelet"); a silver bee brooch with gold tone wings ("gold brooch");
+a pearl brooch made to match pearl earrings ("pearl earrings"); a black jewellery box with white
+stitching ("white jewellery box"); an earring organizer box ("earrings").
+
+**No other record changes.** A model name a template's text already uses is never a derived
+range name (`line_grammar.deals`, #851). The first draft's "four leaf clover" and "six petal"
+took Clover and Petal from the baby monitor, crib and bra range names, and 469 records of those
+types were renamed. The rows say "lucky four leaf" and "six rounded lobes" instead. A diff of
+every ceiling record against main now shows 99 records added, all of the three types, and none
+lost or changed.
+
+### The count after cut 3
+
+Retail ceiling build, seed 0, main 76558518 against this cut.
+
+| Type | Before | After |
+|---|---:|---:|
+| Charm | 0 | 128 |
+| Brooch | 0 | 89 |
+| Jewellery Box | 0 | 64 |
+| The other 16 types | 2,028 | 2,028 |
+| **The range** | **2,028** | **2,309** |
+
+`tests/test_retail_jewellery_range_1113.py` holds a floor of 2,300 SKUs on the range.
+`tests/test_retail_jewellery_cut3_1113.py` holds each new type's axes, its drawing params and
+"charm", "birthstone charm", "brooch", "pearl brooch", "jewellery box" and "travel jewelry case"
+ranking the type first.
 
 ## The demo queries
 
@@ -106,6 +159,6 @@ reads the type.
 
 These types are still to come:
 
-- charms, brooches, jewellery sets and jewellery boxes;
+- jewellery sets;
 - kids', sports and dress watches (case size, strap material and water resistance are axes already);
 - the final count on gen#837 once they are built.
