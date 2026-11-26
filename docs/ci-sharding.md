@@ -223,7 +223,13 @@ reports of the 18 push-to-main runs from 42182122044 to 42370021846. A module a 
 named got its figure. Any other module the shard ran got the smaller of 1,500 MB and the shard's
 highest worker peak, since the line says it stayed under 1,500 MB. The table was refreshed
 for #1230 from the `module-peaks-*` artifacts of main's runs 45308069902, 45316258631,
-45319972788 and 45331393444.
+45319972788 and 45331393444. It was refreshed again for #1035 from the 60 files of main's green
+push runs 45707103035, 45743453354 and 45757600755 (2026-11-25 and 26, after #1232). Before that
+refresh, 33 of the 577 test files had no figure and counted as heavy, so no shard of a full run
+got three workers. After it, 3 files had none, and 8 of the 20 shards got three workers. A test
+file added later has no figure until the next refresh: with #1118's
+`test_retail_sewing_cut3_1118` (578 files, 4 with none), 7 of the 20 shards get three. The 3 are `test_merge_pr_red_log_453`, `test_type_bar_stock_hex` and `test_type_turnbuckles`:
+each read just over 1,500 MB on an earlier module's leftovers, and never its shard's highest.
 
 On Linux, a shard also prints a `module over its recorded peak:` line when a module measured more
 than 10% above its figure in the table (`OVER_SHARE` in `tests/worker_peak.py`, #1230); a module
