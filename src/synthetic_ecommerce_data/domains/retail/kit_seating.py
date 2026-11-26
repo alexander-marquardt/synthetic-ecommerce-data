@@ -7,8 +7,8 @@ a sofa bed its mattress. Upholstery takes the record's fill (color and pattern);
 their finish.
 
 A sofa fills half the product area or more (gen#1214): it is fitted to the product area, seen
-from above (:data:`SOFA`) so its seats show, and stands on a ``class="ground"`` shadow the fill
-measure does not count. A long run (four seats or more, a U) is seen from higher up and more from
+from above (:data:`SOFA`) so its seats show, and stands on a ground shadow
+(:func:`.ground_shadow.ellipse`) the fill measure does not count. A long run (four seats or more, a U) is seen from higher up and more from
 the front (:data:`LONG`), and a sofa bed folded out, its mattress deep in front, from lower down
 (:data:`BED`), so each fills the square area rather than a strip of it. An armchair and a footstool
 keep the lower view they had (:data:`CHAIR`).
@@ -52,6 +52,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.house_styles import PRODUCT_SPAN, PRODUCT_TOP, SIZE
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
@@ -189,12 +190,7 @@ def _lift(d: str, opacity: float) -> str:
 
 def _outline(b: Box, view: View = CHAIR) -> list[tuple[float, float]]:
     """The block's silhouette on the sheet (unscaled): the convex hull of its eight corners."""
-    return _hull([_Sheet._raw(x, y, z, view) for x in (b.x0, b.x1) for y in (b.y0, b.y1) for z in (b.z0, b.z1)])
-
-
-def _hull(points: list[tuple[float, float]]) -> list[tuple[float, float]]:
-    """The convex hull of ``points``, in order around it."""
-    pts = sorted(set(points))
+    pts = sorted({_Sheet._raw(x, y, z, view) for x in (b.x0, b.x1) for y in (b.y0, b.y1) for z in (b.z0, b.z1)})
 
     def half(seq: list[tuple[float, float]]) -> list[tuple[float, float]]:
         out: list[tuple[float, float]] = []
@@ -263,13 +259,12 @@ def _draw(boxes: list[Box], paint: str, fill: Fill, extra=None, view: View = CHA
 
 
 def _ground(sheet: _Sheet, boxes: list[Box]) -> str:
-    """The shadow a piece casts on the floor: its footprint, a little wider and deeper, in a
-    ``class="ground"`` shape the fill measure skips. It shows in front of the legs and beside
-    the right end, and the piece hides the rest."""
-    rims = [(x, z) for b in boxes for x in (b.x0 - 6, b.x1 + 10) for z in (b.z0 - 12, b.z1)]
-    pts = _hull([_Sheet._raw(x, 0.0, z, sheet.view) for x, z in rims])
-    d = "M" + " L".join(f"{sheet.ox + sheet.s * x:.1f},{sheet.oy + sheet.s * y:.1f}" for x, y in pts) + " Z"
-    return f'<path class="ground" d="{d}" fill="#000000" fill-opacity=".14" stroke="none"/>'
+    """The shadow the piece stands on, as every kit marks one (:func:`.ground_shadow.ellipse`):
+    the picture's step draws the flat one in its place, under the piece's lowest point, and the
+    fill measure skips it."""
+    feet = [sheet.p(x, 0.0, z) for b in boxes for x in (b.x0, b.x1) for z in (b.z0, b.z1)]
+    xs, ys = zip(*((float(a), float(c)) for a, c in (f.split(",") for f in feet)), strict=True)
+    return ground_shadow.ellipse((min(xs) + max(xs)) / 2, max(ys), (max(xs) - min(xs)) / 2 + 6, 8.0)
 
 
 #: The seats across a run from which it is drawn as a long sofa (:data:`LONG`).

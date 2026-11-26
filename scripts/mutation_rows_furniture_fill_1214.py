@@ -1,7 +1,8 @@
 """Mutation rows for the furniture fill floor (gen#1214), kept out of ``mutation_check.py``.
 
 Each row puts one of the redraw's lines back (the shared size ladder, a small round mirror, a
-bookcase or a chair with no light and shade) and names the test that must go red. A row is
+bookcase or a chair with no light and shade, a long sofa seen as a short one, a sofa with no
+shadow) and names the test that must go red. A row is
 ``(name, file, old, new, tests, property)``.
 """
 
@@ -52,6 +53,30 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "(x + w * 0.6, y + h - 2)), 0.0)]",
         f"{_FILL}[wardrobe]",
         "a wardrobe has a shadow",
+    ),
+    (
+        "a sofa bed is on the shared size ladder",
+        "size_ladder.py",
+        '"sofa_bed": 0.84',
+        '"sofa_bed": 0.55',
+        f"{_T}::test_a_size_of_furniture_is_drawn_smaller_but_not_under_the_floor[sofa_bed]",
+        "a sofa bed's smallest size keeps most of its largest one's area",
+    ),
+    (
+        "a long sofa is seen as a short one",
+        "kit_seating.py",
+        "return LONG if across >= LONG_RUN else SOFA",
+        "return SOFA",
+        f"{_FILL}[sofa_seats]",
+        "a sofa of four seats or more fills half of the product area",
+    ),
+    (
+        "a sofa stands on no shadow",
+        "kit_seating.py",
+        "out = [_ground(sheet, boxes)] if view.ground else []",
+        "out = []",
+        f"{_T} -k a_sofa_stands_on_a_ground_shadow",
+        "a sofa stands on a ground shadow",
     ),
 ]
 
