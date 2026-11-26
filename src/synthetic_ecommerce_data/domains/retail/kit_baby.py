@@ -42,6 +42,7 @@ states and the drawing can count is drawn as that many marked groups, which
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW_DETAIL,
@@ -91,7 +92,7 @@ def _dots(points: list[tuple[float, float]], r: float, fill: Fill) -> list[str]:
 
 
 def _shadow(cy: float = 372, rx: float = 110) -> str:
-    return f'<ellipse cx="200" cy="{cy}" rx="{rx}" ry="7" fill="#000000" fill-opacity=".08"/>'
+    return ground_shadow.ellipse(200, cy, rx, 7)
 
 
 def _hood(paint: str, fill: Fill, cy: float = 66, rx: float = 64, ry: float = 54) -> list[str]:

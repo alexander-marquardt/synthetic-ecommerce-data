@@ -459,7 +459,8 @@ def _state_lines(recs: list[dict]) -> list[dict]:
 def derivable(tpls: list[dict]) -> list[dict]:
     """The templates a derived style may come from: not a grocery style, whose allergen,
     dietary and ingredient facts are the grocery build's own and would not follow a re-draw, nor
-    a shirt (:mod:`shirt_rows`), an accessory style (:mod:`accessory_rows`), a seating
+    a shirt (:mod:`shirt_rows`), an accessory style (:mod:`accessory_rows`; its necklaces,
+    bracelets and rings are derived, gen#1113), a seating
     style (:mod:`sofa_rows`), a piece of furniture (:mod:`furniture_rows`), a household
     style (:mod:`household_rows`), an appliance (:mod:`appliance_rows`),
     an underwear style (:mod:`underwear_rows`), a toy (:mod:`toys_rows`) or a lower-body

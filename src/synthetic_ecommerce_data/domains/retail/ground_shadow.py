@@ -1,14 +1,17 @@
-"""The one shadow a turned product stands on, flat on the ground (gen#1182).
+"""The one shadow a product stands on, flat on the ground, level or turned (gen#1182).
 
-A kit draws its shadow in its figure (an ellipse with ``class="ground"``), so turning the drawing
-turned the shadow with it and a tilted pile looked as if it sat on a slope. :func:`turned` takes
-those ellipses out of the drawing and draws one in their place, outside the turn: a soft ellipse,
-horizontal, its center line at the lowest point of the turned drawing and its width that of the
-part of the drawing near the ground. Every picture's shadow falls away from the one :data:`LIGHT`.
+A kit draws its shadow in its figure, and draws it by :func:`ellipse`, which labels it
+``class="ground"``. Turning the drawing turned that shadow with it, and a tilted pile looked as if
+it sat on a slope. :func:`turned` takes those ellipses out of the drawing and draws one in their
+place, outside the turn: a soft ellipse, horizontal, its center line at the lowest point of the
+turned drawing and its width that of the part of the drawing near the ground. A level picture,
+in a house style or on the plain sheet, stands on the same one (an empty turn), so every
+picture's shadow is drawn here and falls away from the one :data:`LIGHT`.
 
-The drawing is measured by :func:`.sheet_extent.reach`, which gives a box. Leaning the drawing a
-little each way and reading how low it reaches gives the lines that hug its underside
-(:func:`_span`), so the footprint of a path is read without a rasteriser.
+The drawing is measured by :func:`.sheet_extent.reaches`, which gives a box per lean and reads
+the drawing once for all of them. Leaning the drawing a little each way and reading how low it
+reaches gives the lines that hug its underside (:func:`_span`), so the footprint of a path is read
+without a rasteriser.
 """
 
 from __future__ import annotations
@@ -28,6 +31,8 @@ BAND = 0.12
 PAD = 8.0
 #: The shadow's height per unit of its width, and the least and most it is tall (half-heights).
 FLATNESS, MIN_RY, MAX_RY = 0.075, 5.0, 12.0
+#: The kit's sheet, in its units: a level drawing's shadow stays on it.
+SHEET = 400.0
 #: The black of the shadow's middle; its edge is clear.
 OPACITY = 0.3
 #: The leans, in degrees, the underside is measured at (each way): a product is turned by a multiple
@@ -42,6 +47,17 @@ _SVG = (
 )
 
 
+def ellipse(
+    cx: float, cy: float, rx: float, ry: float, ink: str = "#000000", opacity: float = 0.08
+) -> str:
+    """The shadow a kit draws under its figure, labelled so :func:`turned` finds it and draws the
+    flat one in its place. A kit marks its shadow by this, never by an unlabelled ellipse."""
+    return (
+        f'<ellipse class="ground" cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" '
+        f'fill="{ink}" fill-opacity="{opacity:g}"/>'
+    )
+
+
 def turned(drawing: str, defs: str, transform: str, uid: str) -> tuple[str, str]:
     """(shadow, figure): ``drawing``'s figure without the shadow its kit drew, and the flat one
     to draw before it, outside ``transform`` (the product's turn). A drawing with no shadow
@@ -54,8 +70,11 @@ def turned(drawing: str, defs: str, transform: str, uid: str) -> tuple[str, str]
 
 def turned_all(drawings: list[str], defs: str, transform: str, uid: str) -> tuple[list[str], str]:
     """(measured, product): each of ``drawings`` turned by ``transform`` with its shadow flat before
-    it, for measuring, and the last of them, the SKU's own, in the group its picture draws."""
+    it, for measuring, and the last of them, the SKU's own, in the group its picture draws. An
+    empty ``transform`` is a level picture: the same shadow, and no turn group."""
     lifted = [turned(d, defs, transform, uid) for d in drawings]
+    if not transform:
+        return [shadow + figure for shadow, figure in lifted], "".join(lifted[-1])
     measured = [f'{shadow}<g transform="{transform}">{figure}</g>' for shadow, figure in lifted]
     shadow, figure = lifted[-1]
     return measured, f'{shadow}<g class="turn" transform="{transform}">{figure}</g>'
@@ -71,6 +90,8 @@ def _flat(figure: str, defs: str, transform: str, uid: str) -> str:
     rx = (right - left) / 2 + PAD
     ry = min(MAX_RY, max(MIN_RY, rx * FLATNESS))
     cx = (left + right) / 2 + ry * LIGHT[0] / LIGHT[1]
+    if not transform:  # a level drawing is on its kit's own sheet, and its shadow keeps to it
+        rx, ry = min(rx, cx, SHEET - cx), min(ry, SHEET - low)
     gid = f"ground-{uid}"
     return (
         f'<radialGradient id="{gid}">'
@@ -84,17 +105,16 @@ def _flat(figure: str, defs: str, transform: str, uid: str) -> str:
 def _footprint(defs: str, body: str) -> tuple[float, float, float] | None:
     """(left, right, lowest y) of the part of ``body`` near the ground, or ``None`` when it draws
     nothing :func:`.sheet_extent.reach` measures."""
-    flat = sheet_extent.reach(_SVG.format(defs, 0, body))
+    angles = [a for lean in LEANS for a in (lean, -lean)]
+    flat, *leaned = sheet_extent.reaches(_SVG.format(defs, 0, body), [0, *angles])
     if flat is None:
         return None
     low = flat[3]
     # How low the drawing reaches leaned each way: the line that hugs its underside there.
     lines = []
-    for lean in LEANS:
-        for a in (lean, -lean):
-            box = sheet_extent.reach(_SVG.format(defs, a, body))
-            assert box is not None
-            lines.append((math.radians(a), box[3]))
+    for a, box in zip(angles, leaned, strict=True):
+        assert box is not None
+        lines.append((math.radians(a), box[3]))
     spans = [_span(lines, y) for y in (low, low - BAND * (low - flat[1]))]
     return min(s[0] for s in spans), max(s[1] for s in spans), low
 

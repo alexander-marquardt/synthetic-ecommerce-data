@@ -54,6 +54,7 @@ SPEC = TypeSpec(
     key="bangle",
     department="Clothing",
     product_type=PTYPE,
+    derivable=True,
     owners=OWNED,
     apparel_exempt="jewellery: the color is the metal finish, not a printed or dyed color; it carries its own decoys (gen#1113)",
     rows=(

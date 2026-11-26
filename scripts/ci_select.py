@@ -54,6 +54,7 @@ from __future__ import annotations
 import argparse
 import ast
 import fnmatch
+import json
 import re
 import subprocess
 import sys
@@ -88,12 +89,33 @@ FULL_RUN: tuple[str, ...] = (
     "vendor/",
     "tests/conftest.py",
     "tests/templates_memo.py",
+    "tests/type_reads.py",
     "tests/ci_shard_split.py",
     "tests/xdist_groups.py",
     "scripts/ci_select.py",
     "scripts/ci_shards.py",
     "scripts/ci_shard_weights.json",
+    "scripts/ci_type_free.json",
 )
+
+#: The test files a run saw read no type table (``scripts/ci_type_free.py``, #1035), held there by
+#: ``tests/type_reads.py``. For one of them the imports of ``TYPE_LOADERS`` are not followed.
+TYPE_FREE_FILE = "scripts/ci_type_free.json"
+
+#: file -> the functions in it whose imports run only when a type table is read, and the names it
+#: assigns that only the table reads use. ``_figures`` is not one: importing core's drawing asks
+#: for it.
+TYPE_LOADERS: dict[str, tuple[str, ...]] = {
+    "src/synthetic_ecommerce_data/domains/industrial/__init__.py": (
+        "_product_types",
+        "_brand_families",
+        "_pack_types",
+        "_orientations",
+        "_load_types",
+        "_register_type",
+        "TYPES_PACKAGE",
+    ),
+}
 
 #: What ``scripts/merge_pr.sh`` is made of and runs: its parts, the scripts and the module it
 #: calls, the tests whose ids it names, and the test files that drive it (#1035).
@@ -289,6 +311,15 @@ def _import_roots(dotted: str) -> set[str]:
     }
 
 
+def _defines(node: ast.stmt, names: Collection[str]) -> bool:
+    """Whether a top-level statement is the function or assignment of one of ``names``."""
+    if isinstance(node, ast.FunctionDef):
+        return node.name in names
+    if isinstance(node, ast.Assign):
+        return any(isinstance(t, ast.Name) and t.id in names for t in node.targets)
+    return False
+
+
 def _subcommand(node: ast.If) -> str | None:
     """The word of ``if argv and argv[0] == "word":``, or None."""
     tests = node.test.values if isinstance(node.test, ast.BoolOp) else [node.test]
@@ -390,6 +421,11 @@ class Tree:
         self._scans: dict[str, frozenset[Scan]] = {}
         for path in self.py:
             self.edges[path], self.leaves[path] = self._edges(path)
+        #: file of TYPE_LOADERS -> what it depends on less what only its loaders import
+        self.unloaded: dict[str, set[str]] = {
+            path: self._without_loaders(path) for path in TYPE_LOADERS if path in self.edges
+        }
+        self.type_free = self._type_free()
         self._closure: dict[str, tuple[frozenset[str], frozenset[str]]] = {}
         self._named: dict[str, tuple[tuple[re.Pattern[str], ...], dict[str, bool]]] = {}
 
@@ -581,9 +617,33 @@ class Tree:
         leaves.discard(path)
         return edges, leaves
 
+    def _type_free(self) -> frozenset[str]:
+        """The listed test files; none when the list cannot be read, which drops nothing."""
+        try:
+            return frozenset(json.loads(self.text.get(TYPE_FREE_FILE, "")))
+        except ValueError:
+            return frozenset()
+
+    def _without_loaders(self, path: str) -> set[str]:
+        """``path``'s edges with the bodies of its ``TYPE_LOADERS`` names left out."""
+        module = self.trees.get(path)
+        if module is None:
+            return self.edges[path]
+        kept = [n for n in module.body if not _defines(n, TYPE_LOADERS[path])]
+        if len(kept) == len(module.body):
+            return self.edges[path]
+        strings, gated = self.strings.get(path, ""), self.gated.get(path, {})
+        self.trees[path] = ast.Module(body=kept, type_ignores=[])
+        try:
+            return self._edges(path)[0]
+        finally:
+            self.trees[path] = module
+            self.strings[path], self.gated[path] = strings, gated
+
     def closure(self, path: str) -> tuple[frozenset[str], frozenset[str]]:
         """The files whose code and text ``path`` depends on, and the files it only reads."""
         if path not in self._closure:
+            free = path in self.type_free
             seen = {path}
             leaves: set[str] = set()
             stack = [path]
@@ -591,7 +651,8 @@ class Tree:
                 while stack:
                     node = stack.pop()
                     leaves |= self.leaves.get(node, set())
-                    for nxt in self.edges.get(node, ()):
+                    followed = self.unloaded if free and node in self.unloaded else self.edges
+                    for nxt in followed.get(node, ()):
                         if nxt not in seen:
                             seen.add(nxt)
                             stack.append(nxt)

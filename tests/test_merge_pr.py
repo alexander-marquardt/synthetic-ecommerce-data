@@ -95,6 +95,7 @@ case "$1 $2" in
     printf 'red-commit-proof\tcompleted\tsuccess\n'
     printf 'customer-name-check\tcompleted\tsuccess\n'
     printf 'no-derived-files\tcompleted\tsuccess\n'
+    printf 'dependency-review\tcompleted\tsuccess\n'
     printf 'main-merged-tree\tcompleted\tskipped\n'
     # A check the rollup also carries, skipped (#708): review-verdict-rerun on a real PR.
     if [ -n "${FAKE_GH_ALSO_SKIPPED:-}" ]; then
@@ -582,7 +583,7 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         (
             "head-only",
             "missing: lint ceiling-catalogue tests commit-messages file-size red-commit-proof"
-            " customer-name-check no-derived-files",
+            " customer-name-check no-derived-files dependency-review",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -1125,6 +1126,7 @@ _ALL_GREEN = _workflow(
         "red-commit-proof": "echo red",
         "customer-name-check": "echo names",
         "no-derived-files": "echo roll",
+        "dependency-review": "echo deps",
         "main-merged-tree": "echo drift",
     },
 )
@@ -1141,6 +1143,7 @@ def test_local_ci_runs_every_job_logs_each_and_merges_without_asking_github(worl
         "red-commit-proof",
         "customer-name-check",
         "no-derived-files",
+        "dependency-review",
         "main-merged-tree",
     ):
         assert f"local CI {job}: PASS" in done.stdout
@@ -1161,6 +1164,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
             "red-commit-proof": "true",
             "customer-name-check": "true",
             "no-derived-files": "true",
+            "dependency-review": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -1184,6 +1188,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
             "red-commit-proof": "true",
             "customer-name-check": "true",
             "no-derived-files": "true",
+            "dependency-review": "true",
         },
     )
     head = _open_pr(world, {**_GREEN, **plant})
@@ -1256,6 +1261,7 @@ _OTHER_JOBS = {
     "red-commit-proof": "true",
     "customer-name-check": "true",
     "no-derived-files": "true",
+    "dependency-review": "true",
 }
 
 

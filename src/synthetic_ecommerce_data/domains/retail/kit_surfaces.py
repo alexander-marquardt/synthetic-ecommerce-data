@@ -10,6 +10,7 @@ a print's ``<pattern>`` (or its ground, for a placement print) shows on it.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
@@ -56,7 +57,7 @@ def cushion(paint: str, fill: Fill, label: str | None, trim: str = "") -> list[s
     """A scatter cushion; ``trim`` (a hex color) draws a contrasting piping round its edge."""
     d = "M86,96 Q200,82 314,96 Q328,206 314,316 Q200,330 86,316 Q72,206 86,96 Z"
     return [
-        '<ellipse cx="200" cy="334" rx="120" ry="9" fill="#000000" fill-opacity=".08"/>',
+        ground_shadow.ellipse(200, 334, 120, 9),
         _path(d, paint),
         *([_path(d, "none", 7, "", trim)] if trim else []),
         _path(d, "none", 1.2, ' transform="translate(200 206) scale(.94) translate(-200 -206)" stroke-dasharray="5 4"'),

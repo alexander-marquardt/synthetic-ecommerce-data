@@ -817,9 +817,8 @@ def _render_styled(
     product = hs.restyle(inner, style)
     full = _placed(shape, drawn, overlay, 1.0, copies, paint, uid, printed)
     measured = [product] if full == inner else [full, product]
-    if angle:
-        turned = hs.turn(full, defs, angle)
-        measured, product = ground_shadow.turned_all(measured, defs, turned, uid)
+    turned = hs.turn(full, defs, angle) if angle else ""
+    measured, product = ground_shadow.turned_all(measured, defs, turned, uid)
     # The rows the largest size covers, so every size of the product is placed alike, and the
     # SKU's own, which a turned smaller size can reach past (gen#932).
     rows = hs.drawn_rows(defs, *measured) if style.mark != hs.NO_MARK else None
@@ -954,7 +953,7 @@ def render(
     ``emblem`` names the invented film whose emblem the product carries, and whose licence line
     a styled drawing sets beside its brand's logo (:mod:`film_emblems`, gen#904).
     """
-    from synthetic_ecommerce_data.domains.retail import size_ladder  # deferred: gen#339 layer
+    from synthetic_ecommerce_data.domains.retail import ground_shadow, size_ladder  # deferred
 
     if copies > 1:
         from synthetic_ecommerce_data.domains.retail import pack_copies  # deferred: draws with kit
@@ -992,7 +991,7 @@ def render(
         f"<defs>{defs}</defs>" if defs else "",
         f'<rect width="{SIZE}" height="{SIZE}" fill="{PAPER}"/>',
         f'<rect x="6" y="6" width="{SIZE - 12}" height="{SIZE - 12}" fill="none" stroke="{INK}" stroke-width="1"/>',
-        size_ladder.stand(body, defs, size_scale),
+        "".join(ground_shadow.turned(size_ladder.stand(body, defs, size_scale), defs, "", uid)),
         *(_brand_tag(brand) if brand else []),
         "</svg>",
     ]
