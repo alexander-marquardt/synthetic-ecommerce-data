@@ -96,9 +96,16 @@ a push to `main` runs every test file, so the whole suite still runs once after 
   #1035. A documentation change went from 33% of the suite to 2%, and a retail change from 80% to
   55%. What a retail change still selects is the retail tests, which import `retail/scale.py` or
   `retail/kit.py` and so all of the retail domain.
-- `FULL_RUN` in the script lists the changes that select every test: `.github/`, `pyproject.toml`,
-  `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector and sharding
-  scripts themselves. An unreadable diff selects every test. `SMOKE` lists the guards of the
+- `FULL_RUN` in the script lists the changes that select every test: `.github/workflows/`,
+  `pyproject.toml`, `uv.lock`, `vendor/`, the files pytest loads before any test, and the selector
+  and sharding scripts themselves. An unreadable diff selects every test. Any other file under
+  `.github/` (a required-check list, an allowlist, the copies of core's gates) is read by a few
+  tests, not by pytest, so the usual rules select them (#1035). #1272 changed
+  `.github/required-checks.json`, its doc and its test, and ran every file for 141.1 job-minutes
+  (run 45784952218). The rules now select 95 files for that change (1,564 s of the weights, two
+  shards), and 53 of them (850 s) for the JSON file alone. `PINNED_COPIES` names each copy whose
+  `verify_pin.py` hashes all of its files, and the test that runs that pin, which a change under
+  the copy selects. `SMOKE` lists the guards of the
   selection and of the sharding, which every pull request runs. `SELECTED_ONLY_BY` lists the two
   `test_merge_pr` files (76 of the suite's 257 minutes): only a change to `scripts/merge_pr.sh`,
   `scripts/merge_pr/`, a script or module it runs, a test whose id it names, or the two files
@@ -535,6 +542,9 @@ ran from 893 to 1,208 against the table's even deal, so the table was refreshed 
 over its workers, plus about 40 s. The deal that gathers the heavy modules (above) brings the
 slowest shard's seconds over workers from 534 s to 511 s on that table. The push runs after it
 merges measure Done-when 2 again.
+
+The first one, 45828240017 on 50c2a8b8 (#1275's merge), took 14.8 min wall-clock and 140.8
+job-minutes, within the 15: its 12 shards started at +2.7 to +4.5 min and ran 8.6 to 12.0 min.
 
 ## Where the jobs run (#596)
 

@@ -40,9 +40,11 @@ Two edges are not followed, because nothing runs them (#1035): ``import pickle``
 library's module, not a product module of that name, and an import inside a subcommand's branch
 (``if argv[0] == "compose":``) runs only for a closure that holds the subcommand's word.
 
-A change to the workflow, the project file, the lock file, the vendored core or a test
+A change to a workflow, the project file, the lock file, the vendored core or a test
 fixture module every test uses (``FULL_RUN``), or a diff that cannot be read, selects every
-test. The same holds with no base and head (a push to ``main``). A test file of
+test. The same holds with no base and head (a push to ``main``). Another file under
+``.github/`` goes by the usual rules, and a change under a copy of ``PINNED_COPIES`` also
+selects the test that runs its pin (#1035). A test file of
 ``SELECTED_ONLY_BY`` (the tests of ``scripts/merge_pr.sh``) is selected by a change to one of
 its listed paths and by no other rule (#1035).
 ``tests/test_ci_select_495.py`` pins each rule on a throwaway repository and pins the
@@ -83,7 +85,7 @@ SMOKE: tuple[str, ...] = (
 #: A change to one of these (path prefix or exact path) selects every test: the CI definition,
 #: the dependency set, the vendored core, and the files pytest loads before any test.
 FULL_RUN: tuple[str, ...] = (
-    ".github/",
+    ".github/workflows/",
     "pyproject.toml",
     "uv.lock",
     "vendor/",
@@ -99,7 +101,12 @@ FULL_RUN: tuple[str, ...] = (
 )
 
 #: A copy under ``.github/`` pinned by the ``verify_pin.py`` in it -> the test that runs that pin.
-PINNED_COPIES: dict[str, str] = {}
+#: The pin hashes every file of the copy, and the test names none of them, so no other rule
+#: finds it (#1035).
+PINNED_COPIES: dict[str, str] = {
+    ".github/dependency-review/": "tests/test_dependency_review_copy_1180.py",
+    ".github/vuln-gate/": "tests/test_vuln_gate_copy_1149.py",
+}
 
 #: The test files a run saw read no type table (``scripts/ci_type_free.py``, #1035), held there by
 #: ``tests/type_reads.py``. For one of them the imports of ``TYPE_LOADERS`` are not followed.
@@ -831,6 +838,10 @@ def select(
     for test in SMOKE:
         if test in tests and test not in held:
             reasons[test] = "smoke"
+    for path in changed:
+        for prefix, test in PINNED_COPIES.items():
+            if path.startswith(prefix) and test in tests and test not in reasons:
+                reasons[test] = f"its pin covers {path}"
     for test in tests:
         if test in reasons or test in held:
             continue
