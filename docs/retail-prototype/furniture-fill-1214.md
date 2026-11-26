@@ -2,8 +2,8 @@
 
 Before gen#1214 the seven types of `kit_furniture` were flat front views, small on the sheet:
 87% of their SKUs painted under half of the product area, the smallest size of a ladder
-bookcase 4%. Slice 1 redraws the seven types, slice 2 the sofas (below); the armchair, the
-footstool and the sideboard follow in slice 3.
+bookcase 4%. Slice 1 redraws the seven types, slice 2 the sofas, slice 3 the armchair and the
+footstool (below); the sideboard follows.
 
 **Each piece is drawn as it is sold**, from in front and a little above: a table shows its top
 and its near edge (`kit_furniture._flat_slab`, `_ellipse_slab`), a cabinet its front, side and top
@@ -62,8 +62,7 @@ into. A sofa is fitted to the product area (`AREA`, less 8 units at its foot for
 seen from above (`SOFA`), so its seat cushions show as a surface and the drawing is less sheared
 wide. A straight run of four seats or more and a U-shaped sofa are seen from higher still and more
 from the front (`LONG`, from `LONG_RUN` seats), a folded-out sofa bed, its mattress a bed's length
-in front of it, from lower down (`BED`). The armchair and the footstool keep the view they had
-(`CHAIR`) until slice 3. Each sofa stands on a ground shadow (`ground_shadow.ellipse`, which the
+in front of it, from lower down (`BED`). Each sofa stands on a ground shadow (`ground_shadow.ellipse`, which the
 picture's step redraws flat under it, gen#1182), not counted as fill. A sofa bed's size ladder
 runs from 0.84 to 0.90 (`size_ladder.BOTTOMS`), as a dining table's does.
 
@@ -83,3 +82,30 @@ holds every SKU of the eight shapes to 50%, a highlight and a shadow, and checks
 on a ground shadow that the measure skips.
 
 ![Three sofas of each shape before and after](../images/sofa-fill-1214.png)
+
+## Slice 3: the armchair and the footstool
+
+Before slice 3, 14 of the 24 armchair SKUs and all 17 footstool SKUs painted under half of the
+product area: both were still fitted into `CHAIR`'s smaller box, and a footstool, low and wide,
+filled a strip of it.
+
+**An armchair is fitted to the product area** (`CHAIR`, now `AREA` and a ground shadow), from in
+front and a little above as before. Its back cushion carries a light shade over its front, so no
+one solid color paints most of the figure once the drawing is larger and its outlines take a
+smaller share. A nursing chair, armless, is drawn 16 units wider in the seat, as the real one is,
+so its high back is not a narrow strip. A swivel chair is fitted a little higher (`SWIVEL`), so
+its round foot and the shadow under it stay inside the product area.
+
+**A footstool is seen from higher up** (`STOOL`), so its buttoned top reads as a surface, and a
+round footstool's drum is scaled to 0.9 of the product area, centred, on a ground shadow.
+
+| type | form | before, smallest to largest | now, smallest to largest |
+|---|---|---|---|
+| Armchair | accent, nursing, wingback, recliner, tub, swivel | 29.1% to 59.1% | 55.2% to 77.2% |
+| Footstool | rectangular, round | 34.3% to 45.1% | 65.8% to 69.6% |
+
+The lowest now is the nursing chair, at 55.2%. `tests/test_furniture_fill_1214.py` holds every
+armchair and footstool SKU to 50%, a highlight and a shadow, and checks each form of each seat
+stands on a ground shadow that the measure skips.
+
+![Each armchair style and footstool form before and after](../images/seat-fill-1214.png)
