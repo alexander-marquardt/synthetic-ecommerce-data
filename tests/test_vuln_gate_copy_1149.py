@@ -4,9 +4,9 @@ The copy is rendered by elastic/prism's ``scripts/sister_vuln_gate.py write`` an
 as is: ``.github/vuln-gate/`` (the gate's scripts, ``verify_pin.py`` and ``PIN.json``) and
 ``.github/workflows/vuln-gate.yaml``. The allowlist ``.github/vuln-allowlist.json`` is this
 repository's own. These tests hold what a change here could break: the pin, the workflow's
-triggers, the allowlist's shape, the required check a merge waits for, and ruff leaving the
-vendored scripts alone (they are linted in core, under core's Python, and a fix here would break
-the pin). Docs: docs/vulnerability-gate.md.
+triggers, the allowlist's shape, the check being left off the required list (#1256), and ruff
+leaving the vendored scripts alone (they are linted in core, under core's Python, and a fix here
+would break the pin). Docs: docs/vulnerability-gate.md.
 """
 
 from __future__ import annotations
@@ -51,10 +51,12 @@ def test_every_allowlist_entry_names_advisory_package_issue_and_expiry() -> None
         assert set(entry) >= {"advisory", "package", "issue", "expires"}, entry
 
 
-def test_a_merge_needs_the_gate_green_by_its_check_name() -> None:
+def test_a_red_gate_holds_no_merge_1256() -> None:
+    # The maintainer, 2026-11-25 (elastic/prism#16291): the gate runs and reports on every pull
+    # request, but blocks no merge, so the required-checks list does not name it (#1256).
     required = json.loads((ROOT / ".github" / "required-checks.json").read_text(encoding="utf-8"))
     job = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["vuln-gate"]
-    assert job["name"] in required["required"], "vuln-gate is not a check a merge needs"
+    assert job["name"] not in required["required"], "a red vuln-gate still holds a merge"
 
 
 def test_merge_pr_local_ci_skips_the_gate_and_still_reads_every_other_workflow() -> None:
