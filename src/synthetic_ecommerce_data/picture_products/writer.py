@@ -160,35 +160,62 @@ def price(picture: Picture, size: tuple[int, int, int]) -> float:
     return float(max(9, round(raw / 10) * 10 - 1))
 
 
-def product(picture: Picture) -> Product:
-    """The product of our own around ``picture``, and its picture in the ``brand`` finish."""
+def doc(picture: Picture) -> dict:
+    """The catalog document of the product of our own around ``picture``: what the retail build
+    reads (gen#1093), with no picture drawn. The build draws a SKU's picture from the document's
+    ``drawing``, as it does for every row."""
+    return _written(picture)[0]
+
+
+def _written(picture: Picture) -> tuple[dict, tuple[int, int, int]]:
     code = "PC" + stable_ids.digest("picture-product", picture.image_id)[:8].upper()
     product_id = f"BRD-{code}"
     brand = stable_ids.pick(sorted(book.RANGES), "picture-brand", product_id)
     range_ = stable_ids.pick(list(book.RANGES[brand]), "picture-range", product_id)
     size = measure(picture, product_id)
     tb = book.TYPES[picture.type]
-    doc = Row(
+    doc_ = Row(
         code, title(picture, range_), brand, DEPARTMENT, tb.path, tb.product_type,
         price(picture, size), picture.type, description(picture, brand, range_, size),
         (cw(picture.color, COLORS[picture.color]),), attributes(picture, size),
         params=tuple(_parts(picture)), product_line=range_,
     ).doc()  # fmt: skip
-    w, h, d = size
+    return doc_, size
+
+
+def product(picture: Picture) -> Product:
+    """The product of our own around ``picture``, and its picture in the ``brand`` finish."""
+    doc_, (w, h, d) = _written(picture)
+    product_id, brand = doc_["product_id"], doc_["brand"]
     svg = drawings.render(
         picture.type,
         {"color": COLORS[picture.color], "width": w / INCH, "height": h / INCH,
          "depth": d / INCH, **dict(picture.parts)},
         "brand", product_id=product_id, brand=brand,
     )  # fmt: skip
-    return Product(doc=doc, image_name=f"{product_id}.svg", svg=svg)
+    return Product(doc=doc_, image_name=f"{product_id}.svg", svg=svg)
+
+
+def described(pictures: Iterable[Picture | Fallback]) -> list[Picture]:
+    """The pictures that make a product: each of a type the book describes."""
+    return [p for p in pictures if isinstance(p, Picture) and p.type in book.TYPES]
+
+
+def _unique(ids: list[str]) -> None:
+    if len(set(ids)) != len(ids):
+        raise ValueError("two pictures hash to one product id")
 
 
 def write(pictures: Iterable[Picture | Fallback]) -> list[Product]:
     """One product per picture of a type the book describes; two pictures that would share a
     product id are refused."""
-    out = [product(p) for p in pictures if isinstance(p, Picture) and p.type in book.TYPES]
-    ids = [p.doc["product_id"] for p in out]
-    if len(set(ids)) != len(ids):
-        raise ValueError("two pictures hash to one product id")
+    out = [product(p) for p in described(pictures)]
+    _unique([p.doc["product_id"] for p in out])
+    return out
+
+
+def docs(pictures: Iterable[Picture | Fallback]) -> list[dict]:
+    """:func:`write`'s documents alone, with no picture drawn: the retail build's source."""
+    out = [doc(p) for p in described(pictures)]
+    _unique([d["product_id"] for d in out])
     return out
