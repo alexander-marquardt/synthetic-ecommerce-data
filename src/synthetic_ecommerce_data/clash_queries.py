@@ -1,4 +1,4 @@
-"""The search-demo clash queries of the large appliances, without and with a policy (gen#1116).
+"""The search-demo clash queries, without and with a policy (gen#1116, gen#1118).
 
 Ten queries whose words name an appliance and something else (``washer`` is a laundry machine and a
 flat washer), or that name one thing only (``m8 washer``). Each :class:`Clash` states its families,
@@ -11,8 +11,10 @@ of what the data can support, not a policy anyone authored in R&I.
 holds them. A domain reaches core only, never another domain (#125), so this module, which needs
 both builds, is above ``domains/`` like :mod:`rule_rowsets`. ``python -m
 synthetic_ecommerce_data.clash_queries`` prints the table of
-``docs/retail-prototype/clash-queries-1116.md``; ``--ceiling`` measures the scaled retail build in
-place of the templates. Standard library only.
+``docs/retail-prototype/clash-queries-1116.md``; ``--thread`` prints the ``thread`` table of
+``docs/retail-prototype/sewing-knitting-1118.md`` (:data:`THREADS`), where sewing thread meets the
+industrial catalogue's thread sizes; ``--ceiling`` measures the scaled retail build in place of the
+templates. Standard library only.
 """
 
 from __future__ import annotations
@@ -35,7 +37,8 @@ SIZE = 10
 INDUSTRIAL = "(industrial)"
 
 Where = Mapping[str, tuple[str, ...]]
-"""``product_type`` or an attribute key to the values that meet it; every key must be met."""
+"""``product_type``, ``color`` or an attribute key to the values that meet it; every key must be
+met. ``color`` is met by any of the record's SKUs, the axis a retail color sits on."""
 
 WASHERS: Where = {"appliance_type": ("Washing Machine", "Washer Dryer")}
 DRYERS: Where = {"appliance_type": ("Tumble Dryer (Heat Pump)", "Tumble Dryer (Condenser)",
@@ -44,6 +47,8 @@ FLAT: Where = {"product_type": ("washer_flat",)}
 COOKERS: Where = {"product_type": ("Range Cooker",)}
 IRONS: Where = {"product_type": ("Steam Iron",)}
 FREEZERS: Where = {"appliance_type": ("Chest Freezer", "Upright Freezer")}
+SEWING: Where = {"product_type": ("Sewing Thread",)}
+ANY_INDUSTRIAL: Where = {"product_type": (INDUSTRIAL,)}
 
 
 @dataclass(frozen=True)
@@ -88,6 +93,18 @@ CLASHES: tuple[Clash, ...] = (
           "Appliances first; freezer bags as the second family.", boost=FREEZERS),
 )  # fmt: skip
 
+#: The issue's ``thread`` case (gen#1118): a spool of sewing thread against the thread sizes of the
+#: industrial catalogue's rods, nuts and bolts, and ``m6`` also names a retail phone.
+THREADS: tuple[Clash, ...] = (
+    Clash("thread", {"sewing thread": SEWING, "industrial thread": ANY_INDUSTRIAL},
+          "Both families; a policy can rank by department intent.", boost=SEWING),
+    Clash("sewing thread white", {"sewing thread": SEWING}, "Sewing thread only (color).",
+          filter={**SEWING, "color": ("White",)}),
+    Clash("m6 thread", {"industrial thread": ANY_INDUSTRIAL,
+                        "the M6 phone": {"product_type": ("Smartphone", "Phone Case")}},
+          "Fasteners only (thread size).", filter=ANY_INDUSTRIAL),
+)  # fmt: skip
+
 
 def _says(where: Where) -> str:
     return ", ".join(f"{key} = {' or '.join(values)}" for key, values in where.items())
@@ -99,6 +116,9 @@ def meets(record: dict, where: Where) -> bool:
             if INDUSTRIAL in values and record.get("industrial"):
                 continue
             if record["product_type"] not in values:
+                return False
+        elif key == "color":
+            if not {sku["color"] for sku in record.get("skus", ())} & set(values):
                 return False
         else:
             held = {str(a["value"]) for a in record["attributes"] if a["key"] == key}
@@ -165,13 +185,13 @@ def _present(found: list[dict], clash: Clash) -> str:
     )
 
 
-def table(index: br.Index) -> str:
+def table(index: br.Index, clashes: tuple[Clash, ...] = CLASHES) -> str:
     rows = [
         "| Query | Expected | Families found without a policy | Top 10 without a policy "
         "| Policy | Families found with it | Top 10 with it |",
         "|---|---|---|---|---|---|---|",
     ]
-    for clash in CLASHES:
+    for clash in clashes:
         off, on = hits(index, clash, policy=False), hits(index, clash, policy=True)
         rows.append(
             f"| `{clash.query}` | {clash.expected} | {_present(off, clash)} | {_top(off)} "
@@ -183,12 +203,14 @@ def table(index: br.Index) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--ceiling", action="store_true", help="the scaled retail build")
+    parser.add_argument("--thread", action="store_true", help="the thread queries of gen#1118")
+    args = parser.parse_args(argv)
     retail = None
-    if parser.parse_args(argv).ceiling:
+    if args.ceiling:
         from synthetic_ecommerce_data.domains.retail import retail_figures  # noqa: PLC0415
 
         retail = retail_figures.ceiling().records
-    print(table(br.Index(catalog(retail))))
+    print(table(br.Index(catalog(retail)), THREADS if args.thread else CLASHES))
     return 0
 
 

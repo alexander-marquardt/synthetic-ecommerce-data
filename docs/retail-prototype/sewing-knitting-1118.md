@@ -133,5 +133,54 @@ green kit with a black hoop. `red embroidery kit` meets the Red Robin range in b
 2's figures do not move. The test's floor for cut 3 is in `tests/test_retail_sewing_cut3_1118.py`
 (`FLOOR`); the PR states the measured count.
 
-**Left for the next cut:** #837's department count, and the `thread` demo queries (`sewing thread
-white` against `m6 thread`, without and with a policy) on an index that carries the range.
+## The count, and the `thread` demo queries
+
+**The count** (ceiling build, seed 0, main `ee42285d`): the nine types make 1,102 SKUs in 145
+products under Office & School > Sewing & Knitting. The issue's target was about +900. The rows are in
+[catalogue-mix-837.md](../catalogue-mix-837.md), and #837 holds the table
+([comment](https://github.com/alexander-marquardt/synthetic-ecommerce-data/issues/837#issuecomment-7184103726)).
+
+**The queries.** `thread` is a spool of sewing thread and also the thread size of the industrial
+catalogue's rods, nuts and bolts. The issue compares `sewing thread white` with `m6 thread`, and
+`m6` also names the retail Mervane M6 phone. The three queries are `clash_queries.THREADS`. Each
+has a policy, a filter or a x10 boost on a structured field, as in
+[clash-queries-1116.md](clash-queries-1116.md). `color` is met by any of a product's SKUs. Measured
+by `uv run python -m synthetic_ecommerce_data.clash_queries --thread --ceiling` at main
+`ee42285d`: the ceiling retail build and the default industrial build, counted in products:
+
+| Query | Expected | Families found without a policy | Top 10 without a policy | Policy | Families found with it | Top 10 with it |
+|---|---|---|---|---|---|---|
+| `thread` | Both families; a policy can rank by department intent. | sewing thread 28 (first at 89), industrial thread 5446 (first at 1) | threaded_rod 8, thread_plug_gages 2 | product_type = Sewing Thread x10 | sewing thread 28 (first at 1), industrial thread 5446 (first at 29) | Sewing Thread 10 |
+| `sewing thread white` | Sewing thread only (color). | sewing thread 28 (first at 1) | Sewing Thread 10 | filter product_type = Sewing Thread, color = White | sewing thread 25 (first at 1) | Sewing Thread 10 |
+| `m6 thread` | Fasteners only (thread size). | industrial thread 5466 (first at 1), the M6 phone 4 (first at 2) | washer_flat 5, Phone Case 3, sems_bolts 1, Smartphone 1 | filter product_type = (industrial) | industrial thread 5466 (first at 1), the M6 phone none | washer_flat 9, sems_bolts 1 |
+
+**On the served index.** `catalog_combined_2026-11-25-1902` (the `catalog_combined` alias on
+2026-11-26) carries cuts 1 and 2: 905 sewing SKUs in `Office & school`. Cut 3 arrives with the next
+load. Each document there is a SKU. The same three queries ran as a plain BM25 `match` on `text`,
+which is not the Engine's query. A boost is a `function_score` of weight 10 that multiplies the
+score, and a filter is a `bool` filter. "Industrial" is the departments Hardware, Tools and
+Workshop & Safety:
+
+| Query | Hits without | Families without | Top 10 without | Policy | Hits with | Families with | Top 10 with |
+|---|---:|---|---|---|---:|---|---|
+| `thread` | 28,590 | sewing thread 141 (first at 373), industrial 28,241 (first at 1) | All-thread rods 8, Thread chasers 2 | product_type = Sewing Thread x10 | 28,590 | sewing thread 141 (first at 1), industrial 28,241 (first at 142) | Sewing Thread 10 |
+| `sewing thread white` | 72,536 | sewing thread 141 (first at 1), industrial 28,241 (first at 1,122) | Sewing Thread 10 | filter product_type = Sewing Thread, color = White | 25 | sewing thread 25 (first at 1) | Sewing Thread 10 |
+| `m6 thread` | 31,269 | sewing thread 141 (first at 3,259), industrial 30,897 (first at 1) | All-thread rods 6, Hex nuts 2, Nylon insert lock nuts 1, Hex head bolts 1 | filter department = Hardware, Tools or Workshop & Safety | 30,897 | industrial 30,897 (first at 1) | All-thread rods 6, Hex nuts 2, Nylon insert lock nuts 1, Hex head bolts 1 |
+
+**What it shows.**
+
+* **The clash is in the data.** Without a policy, the top ten of a bare `thread` is threaded rods,
+  and the first spool is at 89 in the build and at 373 on the served index. The boost puts every
+  spool first and drops no other product.
+* `sewing thread white` finds sewing thread first with no policy. In the template build, the rest
+  of its top ten is sewing machines, needles and the dressmaker pins "on a White Card", the cut 3
+  decoy. The filter leaves the white thread only.
+* `m6 thread` finds fasteners first. In the generator's build, the Mervane M6 phone and its cases
+  are at place 2. The served index holds 20 of their SKUs. They score below the fasteners, whose
+  `text` states the thread size more than once, so none is in the top ten. The filter to the
+  industrial catalogue takes them out.
+
+`tests/test_retail_thread_queries_1118.py` holds the first table: every family is present, each
+policy does what its row says on the template build, and the Query, Expected and Policy cells are
+the code's. The counts are a record. A product added later moves them, so run the command again
+before you quote one.
