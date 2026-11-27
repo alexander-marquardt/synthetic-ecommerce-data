@@ -98,7 +98,6 @@
  "tests/test_own_brand_accessories_724.py",
  "tests/test_owned_rows_1039.py",
  "tests/test_pack_size_values_246.py",
- "tests/test_per_test_timeout_is_enforced.py",
  "tests/test_phone_range_1117.py",
  "tests/test_pizza_drawn_604.py",
  "tests/test_price_basis_92.py",
