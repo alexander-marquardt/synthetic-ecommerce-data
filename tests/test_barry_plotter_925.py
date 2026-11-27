@@ -128,7 +128,7 @@ def test_every_description_says_it_is_from_the_films_and_a_few_titles_do_not(pro
 
 def test_the_shared_words_are_where_the_doc_says(catalog) -> None:
     """The shared words the doc lists: ``barry`` and ``plotter`` start no word of any other
-    product's text; ``plot`` starts only Fenwold Nursery's "Plot" garden series, and
+    product's text; ``plot`` starts only Wrenfield's "Plot" garden series, and
     ``berry`` (one letter from ``barry``) a few products."""
     own = barry_plotter.ids() | barry_plotter_books.ids()
     others = [d for d in catalog if d["product_id"] not in own]
@@ -141,7 +141,7 @@ def test_the_shared_words_are_where_the_doc_says(catalog) -> None:
         ]
 
     assert holding("barry") == [] and holding("plotter") == []
-    assert {d["brand"] for d in holding("plot")} == {"Fenwold Nursery"}
+    assert {d["brand"] for d in holding("plot")} == {"Wrenfield"}
     assert holding("berry\\b")
 
 

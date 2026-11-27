@@ -74,11 +74,11 @@ type's size range pins the measured size (tiles, cabinet hardware, faucets, rugs
 pictures that land on one brand and range would be two products that differ at most in color,
 which the product-split audit refuses. `writer.docs()` makes them one product: the first
 picture's, sold in each picture's color, first seen first, and its description names each color.
-So the 13,373 pictures make 11,178 products and 12,273 SKUs. `writer.write()`, the step-2 command
+The counts are on [#837's page](../catalogue-mix-837.md). `writer.write()`, the step-2 command
 of the combined demo, still writes one product and one picture per picture.
 
-**What it adds.** At the ceiling build (seed 0) the build grows from 38,339 records and 384,634
-SKUs to 49,504 and 396,796. The per-type count is on [#837's page](../catalogue-mix-837.md). Some
+**What it adds.** At the ceiling build (seed 0) the build grows by the records and SKUs
+[#837's page](../catalogue-mix-837.md) counts. Some
 derived styles in the leaves the new products share are drawn again, because the
 scaled build's duplicate guards (a title, a twin and a near-duplicate listing in the leaf) now
 see the new products. Most of the changes are a range-name swap, and the derived styles lose 13

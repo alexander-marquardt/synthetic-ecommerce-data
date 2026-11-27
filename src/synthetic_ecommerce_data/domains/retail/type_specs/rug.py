@@ -77,7 +77,7 @@ ROWS = (
         "Round Jute Rug",
         LB,
         45.0,
-        "A natural round jute rug with a braided edge, for a hall or a reading corner.",
+        "A round jute rug with a braided edge, for a hall or a reading corner.",
         "Round",
         "Short Pile",
         "Jute",

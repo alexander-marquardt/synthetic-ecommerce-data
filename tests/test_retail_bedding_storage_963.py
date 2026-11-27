@@ -124,7 +124,7 @@ GOLDEN: dict[str, list[tuple]] = {
     ],
     "Food Storage Container": [
         ("BRD-028A98079832",
-         "Wrenfield Frugal Snap-Lock Silicone Food Storage Container", 18, 36.0),
+         "Wrenfield Tiffin Snap-Lock Silicone Food Storage Container", 18, 36.0),
         ("BRD-0405D7AD0731",
          "Kettleby Tea Co. Hoard Leakproof Glass Food Storage Container", 6, 30.0),
         ("BRD-07FD859A8696",

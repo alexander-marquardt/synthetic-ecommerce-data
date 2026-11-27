@@ -54,7 +54,7 @@ TYPES: dict[str, TypeBook] = {
     "bar_stool": TypeBook("Bar Stool", "Bar Stool", (*_FURN, "Bar Stools"), (35, 50), (75, 115), (35, 50), 79.0),
     "desk": TypeBook("Desk", "Desk", (*_OFFICE, "Desks"), (90, 180), (72, 78), (50, 80), 199.0),
     "office_chair": TypeBook("Office Chair", "Office Chair", ("Office & School", "Office Furniture", "Office Chairs"), (55, 70), (90, 130), (55, 70), 149.0),
-    "tv_stand": TypeBook("TV Unit", "TV Unit", (*_FURN, "TV Units"), (100, 200), (40, 65), (35, 50), 179.0),
+    "tv_stand": TypeBook("Media Unit", "TV Unit", (*_FURN, "Media Units"), (100, 200), (40, 65), (35, 50), 179.0),
     "kitchen_island": TypeBook("Kitchen Island", "Kitchen Island", (*_FURN, "Kitchen Islands"), (90, 180), (85, 95), (60, 100), 449.0),
     # gen#1093: the other drawn types, so every picture of the WANDS persona makes a product.
     "bookcase": TypeBook(("style", {"standard": "Bookcase", "ladder": "Ladder Bookcase", "cube": "Cube Bookcase", "glass_door": "Glass Door Bookcase"}), "Bookcase", (*_FURN, "Bookcases"), (40, 120), (80, 220), (25, 40), 149.0),
@@ -181,6 +181,7 @@ NAMES: dict[str, str] = {
     "top": "Worktop",
     "size": "Pull size",
     "seat_height": "Stool height",
+    "layout": "Shelf layout",
 }
 #: A count's display name where the catalog already names the concept (a light count is the
 #: lighting rows' "Number of lights", under the same ``light_count`` key).

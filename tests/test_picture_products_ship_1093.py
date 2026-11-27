@@ -56,7 +56,7 @@ def test_the_pinned_manifest_is_the_one_the_image_set_was_drawn_from():
 
 def test_every_wands_inspired_product_ships_in_the_ceiling_build(pictured):
     assert {r["product_id"] for r in pictured} == picture_products.ids()
-    assert len(pictured) == len(shipped.docs()) == 11_178
+    assert len(pictured) == len(shipped.docs()) == 11_191
 
 
 def test_every_type_a_picture_shows_has_products_under_its_mapped_path(pictured):
