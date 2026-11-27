@@ -101,3 +101,47 @@ def test_func_only_leaves_the_fixtures_out_of_the_limit(tmp_path: Path) -> None:
     assert "FAILED test_inner_1103.py::test_the_body_hangs" in log, log
     assert len(_TIMED_OUT.findall(log)) == 1, log
     assert "PASSED test_inner_1103.py::test_the_fixture_hangs" in log, log
+
+
+#: A hang under each marker form pytest-timeout took: ``timeout(<s>)`` and ``timeout=<s>``.
+_INNER_NOCONFTEST = """
+import time
+
+import pytest
+
+
+@pytest.mark.timeout(1)
+def test_the_body_hangs():
+    time.sleep(30)
+
+
+@pytest.mark.timeout(timeout=1)
+def test_the_keyword_form_hangs():
+    time.sleep(30)
+"""
+
+
+def test_a_noconftest_run_under_the_repos_config_keeps_the_limit(tmp_path: Path) -> None:
+    """A mutant table's ``--noconftest`` run still stops a hang (#1103).
+
+    pytest-timeout loaded itself by its entry point; this plugin loads by the config's own
+    ``addopts``, which ``--noconftest`` does not skip, so the checked-in mutant tables that pass
+    it still see a ``Timeout`` failure, not a run to mutant_run.py's own 600 s limit.
+    """
+    (tmp_path / "test_inner_1103.py").write_text(_INNER_NOCONFTEST)
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("PYTEST_", "GEN_LOCAL_CI"))}
+    env.pop("PYTHONPATH", None)
+    started = time.monotonic()
+    result = subprocess.run(
+        [
+            sys.executable, "-m", "pytest", "-c", str(TESTS.parent / "pyproject.toml"),
+            "--rootdir", str(tmp_path), "--noconftest", "-p", "no:cacheprovider", "-rA",
+            str(tmp_path / "test_inner_1103.py"),
+        ],
+        env=env, cwd=tmp_path, capture_output=True, text=True, check=False, timeout=120,
+    )  # fmt: skip
+    log, seconds = result.stdout + result.stderr, time.monotonic() - started
+    assert "FAILED test_inner_1103.py::test_the_body_hangs" in log, log
+    assert "FAILED test_inner_1103.py::test_the_keyword_form_hangs" in log, log
+    assert len(_TIMED_OUT.findall(log)) == 2, log
+    assert seconds < 25, f"the run took {seconds:.0f} s: a limit did not stop its test"
