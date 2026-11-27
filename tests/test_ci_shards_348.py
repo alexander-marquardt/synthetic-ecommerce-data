@@ -198,10 +198,17 @@ def _addopts(job: dict) -> list[str]:
     return str(job.get("env", {}).get("PYTEST_ADDOPTS", "")).split()
 
 
+#: Serial by design (#1051): the shuffled pass gives each seed one process and no xdist, since
+#: workers would each see only a part of the order under test. tests/test_ci_shuffled_1051.py.
+_SERIAL_BY_DESIGN = {"shuffled"}
+
+
 def test_no_ci_job_runs_pytest_on_one_worker() -> None:
     """The hosted run's workers, read from the workflow as GitHub reads it."""
     ran = 0
     for job_id, job in _jobs().items():
+        if job_id in _SERIAL_BY_DESIGN:
+            continue
         if "pytest" not in " ".join(step.get("run", "") for step in job.get("steps", [])):
             continue
         ran += 1
