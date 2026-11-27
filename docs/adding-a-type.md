@@ -253,8 +253,12 @@ its published attributes (`set_screws_hex_socket`), or names its one table as
 - **Gate test.** A modelled type only: copy `tests/test_type_lock_nuts_nylon_insert.py` to
    `tests/test_type_<type_key>.py` and change `KEY` and `DEFAULT_SKU_FLOOR`
    ([SKU floor](#sku-floor)). It is the per-type gate template: uniqueness,
-   census names, determinism, a committed golden slice, and independence from
-   every other type. Write the slice with
+   census names, determinism, a committed golden slice, and every other type
+   still building as the committed golden has it. That the type builds the same
+   alone as in the whole build, so building it or leaving it out moves no other
+   type, needs no line here: `tests/test_type_seam.py` checks it once for every
+   type (`test_every_type_built_alone_is_its_slice_of_the_whole_build`, #790).
+   Write the slice with
    `uv run python tests/test_type_<type_key>.py`.
 - **Price.** Declare a price model (`price=` on the `TypeSpec`; `register` refuses a
    modelled type without one). It is keyed on `key_attributes` (the Facts item). A

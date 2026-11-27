@@ -180,7 +180,12 @@ def test_the_deal_is_the_same_every_time_so_a_rerun_runs_the_same_shards() -> No
 
 def test_the_shards_stay_balanced_by_the_committed_weights() -> None:
     """The longest-first deal is within one file of perfect; a weight table that is not
-    (one file that dwarfs the rest) is the signal to split that file or add shards."""
+    (one file that dwarfs the rest) is the signal to split that file or add shards.
+
+    The balance is read in each shard's wall, its seconds over its workers. A shard with no
+    heavy module runs ``LIGHT_WORKERS``, so the deal gives it more seconds, up to
+    ``SHARD_BUDGET_SECONDS`` (#1035). Read in seconds alone, such a shard looks lopsided once the
+    table's total falls, while it ends before the two-worker ones (#790)."""
     count = _shard_count()
     weights = ci_shards.load_weights()
     files = ci_shards.collected_test_files()
@@ -188,8 +193,18 @@ def test_the_shards_stay_balanced_by_the_committed_weights() -> None:
     total = sum(weights.get(f, ci_shards.DEFAULT_SECONDS) for f in files)
     heaviest = max(weights.get(f, ci_shards.DEFAULT_SECONDS) for f in files)
     assert max(loads) <= total / count + heaviest + 1e-6
-    assert max(loads) <= 1.35 * total / count, (
-        f"the shards are lopsided: {[round(x) for x in loads]} seconds of work; "
+    peaks = ci_shards.load_peaks()
+    shards = ci_shards.deal(
+        files, count, weights, peaks=peaks, spread=ci_shards.spread_files(files)
+    )
+    cap = str(ci_shards.HEAVY_WORKERS)
+    walls = [
+        load / (ci_shards.workers(shard, peaks, cap)[0] or ci_shards.HEAVY_WORKERS)
+        for load, shard in zip(loads, shards, strict=True)
+    ]
+    assert max(walls) <= 1.35 * sum(walls) / count, (
+        f"the shards are lopsided: {[round(x) for x in walls]} seconds of wall "
+        f"({[round(x) for x in loads]} seconds of work); "
         "refresh scripts/ci_shard_weights.json (docs/ci-sharding.md) or add a shard"
     )
 
