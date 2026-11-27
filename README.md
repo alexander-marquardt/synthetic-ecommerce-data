@@ -261,7 +261,8 @@ uv run pytest $(grep -l '<changed module or type key>' tests/test_*.py)
 ```
 
 Every test has a 300-second limit, fixture setup included (`timeout` under
-`[tool.pytest.ini_options]` in `pyproject.toml`, enforced by `pytest-timeout`).
+`[tool.pytest.ini_options]` in `pyproject.toml`, enforced by `tests/per_test_timeout.py`,
+which `addopts` loads, so a `--noconftest` run keeps it).
 A test that hangs, or grows its memory without end, fails at that limit instead
 of holding the machine. A test that is slow for a reason raises its own limit
 with `@pytest.mark.timeout(<seconds>)`; the default does not move.

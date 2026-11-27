@@ -1,6 +1,6 @@
 """A test that runs scripts/merge_pr.sh and times out names the step it was in (#912).
 
-pytest-timeout's dump of such a case showed only the parent waiting in
+A timeout's dump of such a case showed only the parent waiting in
 ``communicate``, so a stalled step and a slow host looked the same (#911). The
 script prints a timestamped line to stderr as each step starts, and
 ``test_merge_pr._run`` keeps the script's output in files, not a pipe. When the
@@ -75,8 +75,10 @@ def test_a_step_that_hangs_under_a_test_timeout_is_named_in_the_log(tmp_path: Pa
         _INNER.format(tests=str(TESTS), timeout=_TIMEOUT, pid_file=str(pid_file))
     )
     env = {k: v for k, v in os.environ.items() if not k.startswith(("PYTEST_", "GEN_LOCAL_CI"))}
-    # No config file: none of the suite's addopts (xdist, ...). The signal method, as on CI:
-    # the thread method exits the process, and nothing after the timeout runs.
+    # No config file: none of the suite's addopts (xdist, ...), nor the conftest that loads the
+    # per-test limit, so ``-p`` loads it from this directory (#1103). Its alarm raises in the
+    # test, so _run's handler runs after the timeout.
+    env["PYTHONPATH"] = str(TESTS)
     result = subprocess.run(
         [
             sys.executable,
@@ -90,8 +92,8 @@ def test_a_step_that_hangs_under_a_test_timeout_is_named_in_the_log(tmp_path: Pa
             str(tmp_path / "base"),
             "-p",
             "no:cacheprovider",
-            "-o",
-            "timeout_method=signal",
+            "-p",
+            "per_test_timeout",
             "-o",
             "timeout_func_only=true",
             str(inner / "test_inner_912.py"),

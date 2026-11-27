@@ -384,7 +384,7 @@ def _run(
     world: dict, head: str, checks: str, *flags: str, **env: str
 ) -> subprocess.CompletedProcess:
     """The script's run. Its output goes to files, not a pipe (#912): when the wait ends in
-    an exception, a pytest-timeout's included, what it printed so far (its step lines
+    an exception, a per-test timeout's included, what it printed so far (its step lines
     name the step it was in) goes to this test's stderr, and its process group is stopped."""
     env = {**world["env"], "FAKE_GH_HEAD": head, "MERGE_PR_CHECKS": checks, **env}
     args = [str(world["checkout"] / "scripts" / "merge_pr.sh"), *flags, "54"]
