@@ -49,7 +49,7 @@ def retail_figures_measured() -> dict:
 
 
 def pytest_addoption(parser, pluginmanager):
-    """The per-test limit is registered here, before pytest checks the ini's keys (#1103)."""
+    """The per-test limit, for a run that clears ``addopts`` (#1103); pyproject loads it first."""
     if not pluginmanager.has_plugin("per_test_timeout"):
         pluginmanager.register(per_test_timeout, "per_test_timeout")
     parser.addoption(

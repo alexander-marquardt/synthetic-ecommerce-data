@@ -10,7 +10,8 @@ SIGALRM on the main thread, as pytest-timeout's signal method was: the alarm rai
 ``pytest.fail`` wherever the test is, so its ``finally`` blocks and fixture teardowns still run,
 and the other threads' stacks go to stderr. The message starts ``Timeout``, which
 ``vendor/prism/scripts/mutant_run_plugin.py`` reads. With no SIGALRM, or off the main thread,
-a test has no limit. ``tests/conftest.py`` registers it; a run without that conftest passes
+a test has no limit. ``pyproject.toml``'s ``addopts`` loads it from ``pythonpath``, so a
+``--noconftest`` run keeps the limit; a run under another config passes
 ``-p per_test_timeout`` with this directory on ``PYTHONPATH``.
 """
 
@@ -37,7 +38,8 @@ def pytest_configure(config: pytest.Config) -> None:
 
 def _seconds(item: pytest.Item) -> float:
     marker = item.get_closest_marker("timeout")
-    return float((marker.args[0] if marker and marker.args else item.config.getini("timeout")) or 0)
+    given = (marker.args[0] if marker.args else marker.kwargs.get("timeout")) if marker else None
+    return float((item.config.getini("timeout") if given is None else given) or 0)
 
 
 def _other_threads() -> None:
