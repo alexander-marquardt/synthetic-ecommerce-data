@@ -10,6 +10,7 @@ loaded, if the configured limit is removed, or if a hang is no longer stopped.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 import time
@@ -19,6 +20,8 @@ from pathlib import Path
 import pytest
 
 TESTS = Path(__file__).resolve().parent
+#: A timed-out case's line in its traceback (the short summary may repeat the message).
+_TIMED_OUT = re.compile(r"^E +Failed: Timeout \(>1s\)", re.MULTILINE)
 
 #: A test body that hangs, a fixture that hangs, and a test that ends at once,
 #: each under a one-second limit.
@@ -64,7 +67,7 @@ def _run_inner(tmp_path: Path, *options: str) -> tuple[str, float]:
             "-p", "no:cacheprovider", "-p", "per_test_timeout", "-o", "timeout=1",
             *options, "-rA", str(tmp_path / "test_inner_1103.py"),
         ],
-        env=env, capture_output=True, text=True, check=False, timeout=120,
+        env=env, cwd=tmp_path, capture_output=True, text=True, check=False, timeout=120,
     )  # fmt: skip
     return result.stdout + result.stderr, time.monotonic() - started
 
@@ -85,8 +88,9 @@ def test_pytest_timeout_is_not_a_dependency() -> None:
 
 def test_a_hang_in_the_body_or_a_fixture_fails_at_its_limit(tmp_path: Path) -> None:
     log, seconds = _run_inner(tmp_path)
-    assert "FAILED test_inner_1103.py::test_the_body_hangs - Failed: Timeout (>1s)" in log, log
-    assert "ERROR test_inner_1103.py::test_the_fixture_hangs - Failed: Timeout (>1s)" in log, log
+    assert "FAILED test_inner_1103.py::test_the_body_hangs" in log, log
+    assert "ERROR test_inner_1103.py::test_the_fixture_hangs" in log, log
+    assert len(_TIMED_OUT.findall(log)) == 2, log
     assert "PASSED test_inner_1103.py::test_a_quick_one" in log, log
     assert "PASSED test_inner_1103.py::test_a_zero_limit_is_none" in log, log
     assert seconds < 25, f"the run took {seconds:.0f} s: a limit did not stop its test"
@@ -94,5 +98,6 @@ def test_a_hang_in_the_body_or_a_fixture_fails_at_its_limit(tmp_path: Path) -> N
 
 def test_func_only_leaves_the_fixtures_out_of_the_limit(tmp_path: Path) -> None:
     log, _ = _run_inner(tmp_path, "-o", "timeout_func_only=true")
-    assert "FAILED test_inner_1103.py::test_the_body_hangs - Failed: Timeout (>1s)" in log, log
+    assert "FAILED test_inner_1103.py::test_the_body_hangs" in log, log
+    assert len(_TIMED_OUT.findall(log)) == 1, log
     assert "PASSED test_inner_1103.py::test_the_fixture_hangs" in log, log

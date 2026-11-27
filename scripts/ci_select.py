@@ -94,6 +94,7 @@ FULL_RUN: tuple[str, ...] = (
     "tests/type_reads.py",
     "tests/ci_shard_split.py",
     "tests/xdist_groups.py",
+    "tests/per_test_timeout.py",
     "scripts/ci_select.py",
     "scripts/ci_shards.py",
     "scripts/ci_shard_weights.json",
