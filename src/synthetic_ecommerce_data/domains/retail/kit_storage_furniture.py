@@ -157,9 +157,9 @@ def sideboard(paint: str, fill: Fill, label: str | None, doors: str = "2", drawe
     lo = y0 + 8 + band
     if nd:
         out += _doors(x0 + 6, lo, w - 12, y1 - lo - 6, nd, paint)
-        dw = (w - 12) / nd
+        bay = (w - 12) / nd
         for i in range(nd):
-            out.append(_rect(x0 + 6 + i * dw + 16, lo + 18, dw - 32, y1 - lo - 42, _shade(paint, 0.06), 1.0, rx=1))
+            out.append(_rect(x0 + 6 + i * bay + 16, lo + 18, bay - 32, y1 - lo - 42, _shade(paint, 0.06), 1.0, rx=1))
         out += _front(x0 + 6, lo, w - 12, y1 - lo - 6)
     else:
         out.append(_rect(x0 + 10, lo + 4, w - 20, y1 - lo - 14, _shade(paint, 0.12), LW_DETAIL))
