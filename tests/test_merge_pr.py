@@ -93,6 +93,7 @@ case "$1 $2" in
     printf 'commit-messages\tcompleted\tsuccess\n'
     printf 'file-size\tcompleted\tsuccess\n'
     printf 'red-commit-proof\tcompleted\tsuccess\n'
+    printf 'shuffled\tcompleted\tsuccess\n'
     printf 'customer-name-check\tcompleted\tsuccess\n'
     printf 'no-derived-files\tcompleted\tsuccess\n'
     printf 'dependency-review\tcompleted\tsuccess\n'
@@ -583,7 +584,7 @@ def test_a_check_run_in_which_no_test_passed_is_not_green(world: dict) -> None:
         (
             "head-only",
             "missing: lint ceiling-catalogue tests commit-messages file-size red-commit-proof"
-            " customer-name-check no-derived-files dependency-review",
+            " shuffled customer-name-check no-derived-files dependency-review",
         ),
     ],
     ids=["red", "skipped", "missing", "pending", "head-only"],
@@ -1124,6 +1125,7 @@ _ALL_GREEN = _workflow(
         "commit-messages": "echo msgs",
         "file-size": "echo size",
         "red-commit-proof": "echo red",
+        "shuffled": "echo shuffled",
         "customer-name-check": "echo names",
         "no-derived-files": "echo roll",
         "dependency-review": "echo deps",
@@ -1162,6 +1164,7 @@ def test_a_failing_local_job_refuses_the_merge_but_the_others_still_run(world: d
             "commit-messages": "echo bad >&2; exit 3",
             "file-size": "true",
             "red-commit-proof": "true",
+            "shuffled": "true",
             "customer-name-check": "true",
             "no-derived-files": "true",
             "dependency-review": "true",
@@ -1186,6 +1189,7 @@ def test_a_failing_local_job_fails_a_dry_run_too(world: dict) -> None:
             "commit-messages": "true",
             "file-size": "true",
             "red-commit-proof": "true",
+            "shuffled": "true",
             "customer-name-check": "true",
             "no-derived-files": "true",
             "dependency-review": "true",
@@ -1259,6 +1263,7 @@ _OTHER_JOBS = {
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",
+    "shuffled": "true",
     "customer-name-check": "true",
     "no-derived-files": "true",
     "dependency-review": "true",

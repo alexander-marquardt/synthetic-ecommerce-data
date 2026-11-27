@@ -311,6 +311,38 @@ gh workflow run ci.yaml --ref <branch> -f random_seed=<n>
 
 Run one file the same way here with `uv run pytest --order-seed=<n> tests/<file>`.
 
+### The `shuffled` job: a pull request's changed test files in seeded orders (#1051)
+
+The `tests` job runs its files in one fixed order, so a test that passes only after another test
+ran in its process passes on its pull request and fails on main once the shard plan or the order
+changes: on 2026-11-16 `tests/test_retail_food_pantry_964.py` (#988) read an owner table only
+another test filled, and main went red (#1040, fixed by #1041). The `shuffled` job runs the test
+files the pull request adds, changes or renames again, alone, in one process per seed, each seed
+a different random order. The pass is agent-ops' (agent-ops#1936), root-owned in the CI runner
+image at `/opt/shuffled-pass/shuffled_pass.py`; this repository keeps no copy
+(elastic/prism#15855). The job runs
+
+```sh
+uv sync --locked
+python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest"
+```
+
+The seeds follow from the head sha, so a rerun of one head tries the same orders. Each seed's
+output is in the log after the command that reproduces it, and the pass's last line (the state,
+the seed or seeds, the file count) is the check's summary:
+
+```
+shuffled pass: failure: shuffled order fails at seed 2927495 (1 test file; log has the command)
+shuffled pass: success: shuffled 1 test file, 8 seeds 2927495..2927502 ok (14s)
+```
+
+A red names the seed: run the reproduce line from the log to see the order fail. A runner without
+the pass (a GitHub-hosted runner, a VM whose image is not yet rebuilt from an agent-ops checkout
+with the pass, or `merge_pr.sh --local-ci`) prints `shuffled pass: not installed on this runner`
+and passes. The job is a required check (`REQUIRED_CI`), runs on a pull request and on
+`merge_pr.sh --github-ci`'s dispatched run, and has its cancel-on-red job (below).
+`tests/test_ci_shuffled_1051.py` runs its step with a planted pass.
+
 ## No test file over 3 minutes (#1035)
 
 A module's tests stay on one worker (`--dist loadgroup`), so the heaviest file is the floor of

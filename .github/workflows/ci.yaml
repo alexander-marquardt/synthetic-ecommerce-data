@@ -426,6 +426,48 @@ jobs:
           uv run --locked python scripts/red_commit_proof.py
           --range "${{ github.event.pull_request.base.sha || inputs.base }}..${{ github.event.pull_request.head.sha || inputs.head }}"
 
+  shuffled:
+    # The test files a pull request adds or changes run again, alone, in seeded random orders
+    # (#1051). The `tests` job runs every file in one fixed order, so on 2026-11-16 a test that
+    # passed only after another one had run in its process passed on its PR (#988) and turned main
+    # red (#1040). The pass is agent-ops' (agent-ops#1936), root-owned in the runner image at
+    # /opt/shuffled-pass/, never a copy here (elastic/prism#15855): one process per seed, no
+    # xdist, the seeds follow from the head sha, and a red names its seed and the command that
+    # reproduces it. The last line it prints (the state, the seed or seeds, the file count) goes
+    # in the check's summary. A runner without the pass (a hosted runner, an image not yet
+    # rebuilt, a --local-ci run) says so and passes: nothing goes red before the image is in
+    # place. On a pull request and on merge_pr.sh's dispatched run, as red-commit-proof.
+    # tests/test_ci_shuffled_1051.py runs the step; docs/ci-sharding.md.
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.head != '')
+    runs-on: ${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && '["self-hosted","synth-ci-main"]' || '["self-hosted","synth-ci"]') || 'ubuntu-latest' }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The pass reads the change from the base sha, so the whole history.
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: The changed test files pass in shuffled orders
+        env:
+          SHUFFLED_PASS: /opt/shuffled-pass/shuffled_pass.py
+        run: |
+          set -o pipefail
+          summary="${GITHUB_STEP_SUMMARY:-/dev/null}"
+          if [ ! -f "$SHUFFLED_PASS" ]; then
+            echo "shuffled pass: not installed on this runner" | tee -a "$summary"
+            exit 0
+          fi
+          # One process per seed: the local run's exported worker count would turn xdist back on.
+          unset PYTEST_ADDOPTS
+          uv sync --locked
+          log="$(mktemp)"
+          status=0
+          python3 "$SHUFFLED_PASS" --base "${{ github.event.pull_request.base.sha || inputs.base }}" --key "${{ github.event.pull_request.head.sha || inputs.head }}" --pytest "uv run -q --locked pytest" 2>&1 | tee "$log" || status=$?
+          tail -n 1 "$log" >>"$summary"
+          exit "$status"
+
   customer-name-check:
     # NO CUSTOMER NAME COMES BACK (#393, the generator half of
     # elastic/prism-industrial-products#88). Nothing but a reviewer's grep kept
@@ -596,6 +638,24 @@ jobs:
 
   cancel-on-red-red-commit-proof:
     needs: [red-commit-proof]
+    if: failure() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/ci_cancel_run.py
+          sparse-checkout-cone-mode: false
+      - name: Cancel the rest of this pull request's run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ci_cancel_run.py
+
+  cancel-on-red-shuffled:
+    needs: [shuffled]
     if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 5

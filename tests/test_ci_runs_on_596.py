@@ -60,6 +60,7 @@ HOSTED = {
     "cancel-on-red-commit-messages",
     "cancel-on-red-file-size",
     "cancel-on-red-red-commit-proof",
+    "cancel-on-red-shuffled",
     "cancel-on-red-customer-name-check",
     "cancel-on-red-no-derived-files",
     "cancel-on-red-dependency-review",
