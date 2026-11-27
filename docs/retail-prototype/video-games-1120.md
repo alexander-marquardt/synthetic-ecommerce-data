@@ -59,7 +59,7 @@ own query (`kitchen knife`, `garden chair`) does not match a title and is unchan
 | `tent troopers` | Tent | tent 6 | the game first |
 | `golf club legends` | Golf Club, Golf Ball | golf 95; club 65; both words 42 | the game first |
 | `robot mower mayhem` | Robot Mower, Lawn Mower | robot 118; mower 35; both words 17 | the game first |
-| `jigsaw island` | Jigsaw Puzzle | jigsaw 67 | the game first |
+| `jigsaw isle` | Jigsaw Puzzle | jigsaw 67 | the game first |
 | `toaster tactics` | Toaster | toaster 5 | the game first |
 | `kettle kingdom` | Kettle | kettle 32 | the game first |
 | `blender brawl` | Blender | blender 170 | the game first |

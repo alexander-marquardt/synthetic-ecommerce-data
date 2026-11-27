@@ -14,5 +14,5 @@ SPEC = TypeSpec(
     department="Home",
     product_type="Bookcase",
     rows=(),
-    homes=(Home("breadth_rows", False),),
+    homes=(Home("breadth_rows", False), Home("picture_products", False)),
 )

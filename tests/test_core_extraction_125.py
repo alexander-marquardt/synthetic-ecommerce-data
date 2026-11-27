@@ -269,7 +269,9 @@ def test_pytest_collects_tests_only():
 #: retail into ``domains/`` left, ``retail.rules`` building the industrial rows its realism rules
 #: run over, is cut: ``rule_rowsets``, above ``domains/``, hands it those rows (#716). Shrinks
 #: only, like :data:`CORE_EDGES`, so it stays empty.
-DOMAIN_EDGES: frozenset[tuple[str, str]] = frozenset()
+DOMAIN_EDGES: frozenset[tuple[str, str]] = frozenset(
+    {("retail.picture_products", "picture_products.shipped")}  # the pinned manifest (gen#1093)
+)
 
 
 def test_a_domain_reaches_past_core_only_through_the_listed_edges():

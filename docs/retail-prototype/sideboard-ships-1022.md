@@ -56,5 +56,8 @@ checks the following:
 ## What comes next
 
 More of the new home types can ship the same way: one spec file per type, with its own rows on
-its kit shape. The picture-manifest products ([slice 3](picture-products-1022.md)) stay a
-separate entry point for the combined demo, and no generator build reads a manifest.
+its kit shape. Since gen#1093 the retail build also reads the WANDS persona's pinned picture
+manifest, so 202 more sideboards ship as wands-inspired products
+([the products ship](picture-products-every-type-1093.md#the-products-ship-in-the-retail-build)).
+This page's tests hold the sideboard rows above and leave those out: the wands-inspired ones are
+held by `tests/test_picture_products_ship_1093.py`.

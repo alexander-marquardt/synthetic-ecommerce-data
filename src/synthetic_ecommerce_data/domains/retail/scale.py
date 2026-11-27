@@ -157,6 +157,7 @@ from synthetic_ecommerce_data.domains.retail import (
     needs_rows,
     net_volume,
     owned_rows,
+    picture_products,
     plus_sizes,
     range_ownership,
     sale_share,
@@ -422,7 +423,10 @@ def templates(baseline: bool = True) -> list[dict]:
     # left out with them, for the same reason.
     plotter = barry_plotter.ids()
     films = kids_films.ids() | plotter
-    seeded = [r for r in tpls if r["product_id"] not in kids | films]
+    # The wands-inspired products (gen#1093) are left out of both passes too, and take their own
+    # below, so no style above them loses a main color or a sale price to one of them.
+    pictured = picture_products.ids()
+    seeded = [r for r in tpls if r["product_id"] not in kids | films | pictured]
     done = main_colors.complete(seeded, skip) if baseline else seeded
     done = sale_share.apply_all(done, DECOY_IDS | skip | planted)
     # The Kids rows then take a sale pass of their own, so their leaves hold sale products and the
@@ -438,6 +442,13 @@ def templates(baseline: bool = True) -> list[dict]:
     done += sale_share.apply_all([r for r in own if r["product_id"] not in plotter], ())
     # The range takes no department's share: a quarter of its products are on sale, its own.
     done += [barry_plotter.on_sale(r) for r in own if r["product_id"] in plotter]
+    # A wands-inspired product takes a main color only in a group no style above completes (its
+    # own new types), read against the completed styles, and its sale from a pass of its own.
+    pics = [r for r in tpls if r["product_id"] in pictured]
+    if baseline:
+        completed = main_colors.complete([*done, *pics], skip)
+        pics = [r for r in completed if r["product_id"] in pictured]
+    done += sale_share.apply_all(pics, ())
     by_id = {r["product_id"]: r for r in done}
     # gen#935: every shoe is sold in UK sizes and colors; last, so nothing above moves. The Kids
     # shoes' added SKUs count toward the Kids sale share, so the Kids rows, which carry that

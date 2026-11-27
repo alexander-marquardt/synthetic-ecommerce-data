@@ -3,7 +3,7 @@
 The 500K mix ([catalogue-mix-837.md](../catalogue-mix-837.md)) plans 14,000 `Beauty` SKUs, and
 gen#957's Done when asks for at least 13,300 at the ceiling build. After hair care
 ([beauty-hair-957.md](beauty-hair-957.md)) and oral care and shaving
-([beauty-oral-shave-957.md](beauty-oral-shave-957.md)), main's ceiling build held 11,191. The
+([beauty-oral-shave-957.md](beauty-oral-shave-957.md)), main's ceiling build held about 11,200. The
 department had no facial cleanser, deodorant or nail polish, so a search for `foaming face wash`,
 `roll-on deodorant` or `red nail polish` found nothing. This slice adds `Beauty > Skincare >
 Cleansers`, `Beauty > Body Care > Deodorants` and `Beauty > Nails > Nail Polish`.

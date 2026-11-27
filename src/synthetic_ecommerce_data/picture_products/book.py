@@ -42,7 +42,7 @@ _DECOR = ("Home", "Decor")
 _BATH = ("Home", "Bathroom")
 _LIGHT = ("Home", "Lighting")
 _KITCHEN = ("Home", "Kitchen")
-_HARDWARE = ("Hardware", "Home Hardware")
+_HARDWARE = ("Home", "DIY & Tools")
 _GARDEN = ("Garden", "Garden Decor")
 
 TYPES: dict[str, TypeBook] = {
@@ -54,7 +54,7 @@ TYPES: dict[str, TypeBook] = {
     "bar_stool": TypeBook("Bar Stool", "Bar Stool", (*_FURN, "Bar Stools"), (35, 50), (75, 115), (35, 50), 79.0),
     "desk": TypeBook("Desk", "Desk", (*_OFFICE, "Desks"), (90, 180), (72, 78), (50, 80), 199.0),
     "office_chair": TypeBook("Office Chair", "Office Chair", ("Office & School", "Office Furniture", "Office Chairs"), (55, 70), (90, 130), (55, 70), 149.0),
-    "tv_stand": TypeBook("TV Unit", "TV Unit", (*_FURN, "TV Units"), (100, 200), (40, 65), (35, 50), 179.0),
+    "tv_stand": TypeBook("Media Unit", "TV Unit", (*_FURN, "Media Units"), (100, 200), (40, 65), (35, 50), 179.0),
     "kitchen_island": TypeBook("Kitchen Island", "Kitchen Island", (*_FURN, "Kitchen Islands"), (90, 180), (85, 95), (60, 100), 449.0),
     # gen#1093: the other drawn types, so every picture of the WANDS persona makes a product.
     "bookcase": TypeBook(("style", {"standard": "Bookcase", "ladder": "Ladder Bookcase", "cube": "Cube Bookcase", "glass_door": "Glass Door Bookcase"}), "Bookcase", (*_FURN, "Bookcases"), (40, 120), (80, 220), (25, 40), 149.0),
@@ -65,11 +65,11 @@ TYPES: dict[str, TypeBook] = {
     "rug": TypeBook(("form", {"rectangle": "Rug", "round": "Round Rug", "runner": "Runner Rug", "doormat": "Doormat", "kitchen_mat": "Kitchen Mat"}), "Rug", (*_SOFT, "Rugs"), (40, 300), (1, 4), (40, 240), 129.0),
     "wall_art": TypeBook("Wall Art", "Wall Art", (*_DECOR, "Wall Art"), (30, 150), (30, 120), (2, 5), 79.0),
     "decor_object": TypeBook(("form", {"sculpture": "Sculpture", "bowl": "Decorative Bowl", "lantern": "Lantern", "box": "Decorative Box"}), "Decorative Accessory", (*_DECOR, "Decorative Accessories"), (10, 50), (8, 60), (8, 40), 29.0),
-    "faux_floral": TypeBook(("form", {"arrangement": "Faux Flower Arrangement", "wreath": "Faux Wreath", "topiary": "Faux Topiary", "tree": "Faux Tree"}), "Artificial Flowers", (*_DECOR, "Artificial Flowers"), (20, 120), (25, 180), (15, 120), 39.0),
+    "faux_floral": TypeBook(("form", {"arrangement": "Faux Flower Arrangement", "wreath": "Faux Wreath", "topiary": "Faux Topiary", "tree": "Faux Tree"}), "Artificial Flowers", ("Home", "Home Accessories", "Artificial Flowers"), (20, 120), (25, 180), (15, 120), 39.0),
     "canister": TypeBook(("count", {"1": "Storage Canister", "2": "Canister Set", "3": "Canister Set", "4": "Canister Set"}), "Storage Canister", (*_KITCHEN, "Canisters"), (10, 60), (10, 30), (8, 15), 25.0),
     "vanity": TypeBook("Vanity Unit", "Vanity Unit", (*_BATH, "Vanity Units"), (50, 150), (45, 90), (35, 55), 349.0),
     "bath_storage": TypeBook(("form", {"tower": "Bathroom Storage Tower", "over_toilet": "Over Toilet Storage", "wall": "Bathroom Wall Cabinet"}), "Bathroom Storage", (*_BATH, "Bathroom Storage"), (25, 70), (50, 180), (15, 35), 89.0),
-    "vanity_light": TypeBook("Vanity Light", "Vanity Light", (*_LIGHT, "Vanity Lights"), (20, 120), (10, 30), (10, 25), 69.0),
+    "vanity_light": TypeBook("Vanity Light", "Vanity Light", (*_LIGHT, "Lights", "Vanity Lights"), (20, 120), (10, 30), (10, 25), 69.0),
     "sink_faucet": TypeBook("Sink Faucet", "Faucet", (*_HARDWARE, "Faucets"), (10, 30), (15, 45), (10, 30), 89.0),
     "cabinet_pull": TypeBook(("style", {"bar": "Bar Pull", "cup": "Cup Pull", "knob": "Cabinet Knob", "ring": "Ring Pull", "edge": "Edge Pull"}), "Cabinet Hardware", (*_HARDWARE, "Cabinet Pulls & Knobs"), (2, 35), (1, 6), (1, 4), 9.0),
     "tile": TypeBook(("form", {"square": "Square Tile", "subway": "Subway Tile", "hexagon": "Hexagon Tile"}), "Tile", (*_HARDWARE, "Wall & Floor Tiles"), (7, 60), (7, 60), (1, 2), 9.0),
@@ -79,7 +79,7 @@ TYPES: dict[str, TypeBook] = {
 
 #: Each furniture brand with a house style, and its own ranges (invented place-like names).
 RANGES: dict[str, tuple[str, ...]] = {
-    "Brackenmere Home": ("Ashcombe", "Fernleigh", "Brindlewick"),
+    "Brackenmere Home": ("Ashdene", "Fernleigh", "Brindlewick"),
     "Larchwood Living": ("Copperdene", "Marrowby", "Saltrigg"),
     "Emberly Home": ("Wendlecote", "Orrinvale", "Tamblehurst"),
     "Cobble & Kiln": ("Quarrendon", "Pellowmere", "Stagsby"),
@@ -180,8 +180,14 @@ NAMES: dict[str, str] = {
     "seat": "Seat shape",
     "top": "Worktop",
     "size": "Pull size",
+    "seat_height": "Stool height",
+    "layout": "Shelf layout",
 }
+#: A count's display name where the catalog already names the concept (a light count is the
+#: lighting rows' "Number of lights", under the same ``light_count`` key).
+COUNT_NAMES: dict[str, str] = {"lights": "Number of lights"}
 
 #: A part's attribute key, where the param name would collide with a key the catalog already
 #: gives another meaning (``size`` is a SKU's size option, gen#1093).
-KEYS: dict[str, str] = {"size": "pull_size"}
+#: A stool's counter or bar seat is a class, not a measure: ``item_height`` is the one height key.
+KEYS: dict[str, str] = {"size": "pull_size", "seat_height": "stool_class"}

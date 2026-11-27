@@ -15,6 +15,7 @@ KINDS = (
     "Pliers", "Jump Leads", "Cable Ties", "Foot Pumps", "Wireless Charger",
     "Fridge Thermometer", "Heater",
     "Desk Fan", "Pedestal Fan", "Tower Fan", "Ceiling Fan", "Handheld Fan",
+    "Tile", "Cabinet Hardware", "Faucet",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

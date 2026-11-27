@@ -25,7 +25,6 @@ FIXTURE = Path(__file__).resolve().parent / "fixtures" / "picture_products_1093"
 
 #: The store department each drawn type is filed under: the issue's 2026-11-21 table.
 DEPARTMENT_OF = {
-    **dict.fromkeys(("sink_faucet", "cabinet_pull", "tile"), "Hardware"),
     **dict.fromkeys(("garden_statue", "fountain"), "Garden"),
     "office_chair": "Office & School",
 }
