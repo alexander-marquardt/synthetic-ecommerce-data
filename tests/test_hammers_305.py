@@ -16,7 +16,6 @@ from pathlib import Path
 
 import pytest
 
-from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.domains.industrial.hammers import (
     INCIDENTAL_PHRASE,
     is_incidental_decoy_title,
@@ -47,10 +46,12 @@ SNAKE = re.compile(r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$")
 @pytest.fixture(scope="module")
 def tools() -> list[dict]:
     """The golden flat rows, each ``product_type`` the type key: a flat row's ``product_type`` is
-    its category leaf (``Hammers``) and the key is in ``image_id`` (gen#125)."""
+    its category leaf (``Hammers``) and the key is the first segment of ``image_id`` (gen#125).
+    Read off the id without the type registry, so the file stays in ``scripts/ci_type_free.json``.
+    """
     with (ROOT / "golden-catalog" / "flat.jsonl").open() as f:
         rows = [json.loads(line) for line in f]
-    return [row | {"product_type": emit.flat_type_key(row)} for row in rows]
+    return [row | {"product_type": row["image_id"].split("/", 1)[0]} for row in rows]
 
 
 @pytest.fixture(scope="module")

@@ -59,7 +59,8 @@ def _socket_screw_docs(count: int) -> list[dict]:
     docs = []
     with (GOLDEN / "flat.jsonl").open(encoding="utf-8") as handle:
         for line in handle:
-            if '"screw_socket_head"' not in line:
+            # A flat line names the type key only as its image_id's first segment (gen#125).
+            if '"screw_socket_head/' not in line:
                 continue
             doc = json.loads(line)
             if type_key_of(doc) == "screw_socket_head" and any(
@@ -79,8 +80,11 @@ def test_a_planted_type_is_held_to_the_facts_it_declares(monkeypatch: pytest.Mon
     assert type_facts.title_key().get(PLANTED) == ("Dia./Thread Size",)
 
     # The planted type has no authored-name map, so the names are mapped back before the rename.
+    # ``image_id`` is dropped: ``type_key_of`` reads a flat row's key off it (gen#125), which
+    # would still name the socket screw the row was drawn from, not the planted type.
     docs = [
-        dict(doc, product_type=PLANTED, attributes=authored_entries(doc))
+        {k: v for k, v in doc.items() if k != "image_id"}
+        | {"product_type": PLANTED, "attributes": authored_entries(doc)}
         for doc in _socket_screw_docs(80)
     ]
     assert len(docs) == 80

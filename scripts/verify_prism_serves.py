@@ -266,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
     truth_shank_only = {
         row["sku"]
         for row in flat
-        if row["product_type"].startswith("end_mill")
+        if emit.flat_type_key(row).startswith("end_mill")
         and has(row, "shank_dia", value)
         and not has(row, "milling_dia", value)
     }
