@@ -14,6 +14,7 @@ KINDS = (
     "Parasol", "Garden Hose", "Planter", "Outdoor Light", "Garden Chair", "Hand Tool",
     "Watering Can", "Bird Feeder", "Garden Table", "Grill Accessory", "Garden Storage",
     "House Plant", "Plant Food",
+    "Garden Statue", "Water Feature",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

@@ -17,6 +17,7 @@ SPEC = TypeSpec(
     homes=(
         Home("decoy_rows", False),
         Home("sofa_rows", False),
+        Home("picture_products", False),  # the wands-inspired sofas (gen#1093)
     ),
     # A grouped sofa's version, and the seat count and depth that follow it (gen#808).
     options=(

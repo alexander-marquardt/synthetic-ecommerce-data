@@ -24,7 +24,7 @@ from synthetic_ecommerce_data.domains.retail.softfurn_rows import (
     row,
     yes,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec
 
 
 def _rug(code: str, title: str, brand: str, price: float, description: str, shape: str, pile: str,
@@ -77,7 +77,7 @@ ROWS = (
         "Round Jute Rug",
         LB,
         45.0,
-        "A natural round jute rug with a braided edge, for a hall or a reading corner.",
+        "A round jute rug with a braided edge, for a hall or a reading corner.",
         "Round",
         "Short Pile",
         "Jute",
@@ -103,6 +103,7 @@ SPEC = TypeSpec(
     department="Home",
     product_type="Rug",
     rows=ROWS,
+    homes=(Home("picture_products", False),),  # the wands-inspired rugs (gen#1093)
     decoys=(
         decoy(1, "blue rug", ROWS[0], 7, "Blue Fringe Shaggy Deep Pile Rug",
               "A white shaggy rug with a blue fringe at each end; the rug itself is white.", color=WHITE),

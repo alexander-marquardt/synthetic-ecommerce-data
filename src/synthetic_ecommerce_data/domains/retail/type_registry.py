@@ -129,6 +129,9 @@ BUILD_SOURCES: tuple[str, ...] = (
     "neckline_rows",
     "cups_plural_rows",
     "diy_decoy_rows",
+    # The step-2 products of the pinned picture manifest (gen#1093): a source of 28 types, not a
+    # type, so no spec could hold it. Last before grocery, so every source above is as it was.
+    "picture_products",
     "grocery",
 )
 #: The shared sources whose rows a spec may name as its home (gen#537): the build's sources less

@@ -8,8 +8,9 @@ elastic/prism-wands#1 and calls the public `drawings.render` ([slice 2](render-a
 The two paths share the renderer and nothing else.
 
 The code is the package `synthetic_ecommerce_data.picture_products`, over the manifest loader
-`synthetic_ecommerce_data.picture_manifest` that [the drawing run](picture-drawings-1220.md) reads too. No generator build uses it
-yet: slice 5 ships a home type in a build with its own products.
+`synthetic_ecommerce_data.picture_manifest` that [the drawing run](picture-drawings-1220.md) reads too. Since gen#1093 the
+retail build reads it too: the WANDS persona's pinned manifest is its `picture_products` source
+([the products ship](picture-products-every-type-1093.md#the-products-ship-in-the-retail-build)).
 
 ## The picture manifest
 

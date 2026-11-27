@@ -19,6 +19,7 @@ from synthetic_ecommerce_data.domains.retail import (
     furniture_rows,
     image_release,
     kit,
+    picture_products,
     scale,
 )
 
@@ -216,5 +217,10 @@ def test_the_furniture_is_in_the_scaled_build_and_no_style_derives_from_it() -> 
     assert ids <= {r["product_id"] for r in built.records}
     assert not ids & {r["product_id"] for r in scale.derivable(built.records)}
     furniture = {r.path for r in furniture_rows.ROWS}
-    derived = [r for r in built.records if tuple(r["category_path"]) in furniture]
+    pictured = picture_products.ids()  # they share these leaves (gen#1093)
+    derived = [
+        r
+        for r in built.records
+        if tuple(r["category_path"]) in furniture and r["product_id"] not in pictured
+    ]
     assert {r["product_id"] for r in derived} == ids

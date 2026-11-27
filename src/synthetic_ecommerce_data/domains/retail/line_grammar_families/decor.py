@@ -11,6 +11,7 @@ from __future__ import annotations
 KINDS = (
     "Photo Frame", "Plant Pot", "Decorative Tray", "Clock", "Christmas Decoration", "Ornament",
     "Artificial Flowers", "Scented Candle", "Wallpaper", "Paint", "Trophy", "Fridge Magnets",
+    "Decorative Accessory", "Wall Art",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

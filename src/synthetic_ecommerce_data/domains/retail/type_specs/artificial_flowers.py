@@ -32,7 +32,7 @@ from synthetic_ecommerce_data.domains.retail.decor_rows import (
     axis,
     row,
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import TypeSpec, a
+from synthetic_ecommerce_data.domains.retail.type_registry import Home, TypeSpec, a
 
 LOOSE = a("holder", "Holder", "Loose")
 IN_VASE = a("holder", "Holder", "In a Vase")
@@ -71,4 +71,5 @@ SPEC = TypeSpec(
     department="Home",
     product_type="Artificial Flowers",
     rows=ROWS,
+    homes=(Home("picture_products", False),),  # the wands-inspired faux florals (gen#1093)
 )
