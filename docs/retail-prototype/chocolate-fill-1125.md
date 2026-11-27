@@ -6,15 +6,15 @@ only in a torn corner. A chocolate box was a closed, shallow box low in the fram
 product area at 150g), and a sharing bag the generic grocery bag (33% at 150g); neither showed
 a chocolate. Slice 1 draws the bars and the multipacks, slice 2 the boxes and the sharing bags,
 slice 3 hot chocolate and the chocolate orange, and slice 4 the peanut butter cups, the coated
-peanuts, the advent calendar, the box of cherries and the bags of coated fruit. Each brand's
-mark and colors, with a before and after contact sheet, follow in the next slice.
+peanuts, the advent calendar, the box of cherries and the bags of coated fruit. The last
+slice prints each pack in its brand's color with its mark (below).
 
 **`kit_chocolate.chocolate_bar`** draws a bar seen from a little above: its wrapper torn back
 over gold foil to show the segmented block, the block glossed (a `choc-gloss-<hex>` gradient, a
 highlight at the top left and a shade at the foot right), and two broken pieces in front, each
 a `<g class="chocolate">`. The bar stands on a `class="ground"` shadow.
 
-- **The wrapper is the flavour's color, the block is chocolate.** The block and the pieces are
+- **The wrapper is its brand's color (the flavour's with no brand, below), the block is chocolate.** The block and the pieces are
   painted the chocolate the flavour is made of (`kit_chocolate.CHOCOLATE`: milk, dark, white),
   so a Mint Dark bar is dark chocolate in a green wrapper and a Chocolate Orange milk chocolate
   in an orange one. `grocery_families.chocolate_of` reads the kind from the flavour, the white
@@ -155,3 +155,36 @@ pack, that a 200g pack of cups draws larger than a 100g one, the gloss and the l
 chocolates each shows, that every pack stays on its sheet, the three cups and the cut filling,
 the 24 numbered doors with two open, a stalk on each cherry, the fruit in each coated-fruit bag,
 and that each SKU draws its own pack size with no pack factor.
+
+## Each brand's mark and colors
+
+Every wrapper was the flavour's color, so two brands' Milk bars drew one brown wrapper and the
+brand showed only in the sheet's frame. Each chocolate shape now takes its `brand`:
+
+- **The pack is the brand's color, the flavour is the accent.** `chocolate_brands.LOOKS` declares
+  one row per brand that sells a chocolate (all invented): the wrapper's color and the trim round
+  its mark. The flavour's color is a band on the pack (the box's front, under a bag's seal, round
+  an orange's foil). `kit_chocolate.pack_colors` reads both. No two brands' colors read alike, and
+  none is moved by `wrapper_color` on white paper.
+- **The mark is the brand's own house mark** (`house_styles.HOUSE_STYLES`), in its color on a
+  white disc (`kit_chocolate.brand_mark`): over a bar's panel (beside it on a multipack's front
+  bar), beside the panel on a box lid, bag, foil and cups' wrapper, under it on a tub, and in
+  place of a star on the calendar.
+- **The brand rides on the drawing.** `export.drawing_spec` adds it for these shapes
+  (`chocolate_brands.params`), so each SKU's drawing id names it. A pack of a brand with no row,
+  or drawn with none, keeps the flavour's color and carries no mark.
+
+Every branded pack keeps the floor of half its product area and stays on its sheet, at every pack
+size. `tests/test_chocolate_brand_1125.py` pins that, that two brands' Milk bars draw different
+wrappers each with only its own mark, and that every chocolate product carries its brand's mark
+and color and its flavour's accent.
+
+One of each shape and brand, before (main at `dbdc94bf`) and after:
+
+![Each chocolate pack before and after its brand's mark and colors](../images/chocolate-brands-1125.png)
+
+The packs the issue names (a bar at 100g and 200g, a multipack, a box at its three sizes, a
+sharing bag, a hot chocolate, a white chocolate bar), before any of the five slices (main at
+`9361454c`) and after the last:
+
+![The chocolate packs the issue names before the redraw and after it](../images/chocolate-sheet-1125.png)
