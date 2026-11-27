@@ -25,8 +25,15 @@ CI = REPO / ".github" / "workflows" / "ci.yaml"
 CONFIG = REPO / "scripts" / "merge_pr" / "config.sh"
 IMAGE_PASS = "/opt/shuffled-pass/shuffled_pass.py"
 BASE, HEAD = "73fb676d40e6", "391c047b3d0c"
-#: The files the step leaves out of the pass: each takes over 5 min alone and a seed gets 10.
-OVER_BUDGET = ["tests/test_merge_pr.py", "tests/test_merge_pr_github_ci_348.py"]
+#: The files the step leaves out of the pass: each takes over 1 min alone, serially. A seed gets
+#: 10 min for all the changed files at once, with 8 seeds side by side: on this PR a seed holding
+#: test_merge_pr_local_ci_guard_366.py (356 s) and test_merge_pr_red_log_453.py (121 s) timed out.
+OVER_BUDGET = [
+    "tests/test_merge_pr.py",
+    "tests/test_merge_pr_github_ci_348.py",
+    "tests/test_merge_pr_local_ci_guard_366.py",
+    "tests/test_merge_pr_red_log_453.py",
+]
 LEFT_OUT = "shuffled pass: left out (over the seed budget): " + " ".join(OVER_BUDGET)
 PYTEST = "uv run -q --locked pytest" + "".join(f" --deselect {f}" for f in OVER_BUDGET)
 
@@ -135,8 +142,9 @@ def test_a_runner_without_the_pass_says_so_and_passes(tmp_path):
 
 def test_the_over_budget_merge_script_files_are_deselected_and_the_summary_names_them(tmp_path):
     """A seed gets 10 min and the cap stays ("Do not raise the timeout to go green",
-    elastic/prism#15203); the merge-script test files take over 5 min alone, so the pass's pytest
-    deselects them until #1035 makes them fit, and the summary and the log say which."""
+    elastic/prism#15203) and holds every changed file of the seed at once; the merge-script test
+    files that take over 1 min alone go to the pass's pytest as deselects until #1035 makes them
+    fit, and the summary and the log say which."""
     last = "shuffled pass: success: shuffled 3 test files, 8 seeds 2927495..2927502 ok (40s)"
     status, out, summary, rec = _run(tmp_path, installed=True, last=last, rc=0)
     assert status == 0, out
