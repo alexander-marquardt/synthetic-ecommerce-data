@@ -9,6 +9,7 @@ hand-listed registry. Each test here pins one half of that promise
 
 from __future__ import annotations
 
+import ast
 import dataclasses
 import functools
 import json
@@ -50,9 +51,9 @@ def _by_type(lines) -> dict[str, list[str]]:
 def _small_build() -> Catalog:
     """The whole build from its own ``small()``, made once per process (#1035).
 
-    The full side of :func:`_moved_by_removing` and the unedited side of each edit below is this
-    one build, and each test (and each type file's left-out test, since #790 one test here) built
-    it again, about half its time. The other side is still built in the test, after it, so a
+    The full side of :func:`_moved_by_removing`, the unedited side of each edit below and the
+    whole side of the small built-alone test are this one build; before #1035 each test built it
+    again, about half its time. The other side is still built in the test, after it, so a
     build that leaves state behind for the next one still differs here. A caller reads it and
     never edits it.
     """
@@ -637,15 +638,78 @@ def test_every_type_built_alone_is_its_slice_of_the_whole_build(size: str) -> No
     """
     fresh = small if size == "small" else GeneratorConfig
     whole = _small_by_type() if size == "small" else _by_type(generate.generate(fresh()).lines)
+    keys = generate.all_type_keys()
+    empty = [key for key in keys if not whole.get(key)]
+    assert not empty, f"{len(empty)} type(s) built nothing in the whole {size} build: {empty[:8]}"
     moved = [
         key
-        for key in reversed(generate.all_type_keys())
-        if _by_type(generate.generate_type(fresh(), key)).get(key, []) != whole.get(key, [])
+        for key in reversed(keys)
+        if _by_type(generate.generate_type(fresh(), key)).get(key, []) != whole[key]
     ]
     assert not moved, (
         f"{len(moved)} type(s) build differently alone than in the whole {size} build, so a"
         f" build leaves state another type reads: {moved[:8]}"
     )
+
+
+#: The two tests each type gate file carried before #790. Each rebuilt the whole catalogue once
+#: per type, 2,566 s of push-to-main run 45957873124; the test above checks that seam once.
+_PER_TYPE_REBUILDS = (
+    "test_every_other_type_is_byte_identical_with_this_type_left_out",
+    "test_the_whole_build_carries_exactly_this_types_own_build",
+)
+
+
+def _per_type_rebuilds(source: str) -> list[str]:
+    """Each place in ``source`` that rebuilds the whole catalogue for one type's seam (#790): a
+    def of either test in :data:`_PER_TYPE_REBUILDS`, or an import or use of
+    :func:`_moved_by_removing`, which builds the whole small catalogue less one type."""
+    found = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name in _PER_TYPE_REBUILDS:
+                found.append(f"line {node.lineno}: defines {node.name}")
+        elif isinstance(node, ast.ImportFrom):
+            if any(alias.name == "_moved_by_removing" for alias in node.names):
+                found.append(f"line {node.lineno}: imports _moved_by_removing")
+        elif isinstance(node, ast.Attribute) and node.attr == "_moved_by_removing":
+            found.append(f"line {node.lineno}: uses _moved_by_removing")
+    return found
+
+
+def test_no_other_test_module_rebuilds_the_catalogue_for_one_types_seam() -> None:
+    """A type gate file copied from the pre-#790 template brings back a whole-catalogue build per
+    type: the seam is checked here, once for every type."""
+    here = Path(__file__).resolve()
+    found = {
+        str(path.relative_to(here.parent)): hits
+        for path in sorted(here.parent.rglob("test_*.py"))
+        if path.resolve() != here and (hits := _per_type_rebuilds(path.read_text(encoding="utf-8")))
+    }
+    assert not found, (
+        f"{len(found)} test module(s) rebuild the whole catalogue for one type's seam, which"
+        f" test_every_type_built_alone_is_its_slice_of_the_whole_build checks once for every"
+        f" type (#790); remove them: {dict(list(found.items())[:8])}"
+    )
+
+
+def test_the_rebuild_scan_catches_a_gate_file_from_the_old_template() -> None:
+    old = (
+        "import test_type_seam\n"
+        "from test_type_seam import _by_type, _moved_by_removing\n"
+        "def test_every_other_type_is_byte_identical_with_this_type_left_out():\n"
+        "    assert not test_type_seam._moved_by_removing(KEY)\n"
+        "def test_the_whole_build_carries_exactly_this_types_own_build():\n"
+        "    pass\n"
+        "def test_every_other_type_builds_as_the_committed_golden_has_it():\n"
+        "    pass\n"
+    )
+    assert sorted(_per_type_rebuilds(old)) == [
+        "line 2: imports _moved_by_removing",
+        "line 3: defines test_every_other_type_is_byte_identical_with_this_type_left_out",
+        "line 4: uses _moved_by_removing",
+        "line 5: defines test_the_whole_build_carries_exactly_this_types_own_build",
+    ]
 
 
 @pytest.mark.parametrize(
