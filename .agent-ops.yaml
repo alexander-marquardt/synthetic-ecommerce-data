@@ -1,0 +1,25 @@
+# alexander-marquardt/synthetic-ecommerce-data describes itself to agent-ops (agent-ops#3044): it describes, it prescribes nothing.
+# The schema: agent-ops v3/docs/each-product-repo-describes-itself-in-agent-ops-yaml.md
+version: 1
+repo: alexander-marquardt/synthetic-ecommerce-data
+lanes:
+  lane:developer-efficiency: 20
+  lane:process-automation: 6
+  lane:core-prism: 40
+  lane:sister-repos: 15
+  lane:data-generation: 20
+  lane:runtime-performance: 25
+  lane:ci-throughput: 15
+  lane:code-cleanliness: 15
+  lane:security: 30
+  lane:search-quality: 0
+  lane:merchandiser-experience: 3
+  lane:reliability: 15
+required_checks: .github/required-checks.json
+runner: self-hosted
+merge_method: optimistic-gate
+stable_branch: main
+deploys:
+  - the generated catalogue at a CI-green main commit, read by the catalogue load
+depends_on: []
+boot_check: null
