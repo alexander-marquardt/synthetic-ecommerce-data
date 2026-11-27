@@ -462,13 +462,17 @@ jobs:
           # One process per seed: the local run's exported worker count would turn xdist back on.
           unset PYTEST_ADDOPTS
           uv sync --locked
-          # Left out of the pass: each of these takes over 5 min alone, serially, and a seed gets 10
-          # (SEED_TIMEOUT_S in agent-ops vm/shuffled_pass.py), a cap that stays ("Do not raise the
-          # timeout to go green", elastic/prism#15203). Order dependence in them goes unchecked
-          # until #1035 makes them fit; a file leaves this list when it does. docs/ci-sharding.md.
+          # Left out of the pass: each of these takes over 1 min alone, serially. A seed gets 10
+          # min (SEED_TIMEOUT_S in agent-ops vm/shuffled_pass.py) for every changed file at once,
+          # with 8 seeds side by side, a cap that stays ("Do not raise the timeout to go green",
+          # elastic/prism#15203): a seed holding the last two (356 s and 121 s alone) timed out.
+          # Order dependence in them goes unchecked until #1035 makes them fit; a file leaves this
+          # list when it does. docs/ci-sharding.md.
           over_budget=(
             tests/test_merge_pr.py
             tests/test_merge_pr_github_ci_348.py
+            tests/test_merge_pr_local_ci_guard_366.py
+            tests/test_merge_pr_red_log_453.py
           )
           pytest="uv run -q --locked pytest"
           for f in "${over_budget[@]}"; do pytest="$pytest --deselect $f"; done
