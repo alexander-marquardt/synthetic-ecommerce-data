@@ -26,11 +26,10 @@ from synthetic_ecommerce_data.core import brands, emit, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import breadth, names, taxonomy
 from synthetic_ecommerce_data.domains.industrial.drawing.figures import FIGURES
-from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.title_attributes import TITLE_ATTRIBUTES
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
-from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "bar_stock_hex"
 
@@ -196,21 +195,10 @@ def test_the_committed_golden_slice_is_a_fresh_build():
         pytest.fail(f"{SLICE.name} is not a fresh build: {report}")
 
 
-def test_every_other_type_is_byte_identical_with_this_type_left_out():
-    moved = _moved_by_removing(KEY)
-    assert not moved, f"building {KEY} changed {moved[:8]}"
-
-
 def test_every_other_type_builds_as_the_committed_golden_has_it():
     report = type_gates.others_moved_from_the_golden(KEY)
     if report:
         pytest.fail(report)
-
-
-def test_the_whole_build_carries_exactly_this_types_own_build():
-    whole = _by_type(generate().lines)
-    alone = _by_type(generate_type(GeneratorConfig(), KEY))
-    assert whole[KEY] == alone[KEY]
 
 
 def test_the_title_names_the_width_across_flats():

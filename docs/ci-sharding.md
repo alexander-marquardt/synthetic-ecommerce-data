@@ -395,6 +395,11 @@ What a heavy file most often repeats is a build the worker could share:
   and the `templates` share from 317 s to 29 s (a loaded machine; the sum of the calls, not wall).
 * `tests/test_type_seam.py` builds the small catalogue once per worker (`_small_build()`), and
   the 40-odd type files that compare against it share that build.
+* Each type gate file built the whole small catalogue less its own type, and an uncached whole
+  default build beside it: 49 items each, 1,765 s and 801 s of the 15,097 worker-seconds of
+  push-to-main run 45957873124. `test_type_seam.py` now checks the property they share once,
+  for every type at both sizes: every type built alone is its slice of the whole build
+  (`test_every_type_built_alone_is_its_slice_of_the_whole_build`, #790).
 
 A shared object is read, never edited. A test that edits one leaks the edit into every later
 test on that worker. Copy the object before editing it.

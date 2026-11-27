@@ -51,9 +51,10 @@ def _small_build() -> Catalog:
     """The whole build from its own ``small()``, made once per process (#1035).
 
     The full side of :func:`_moved_by_removing` and the unedited side of each edit below is this
-    one build, and each test (and each type file's left-out test) built it again, about half its
-    time. The other side is still built in the test, after it, so a build that leaves state behind
-    for the next one still differs here. A caller reads it and never edits it.
+    one build, and each test (and each type file's left-out test, since #790 one test here) built
+    it again, about half its time. The other side is still built in the test, after it, so a
+    build that leaves state behind for the next one still differs here. A caller reads it and
+    never edits it.
     """
     return generate.generate(small())
 
@@ -618,6 +619,33 @@ def test_every_types_skus_and_product_ids_carry_its_own_block() -> None:
 def test_removing_a_type_leaves_every_other_type_byte_identical(removed: str) -> None:
     moved = _moved_by_removing(removed)
     assert not moved, f"removing {removed} changed {len(moved)} other type(s): {moved[:8]}"
+
+
+@pytest.mark.parametrize("size", ["small", "default"])
+def test_every_type_built_alone_is_its_slice_of_the_whole_build(size: str) -> None:
+    """Every type built alone, from a fresh config and fresh counters, is byte-identical to its
+    records in the whole build (#790).
+
+    The whole build is each type's own build, in key order (``generate.generate``). So leaving a
+    type out, or building it alone, moves another type only through state a build leaves behind:
+    the module-level ``random``, a shared sequence, the counters dict, a write to the config. This
+    test checks that once, for every type at both sizes. Before #790 each type gate file built
+    the whole small catalogue less its own type, and an uncached default build beside it: 49 items
+    each, 1,765 s and 801 s of push-to-main run 45957873124. Each type gets its own config, so a
+    write one makes reaches no other. The types are built in reverse key order, so no type is
+    built straight after the ones before it in the whole build.
+    """
+    fresh = small if size == "small" else GeneratorConfig
+    whole = _small_by_type() if size == "small" else _by_type(generate.generate(fresh()).lines)
+    moved = [
+        key
+        for key in reversed(generate.all_type_keys())
+        if _by_type(generate.generate_type(fresh(), key)).get(key, []) != whole.get(key, [])
+    ]
+    assert not moved, (
+        f"{len(moved)} type(s) build differently alone than in the whole {size} build, so a"
+        f" build leaves state another type reads: {moved[:8]}"
+    )
 
 
 @pytest.mark.parametrize(

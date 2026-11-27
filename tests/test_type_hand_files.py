@@ -8,9 +8,10 @@ The gates of ``test_type_lock_nuts_nylon_insert.py``, the template (#53 step 3):
 * byte-determinism: two builds of the type, in two processes under two hash
   seeds, serialise identically;
 * a golden slice: the type's committed records, reviewed in its own file;
-* independence: every other type's output is byte-identical with this type
-  built or left out, and every other type still builds as the committed
-  golden has it.
+* independence: every other type still builds as the committed golden has it.
+  That this type builds the same alone as in the whole build, so building it or
+  leaving it out moves no other type, is checked once for every type, in
+  ``test_type_seam`` (#790).
 
 And this type's own: every length a record publishes is in the run its shape
 stocks, its tooth type follows the maker's single or double cut rule, every
@@ -29,13 +30,10 @@ import pytest
 import type_gates
 from published import authored_attributes
 from synthetic_ecommerce_data.core import typespec
-from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import names, taxonomy
-from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import unexplained_duplicates
-from test_type_seam import _by_type, _moved_by_removing
 
 KEY = "hand_files"
 
@@ -202,21 +200,10 @@ def test_the_committed_golden_slice_is_a_fresh_build():
         pytest.fail(f"{SLICE.name} is not a fresh build: {report}")
 
 
-def test_every_other_type_is_byte_identical_with_this_type_left_out():
-    moved = _moved_by_removing(KEY)
-    assert not moved, f"building {KEY} changed {moved[:8]}"
-
-
 def test_every_other_type_builds_as_the_committed_golden_has_it():
     report = type_gates.others_moved_from_the_golden(KEY)
     if report:
         pytest.fail(report)
-
-
-def test_the_whole_build_carries_exactly_this_types_own_build():
-    whole = _by_type(generate().lines)
-    alone = _by_type(generate_type(GeneratorConfig(), KEY))
-    assert whole[KEY] == alone[KEY]
 
 
 if __name__ == "__main__":
