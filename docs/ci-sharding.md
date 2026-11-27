@@ -34,8 +34,8 @@ outside it. A new directory of tests goes in `testpaths`, `TEST_DIRS` and `_TEST
 `scripts/ci_select.py`.
 
 `tests/test_ci_shards_348.py` is the guard: every collected test file is in exactly one
-shard (a split file's test ids are), the matrix is `1..N`, no CI job runs pytest on one worker, and the shards stay
-balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`,
+shard (a split file's test ids are), the matrix is `1..N`, no CI job but `shuffled` (serial by design, #1051)
+runs pytest on one worker, and the shards stay balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`,
 `tests/xdist_groups.py`), so one module is the floor of a shard's time.
 
 ## The order the files are listed in
