@@ -7,6 +7,8 @@ style that changed one would say a thing its picture does not show.
 
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -29,9 +31,17 @@ METAL_COLOR = {
 }  # fmt: skip
 #: Hand-written bracelets (authored samples) that state no metal, as before this cut.
 NO_METAL = {"PLT-DY70", "PLT-DY74", "PLT-DY549"}
-#: The SKUs of the range on the ceiling build, all 19 Womens and Mens types (456 before cut 2,
-#: 2,028 after it; cut 3's charms, brooches and jewellery boxes take it to 2,309).
-RANGE_FLOOR = 2_300
+#: The SKUs of the range on the ceiling build, its Womens, Mens and Kids types (456 before cut 2,
+#: 2,028 after it; cut 3's charms, brooches and jewellery boxes take it to 2,309; cut 4's
+#: jewellery sets, kids' watches and sports and dress watches take it to 2,700).
+RANGE_FLOOR = 2_690
+#: The range on the ceiling build before gen#1113 (main 5ea1291a less cut 1's 89 SKUs): 367 SKUs.
+#: A type not named here had none.
+BEFORE_1113 = {
+    "Analog Watch": 63, "Digital Watch": 38, "Ring": 83, "Bracelet": 58, "Necklace": 47,
+    "Hoop Earrings": 15, "Drop Earrings": 15, "Fitness Band": 36, "Watch": 8, "Earrings": 4,
+}  # fmt: skip
+MIX_837 = Path(__file__).resolve().parents[1] / "docs" / "catalogue-mix-837.md"
 
 
 @pytest.fixture(scope="module")
@@ -178,10 +188,24 @@ def test_a_query_ranks_its_family_first(index: br.Index, query: str) -> None:
     assert top["product_type"] in TEXT[query], (query, top["product_type"], top["title"])
 
 
-def test_the_range_reaches_its_floor(build: scale.Scaled) -> None:
+def _range_counts(build: scale.Scaled) -> dict[str, int]:
     types = {*TYPES, "Fitness Band", "Watch", "Earrings"}
-    skus = sum(
-        r["sku_count"] for r in build.records
-        if r["product_type"] in types and r["category_path"][0] in {"Womens", "Mens"}
-    )  # fmt: skip
+    counts: dict[str, int] = {}
+    for r in build.records:
+        if r["product_type"] in types and r["category_path"][0] in {"Womens", "Mens", "Kids"}:
+            counts[r["product_type"]] = counts.get(r["product_type"], 0) + r["sku_count"]
+    return counts
+
+
+def test_the_range_reaches_its_floor(build: scale.Scaled) -> None:
+    skus = sum(_range_counts(build).values())
     assert skus >= RANGE_FLOOR, skus
+
+
+def test_the_837_table_records_what_each_type_added(build: scale.Scaled) -> None:
+    """gen#1113 Done-when 2: #837's table has one row per type that grew, the SKUs it added."""
+    rows = re.findall(r"^\| gen#1113 [^|]*\| [^|]+ \| ([^|(]+?)(?: \([^)]*\))? \| ([\d,]+) \|$",
+                      MIX_837.read_text(encoding="utf-8"), re.M)  # fmt: skip
+    recorded = {ptype: int(n.replace(",", "")) for ptype, n in rows}
+    added = {t: n - BEFORE_1113.get(t, 0) for t, n in _range_counts(build).items()}
+    assert recorded == {t: n for t, n in added.items() if n > 0}

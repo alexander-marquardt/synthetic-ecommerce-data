@@ -115,7 +115,7 @@ filling at least half of the figure area ([drawings](drawings.md#breadth-types-f
   axles moved out, the kids' wheels a little larger), so the smallest frame spans 283 units
   (82%), the mountain bike's 309 (90%). Measured on all 492 bike SKUs, before: 300 under 80%,
   the smallest road frame at 56% and the smallest kids' bike at 45%; after: none.
-  A dining table, a bookcase and a mirror have a narrower ladder too, 0.84 / 0.90 = 0.93
+  A dining table, a bookcase, a mirror and a sofa bed have a narrower ladder too, 0.84 / 0.90 = 0.93
   ([furniture-fill-1214](retail-prototype/furniture-fill-1214.md)).
   Each size of one road and one kids' bike, before
   ([before](images/bicycle-fill-1049-before.svg)) and after

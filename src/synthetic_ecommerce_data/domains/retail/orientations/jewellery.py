@@ -12,6 +12,8 @@ UPRIGHT: tuple[str, ...] = (
     "fitness_band",
     "hoop_earrings",
     "jewellery_box",
+    "jewellery_set",
+    "kids_watch",
     "pendant",
     "stud_earrings",
     "watch_strap",

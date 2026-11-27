@@ -51,8 +51,8 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
     (
         "the click-clack draws no hinge line",
         _FILE,
-        "        return _draw(boxes, paint, fill, hinge)\n    aw = ARMS",
-        "        return _draw(boxes, paint, fill, None)\n    aw = ARMS",
+        "        return _draw(boxes, paint, fill, hinge, view=SOFA)\n    aw = ARMS",
+        "        return _draw(boxes, paint, fill, None, view=SOFA)\n    aw = ARMS",
         _HINGE,
         "the hinge line is marked where the back meets the seat",
     ),

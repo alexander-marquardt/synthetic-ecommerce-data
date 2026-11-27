@@ -47,10 +47,10 @@ __all__ = [
 #: A drawing shape's own smallest rung, narrower than the shared :data:`BOTTOM` (#1049). A bicycle
 #: fills the figure area at full size, and its smallest frame draws at 0.74 / 0.90 = 0.82 of that
 #: (the shared ladder: 0.61), so every frame size still spans most of the figure area. A dining
-#: table's, a bookcase's and a mirror's smallest size draws at 0.84 / 0.90 = 0.93 of its largest,
-#: so it too holds half of the product area (#1214).
+#: table's, a bookcase's, a mirror's and a sofa bed's smallest size draws at 0.84 / 0.90 = 0.93 of
+#: its largest, so it too holds half of the product area (#1214).
 BOTTOMS: dict[str, float] = {
-    "bicycle": 0.74, "bookcase": 0.84, "dining_table": 0.84, "mirror": 0.84,
+    "bicycle": 0.74, "bookcase": 0.84, "dining_table": 0.84, "mirror": 0.84, "sofa_bed": 0.84,
 }  # fmt: skip
 
 

@@ -21,7 +21,13 @@ from synthetic_ecommerce_data.domains.retail import (
     dark_blues,
     kit_storage_furniture,  # noqa: F401 -- registers the sideboard shape
 )
-from synthetic_ecommerce_data.domains.retail.type_registry import BRAND_OWNER, Row, TypeSpec, cw
+from synthetic_ecommerce_data.domains.retail.type_registry import (
+    BRAND_OWNER,
+    Home,
+    Row,
+    TypeSpec,
+    cw,
+)
 
 #: The brands these rows sell, each a furniture brand with a house style.
 BRANDS = ("Brackenmere Home", "Larchwood Living", "Emberly Home", "Cobble & Kiln")
@@ -78,4 +84,5 @@ SPEC = TypeSpec(
     # Brackenmere Home is the shop's own label; the other three are sold, not owned.
     owners=tuple((b, BRAND_OWNER.get(b, "third_party")) for b in BRANDS),
     rows=tuple(_row(*s) for s in _SIDEBOARDS),
+    homes=(Home("picture_products", False),),  # the wands-inspired sideboards (gen#1093)
 )

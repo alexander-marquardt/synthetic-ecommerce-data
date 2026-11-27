@@ -32,9 +32,9 @@ def _boxes_of(shape: str, params: dict, monkeypatch: pytest.MonkeyPatch) -> list
     seen: list[list[kit_seating.Box]] = []
     real = kit_seating._draw
 
-    def spy(boxes, paint, fill, extra=None):
+    def spy(boxes, paint, fill, extra=None, view=kit_seating.CHAIR):
         seen.append(boxes)
-        return real(boxes, paint, fill, extra)
+        return real(boxes, paint, fill, extra, view=view)
 
     monkeypatch.setattr(kit_seating, "_draw", spy)
     kit.render(shape, kit.Fill("solid", "#123456", "#654321"), params=params)

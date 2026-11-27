@@ -4,3 +4,6 @@
 # checkout that is in fact correct, so these files are stored and checked out
 # verbatim.
 golden-catalog/** -text
+
+# The pinned picture manifest (gen#1093) is checked by sha256 against its pin: stored verbatim.
+src/synthetic_ecommerce_data/picture_products/pictures.jsonl -text

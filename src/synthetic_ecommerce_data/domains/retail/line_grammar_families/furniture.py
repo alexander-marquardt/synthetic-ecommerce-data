@@ -12,6 +12,8 @@ KINDS = (
     "Sofa", "Corner Sofa", "Chaise Sofa", "Modular Sofa", "Recliner Sofa", "Sofa Bed", "Armchair",
     "Footstool", "Bed", "Dining Table", "Side Table", "Coffee Table", "Dining Chair", "Bookcase",
     "Wardrobe", "Chest of Drawers", "Hallway Stands", "Chairbed", "Mirror", "Sideboard",
+    "Bar Stool", "Bench", "Desk", "Drinks Cabinet", "Kitchen Island", "Office Chair",
+    "Storage Cabinet", "TV Unit", "Vanity Unit",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

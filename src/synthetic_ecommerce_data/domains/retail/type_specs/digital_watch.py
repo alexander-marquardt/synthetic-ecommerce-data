@@ -3,7 +3,8 @@
 A SKU is a silicone strap color times a case diameter in millimetres (``case_mm``). The six main
 colors (gen#275) are spread over the styles of each audience. ``buttons`` is drawn by
 :mod:`kit_jewellery`. The two decoys carry the word "digital" in their text and are not what the
-query they target asks for, by their fields.
+query they target asks for, by their fields. Each style states its ``watch_style`` (gen#1113):
+Sports (water resistant to 100 m) or Everyday.
 """
 
 # ruff: noqa: E501 -- data rows read better whole than wrapped (prototype only).
@@ -34,12 +35,12 @@ WOMENS_MM = ((34, 0.0), (38, 2.0))
 MENS_MM = ((42, 0.0), (46, 2.0))
 
 
-def _row(code, title, brand, who, price, desc, colors, buttons, water=100, strap="Silicone", **kw):
+def _row(code, title, brand, who, price, desc, colors, buttons, water=100, strap="Silicone", style="Everyday", **kw):
     mm = WOMENS_MM if who == WOMENS else MENS_MM
     return watch_row(
         code, title, brand, who, "Digital Watches", PTYPE, price, "digital_watch", desc, colors, strap, water,
         tuple((d, round(price + extra, 2)) for d, extra in mm), (("buttons", buttons),),
-        extra=(a("watch_type", "Watch type", "Digital"), a("display", "Display", "LCD"), a("backlight", "Backlight", "Yes")), **kw,
+        extra=(a("watch_type", "Watch type", "Digital"), a("watch_style", "Watch style", style), a("display", "Display", "LCD"), a("backlight", "Backlight", "Yes")), **kw,
     )
 
 
@@ -54,7 +55,7 @@ SPEC = TypeSpec(
     rows=(
         _row("DGWMSP", "Mens Sports Digital Watch", CALDERBY, MENS, 25.0,
              "A digital sports watch with a stopwatch, an alarm, a backlit LCD and a soft silicone strap.",
-             (BLACK, WHITE, BLUE, RED), "2"),
+             (BLACK, WHITE, BLUE, RED), "2", style="Sports"),
         _row("DGWMMF", "Mens Multifunction Digital Watch", TIDEWELL, MENS, 32.0,
              "A digital watch with four buttons, a world time display, a countdown timer and a silicone strap.",
              (GREEN, YELLOW, BLACK, BLUE), "4"),
@@ -64,12 +65,18 @@ SPEC = TypeSpec(
         _row("DGWWMF", "Womens Multifunction Digital Watch", HARBOUR, WOMENS, 28.0,
              "A digital watch with four buttons, a stopwatch, a dual time display and a silicone strap.",
              (BLUE, GREEN, WHITE, BLACK), "4"),
+        _row("DGWWSP", "Womens Sports Digital Watch", CALDERBY, WOMENS, 26.0,
+             "A digital sports watch with a lap timer, a stopwatch, an alarm and a backlit LCD on a slim silicone strap.",
+             (RED, WHITE, BLUE), "4", style="Sports"),
+        _row("DGWMRN", "Mens Running Watch with Lap Timer", SKERRY, MENS, 34.0,
+             "A digital sports watch for running, with a lap timer that keeps 50 laps, an interval timer and a vented silicone strap.",
+             (BLACK, YELLOW, GREEN), "4", style="Sports"),
     ),
     decoys=(
         Decoy(5, "black digital watch", "color",
               _row("DGWDSW", "Dive Sports Watch", SKERRY, MENS, 36.0,
                    "A digital dive watch with a black display, a depth gauge and a blue silicone strap.",
-                   (BLUE,), "4")),
+                   (BLUE,), "4", style="Sports")),
         Decoy(4, "digital watch with alarm", "category",
               _row("DGWDBS", "Basic Time Watch", HARBOUR, WOMENS, 14.0,
                    "A simple digital watch that shows the time and the date, with no alarm, no timer and no backlight.",

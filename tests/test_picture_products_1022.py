@@ -89,7 +89,8 @@ def test_the_attributes_describe_the_picture(pictures, products):
                 key = f"{book.COUNTS[part][0].lower()}_count"
                 assert attrs[key] == value, (picture.type, key)
             else:
-                assert attrs[part] == value.replace("_", " ").title(), (picture.type, part)
+                key = book.KEYS.get(part, part)
+                assert attrs[key] == value.replace("_", " ").title(), (picture.type, part)
 
 
 def test_the_measured_size_is_the_generators_own_at_the_drawn_proportions(pictures, products):

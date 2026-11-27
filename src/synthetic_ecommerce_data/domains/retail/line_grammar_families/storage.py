@@ -13,6 +13,7 @@ KINDS = (
     "Wash Bags", "Nursery Storage", "Laundry Basket", "Drying Racks", "Clothes Airer",
     "Wall Hooks", "Picture Hook", "Door Stop", "Car Boot Organiser", "Cup Holder", "Nappy Caddy",
     "Money Box",
+    "Shoe Storage", "Bathroom Storage", "Storage Canister", "Wall Shelf",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

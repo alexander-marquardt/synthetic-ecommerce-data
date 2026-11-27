@@ -79,59 +79,59 @@ def _golden(garden: list[dict], ptype: str) -> list[tuple]:
 #: Each type's first three derived styles by product id (seed 0, ceiling build).
 GOLDEN: dict[str, list[tuple]] = {
     "Planter": [
-        ("BRD-01D3D51BC153", "Rookery Garden Co. Sprout Round Concrete Planter", 12, 33.0),
+        ("BRD-01D3D51BC153", "Rookery Garden Co. Wildflower Round Concrete Planter", 12, 33.0),
         ("BRD-048027E684AD", "Fenwold Nursery Paddock Trough Ceramic Planter", 6, 51.0),
         ("BRD-06041DA4CDD7", "Harbour & Pine Copse Square Galvanized Steel Planter", 18, 53.0),
     ],
     "Outdoor Light": [
-        ("BRD-012D10F91282", "Larkmoor Bloom Hardwired Cube Wall Light", 12, 15.0),
-        ("BRD-02A965807B4F", "Rookery Garden Co. Sprout Solar Bulkhead Wall Light", 18, 27.0),
-        ("BRD-046E72E409C4", "Larkmoor Seedling Battery-Powered Lantern Path Light", 6, 13.0),
+        ("BRD-012D10F91282", "Larkmoor Sprout Hardwired Cube Wall Light", 12, 15.0),
+        ("BRD-02A965807B4F", "Rookery Garden Co. Wildflower Solar Bulkhead Wall Light", 18, 27.0),
+        ("BRD-046E72E409C4", "Larkmoor Sunlit Battery-Powered Lantern Path Light", 6, 13.0),
     ],
     "Garden Chair": [
         ("BRD-00224F280A77", "Fenwold Nursery Paddock Reclining Aluminum Garden Chair", 18, 70.0),
-        ("BRD-07968A557327", "Thistle & Wren Wildflower Reclining Acacia Garden Chair", 12, 27.0),
-        ("BRD-0ADE7569A567", "Larkmoor Bloom Stacking Plastic Garden Chair", 6, 27.0),
+        ("BRD-07968A557327", "Thistle & Wren Trellis Reclining Acacia Garden Chair", 12, 27.0),
+        ("BRD-0ADE7569A567", "Larkmoor Sprout Stacking Plastic Garden Chair", 6, 27.0),
     ],
     "Hand Tool": [
-        ("BRD-00382772E317", "Harbour & Pine Furrow Stainless Steel Pruner", 2, 13.5),
-        ("BRD-0264F29EE94B", "Larkmoor Bloom Carbon Steel Cultivator", 2, 10.5),
-        ("BRD-045D374AB40F", "Harbour & Pine Furrow Stainless Steel Cultivator", 3, 10.5),
+        ("BRD-00382772E317", "Harbour & Pine Seedling Stainless Steel Pruner", 2, 13.5),
+        ("BRD-0264F29EE94B", "Larkmoor Sprout Carbon Steel Cultivator", 2, 10.5),
+        ("BRD-045D374AB40F", "Harbour & Pine Seedling Stainless Steel Cultivator", 3, 10.5),
     ],
     "Watering Can": [
         (
             "BRD-023B1301C5CA",
-            "Thistle & Wren Cottage Slimline Galvanized Steel Watering Can",
+            "Thistle & Wren Trellis Slimline Galvanized Steel Watering Can",
             18,
             33.0,
         ),
         (
             "BRD-03760D4621F8",
-            "Larkmoor Seedling Long Reach Powder-Coated Steel Watering Can",
+            "Larkmoor Sunlit Long Reach Powder-Coated Steel Watering Can",
             12,
             28.0,
         ),
-        ("BRD-043D7764161C", "Wrenfield Trellis Classic Powder-Coated Steel Watering Can", 18, 9.5),
+        ("BRD-043D7764161C", "Wrenfield Plot Classic Powder-Coated Steel Watering Can", 18, 9.5),
     ],
     "Bird Feeder": [
-        ("BRD-018763BB0040", "Larkmoor Bloom Metal Tube Bird Feeder", 12, 15.5),
+        ("BRD-018763BB0040", "Larkmoor Sprout Metal Tube Bird Feeder", 12, 15.5),
         ("BRD-042267D46A49", "Harbour & Pine Copse Plastic Window Bird Feeder", 12, 17.5),
-        ("BRD-0BFBE7AF7415", "Rookery Garden Co. Sunlit Plastic Platform Bird Feeder", 9, 4.7),
+        ("BRD-0BFBE7AF7415", "Rookery Garden Co. Cottage Plastic Platform Bird Feeder", 9, 4.7),
     ],
     "Garden Table": [
-        ("BRD-0196A12A28C4", "Larkmoor Seedling Side Steel Garden Table", 18, 55.0),
-        ("BRD-0B9EA02BA2EB", "Rookery Garden Co. Sunlit Dining Steel Garden Table", 18, 175.0),
-        ("BRD-10FE61035F5F", "Larkmoor Seedling Dining Steel Garden Table", 6, 52.0),
+        ("BRD-0196A12A28C4", "Larkmoor Sunlit Side Steel Garden Table", 18, 55.0),
+        ("BRD-0B9EA02BA2EB", "Rookery Garden Co. Cottage Dining Steel Garden Table", 18, 175.0),
+        ("BRD-10FE61035F5F", "Larkmoor Sunlit Dining Steel Garden Table", 6, 52.0),
     ],
     "Grill Accessory": [
-        ("BRD-0C88BE889DD6", "Harbour & Pine Furrow Polyester Kettle Grill Cover", 5, 35.0),
-        ("BRD-0FBD90213767", "Rookery Garden Co. Sprout Bamboo Grill Tool Set", 6, 16.5),
-        ("BRD-1B45ADEEA116", "Rookery Garden Co. Sunlit Polyester Kettle Grill Cover", 6, 40.0),
+        ("BRD-0C88BE889DD6", "Harbour & Pine Seedling Polyester Kettle Grill Cover", 5, 35.0),
+        ("BRD-0FBD90213767", "Rookery Garden Co. Wildflower Bamboo Grill Tool Set", 6, 16.5),
+        ("BRD-1B45ADEEA116", "Rookery Garden Co. Cottage Polyester Kettle Grill Cover", 6, 40.0),
     ],
     "Garden Storage": [
-        ("BRD-052F23343099", "Harbour & Pine Furrow Wood Tall Cabinet", 12, 110.0),
+        ("BRD-052F23343099", "Harbour & Pine Seedling Wood Tall Cabinet", 12, 110.0),
         ("BRD-05A16B606626", "Fenwold Nursery Paddock Resin Deck Box", 18, 150.0),
-        ("BRD-0650BEC561C4", "Thistle & Wren Wildflower Wood Tall Cabinet", 18, 125.0),
+        ("BRD-0650BEC561C4", "Thistle & Wren Trellis Wood Tall Cabinet", 18, 125.0),
     ],
 }
 

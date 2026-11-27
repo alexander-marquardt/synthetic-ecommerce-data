@@ -47,6 +47,7 @@ DETAILS = f"{RD}/details.py"
 FIGURES = f"{RD}/retail_figures.py"
 REGISTRY = f"{RD}/type_registry.py"
 ORIENT = f"{RD}/orientation.py"
+SPEC_OPTIONS = "tests/test_retail_type_options_413.py"
 
 #: (registry file, the line a feature used to append there, a word of the new-file form refusal)
 APPENDS = {
@@ -173,6 +174,11 @@ APPENDS = {
         "orientations/<owner>.py",
     ),
     "orientation-entry": (ORIENT, '    "kayak": "upright",', "orientations/<owner>.py"),
+    "spec-options-row": (
+        SPEC_OPTIONS,
+        '    "probe_mat": [Option("probe_mm", "probe", "Probe", "MMT")],',
+        "tests/spec_options/<family>.py",
+    ),
 }
 
 #: The registry files as they stand on main, each with a row an edit may change.
@@ -197,6 +203,7 @@ BASE = {
     ORIENT: 'ORIENTATION = {\n    **dict.fromkeys(ANY, "any"),\n}\n',
     FIGURES: "from x import (\n    export,\n)\n",
     REGISTRY: 'BUILD_SOURCES = (\n    "samples",\n    "foo_rows",\n)\n',
+    SPEC_OPTIONS: "from spec_options import MOVED\n\n\ndef test_x():\n    assert MOVED\n",
 }
 
 

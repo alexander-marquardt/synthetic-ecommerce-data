@@ -55,6 +55,7 @@ EXCEPTIONS = {
     "Anklet": "precious metal: the color is the metal (gen#1113)",
     "Charm": "precious metal: the color is the metal (gen#1113)",
     "Brooch": "precious metal: the color is the metal (gen#1113)",
+    "Jewellery Set": "precious metal: the color is the metal (gen#1113)",
     "Cutlery": "stainless steel and plated metal: the color is the metal",
     "Cutlery Set": "stainless steel: the color is the metal",
     "Socket Set": "chrome vanadium steel: the color is the raw metal",
@@ -286,7 +287,8 @@ def complete(tpls: list[dict], skip: frozenset[str] = frozenset()) -> list[dict]
         for i, color in enumerate(lacks):
             # only a style whose type comes in the color takes it (type_colors, gen#448)
             fit = [r for r in styles if type_colors.permits(r["category_path"], color)]
-            best = [r for r in fit if tier(r) == min(tier(x) for x in fit)]
+            low = min(tier(x) for x in fit)  # once, not once per style: a group may hold thousands
+            best = [r for r in fit if tier(r) == low]
             naming = [r for r in fit if _names(r, color)]
             pick = naming[0] if naming else best[i % len(best)]
             picks.setdefault(pick["product_id"], []).append(color)

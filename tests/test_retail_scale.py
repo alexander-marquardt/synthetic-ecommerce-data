@@ -88,6 +88,8 @@ KNACKS_ROWS = FIGURES["templates"]["knacks_rows"]["styles"]
 CUPS_PLURAL_ROWS = FIGURES["templates"]["cups_plural_rows"]["styles"]
 DIY_DECOY_ROWS = FIGURES["templates"]["diy_decoy_rows"]["styles"]
 TYPE_SPEC_ROWS = FIGURES["templates"]["type_specs"]["styles"]
+#: The wands-inspired products (gen#1093): templates that derive nothing, counted as they are.
+PICTURE_ROWS = FIGURES["templates"]["picture_products"]["styles"]
 LIGHTING_ROWS = FIGURES["templates"]["lighting_rows"]["styles"]
 PLAIN_ROWS = FIGURES["templates"]["plain_rows"]["styles"]
 GROCERY_ROWS = FIGURES["templates"]["grocery"]["styles"]
@@ -124,6 +126,7 @@ TEMPLATES = (
     + KNACKS_ROWS
     + DIY_DECOY_ROWS
     + TYPE_SPEC_ROWS
+    + PICTURE_ROWS
     + DECOY_APPAREL_ROWS
     + COLORWORD_ROWS
     + PLAIN_ROWS
@@ -502,7 +505,7 @@ def _motif_drawn() -> dict[str, str]:
     out: dict[str, str] = {}
     for t in templates():
         for a in t["attributes"]:
-            if a["key"] == "motif":
+            if a["key"] == "motif" and "motif" in t["drawing"]:  # a picture product's has none
                 motif = t["drawing"]["motif"]
                 assert out.setdefault(str(a["value"]), motif) == motif
     return out

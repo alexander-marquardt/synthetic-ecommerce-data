@@ -52,6 +52,21 @@ lacked or held thinly. Each records here the SKUs it added per type, measured on
 (`retail_figures.ceiling()`, seed 0) in the pull request that adds them. The table sits above the
 mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 
+gen#1113's rows are measured on main bc63a4e0, after its four cuts merged (#1168, #1224, #1265,
+#1269). They take the Womens, Mens and Kids jewellery and watch range from 367 SKUs to 2,700
+(+2,333); its Fitness Band (36), Watch (8) and Earrings (4) did not grow.
+`tests/test_retail_jewellery_range_1113.py` holds each row against the build.
+
+gen#1093's rows are the wands-inspired products: one product of our own per picture of the WANDS
+persona's pinned manifest, in each of the 28 drawn types
+([every type](retail-prototype/picture-products-every-type-1093.md#the-products-ship-in-the-retail-build)).
+The 13,373 pictures make 11,191 products and 12,282 SKUs: Home 11,166 SKUs, Office
+& School 641 and Garden 475. Pictures that would make one product of one brand are one product in
+each of their colors. The build grows from 38,339 records and 384,634 SKUs to 49,517 and 396,805
+(+12,171 SKUs): some derived styles are drawn again so as not to read as one of the new
+products, which takes 111 SKUs. `tests/test_picture_products_ship_1093.py` holds each row against
+the build.
+
 | Issue | Department | Type | SKUs added |
 |---|---|---|---:|
 | gen#1112 (slice 1) | Health | Sanitary Pads | 299 |
@@ -80,6 +95,52 @@ mix so that `tests/test_catalogue_mix_837.py` reads the mix alone.
 | gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Needles | 48 |
 | gen#1118 (sewing, cuts 1 to 3) | Office & school | Embroidery Kit | 45 |
 | gen#1118 (sewing, cuts 1 to 3) | Office & school | Sewing Machine | 44 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Pendant | 492 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Watch Strap | 468 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Analog Watch (63 to 336) | 273 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Digital Watch (38 to 170) | 132 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Charm | 128 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Bangle | 123 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Anklet | 112 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Jewellery Set | 110 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Brooch | 89 |
+| gen#1113 (jewellery, cuts 1 to 4) | Kids | Kids Watch | 74 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Jewellery Box | 64 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Ring (83 to 140) | 57 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Stud Earrings | 54 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Bracelet (58 to 102) | 44 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Cufflinks | 36 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Necklace (47 to 80) | 33 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Hoop Earrings (15 to 37) | 22 |
+| gen#1113 (jewellery, cuts 1 to 4) | Clothing | Drop Earrings (15 to 37) | 22 |
+| gen#1093 (wands-inspired) | Home | Rug | 1714 |
+| gen#1093 (wands-inspired) | Home | Desk | 959 |
+| gen#1093 (wands-inspired) | Home | Bar Stool | 905 |
+| gen#1093 (wands-inspired) | Home | Sofa | 795 |
+| gen#1093 (wands-inspired) | Home | Tile | 703 |
+| gen#1093 (wands-inspired) | Home | Vanity Unit | 670 |
+| gen#1093 (wands-inspired) | Home | Wall Art | 658 |
+| gen#1093 (wands-inspired) | Home | Chest of Drawers | 644 |
+| gen#1093 (wands-inspired) | Office & School | Office Chair | 641 |
+| gen#1093 (wands-inspired) | Home | TV Unit | 464 |
+| gen#1093 (wands-inspired) | Home | Decorative Accessory | 344 |
+| gen#1093 (wands-inspired) | Home | Wall Shelf | 275 |
+| gen#1093 (wands-inspired) | Home | Kitchen Island | 273 |
+| gen#1093 (wands-inspired) | Home | Bookcase | 266 |
+| gen#1093 (wands-inspired) | Garden | Garden Statue | 263 |
+| gen#1093 (wands-inspired) | Home | Shoe Storage | 261 |
+| gen#1093 (wands-inspired) | Home | Faucet | 240 |
+| gen#1093 (wands-inspired) | Home | Cabinet Hardware | 234 |
+| gen#1093 (wands-inspired) | Home | Bathroom Storage | 233 |
+| gen#1093 (wands-inspired) | Home | Storage Cabinet | 233 |
+| gen#1093 (wands-inspired) | Home | Vanity Light | 227 |
+| gen#1093 (wands-inspired) | Home | Artificial Flowers | 217 |
+| gen#1093 (wands-inspired) | Garden | Water Feature | 212 |
+| gen#1093 (wands-inspired) | Home | Sideboard | 203 |
+| gen#1093 (wands-inspired) | Home | Storage Canister | 194 |
+| gen#1093 (wands-inspired) | Home | Drinks Cabinet | 193 |
+| gen#1093 (wands-inspired) | Home | Bench | 185 |
+| gen#1093 (wands-inspired) | Home | Wardrobe | 76 |
 
 ## The mix
 

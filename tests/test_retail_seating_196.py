@@ -43,18 +43,26 @@ def _attr(row: sofa_rows.Row, key: str) -> list[str]:
     return [a[2] for a in row.attrs if a[0] == key]
 
 
-def _boxes(row: sofa_rows.Row, monkeypatch: pytest.MonkeyPatch) -> list[kit_seating.Box]:
-    """The blocks a style's drawing is made of, as :func:`kit_seating._draw` receives them."""
-    seen: list[list[kit_seating.Box]] = []
+def _drawing(
+    row: sofa_rows.Row, monkeypatch: pytest.MonkeyPatch
+) -> tuple[list[kit_seating.Box], kit_seating.View]:
+    """The blocks a style's drawing is made of and the view it is seen in, as
+    :func:`kit_seating._draw` receives them."""
+    seen: list[tuple[list[kit_seating.Box], kit_seating.View]] = []
     real = kit_seating._draw
 
-    def spy(boxes, paint, fill, extra=None):
-        seen.append(boxes)
-        return real(boxes, paint, fill, extra)
+    def spy(boxes, paint, fill, extra=None, view=kit_seating.CHAIR):
+        seen.append((boxes, view))
+        return real(boxes, paint, fill, extra, view=view)
 
     monkeypatch.setattr(kit_seating, "_draw", spy)
     kit.render(row.shape, kit.Fill("solid", "#123456", "#654321"), params=dict(row.params))
     return seen[-1]
+
+
+def _boxes(row: sofa_rows.Row, monkeypatch: pytest.MonkeyPatch) -> list[kit_seating.Box]:
+    """The blocks a style's drawing is made of, as :func:`kit_seating._draw` receives them."""
+    return _drawing(row, monkeypatch)[0]
 
 
 def test_every_type_has_three_styles_from_three_brands() -> None:
@@ -134,8 +142,9 @@ def test_depth_runs_up_and_left_so_the_left_side_the_kit_draws_is_the_one_that_s
     """``_box`` draws a block's left side, top and front, and :func:`kit_seating._before`
     orders blocks for a viewer on the left. Depth must move the drawing left, or every right
     arm shows a floating top with no side under it."""
-    x, y = kit_seating._Sheet._raw(0.0, 0.0, 10.0)
-    assert x < 0 and y < 0
+    for view in (kit_seating.CHAIR, kit_seating.SOFA, kit_seating.LONG, kit_seating.BED):
+        x, y = kit_seating._Sheet._raw(0.0, 0.0, 10.0, view)
+        assert x < 0 and y < 0, view
 
 
 #: The styles drawn as blocks (a round footstool is drawn as an ellipse and a drum).
@@ -149,9 +158,9 @@ def test_every_style_has_a_painters_order_without_a_forced_pick(
     """A pair of blocks whose outlines do not overlap orders nothing; were it ordered, the
     order would contradict the pairs between them, and :func:`kit_seating._order` would
     have to break a cycle by authored order, painting a seat over its neighbor."""
-    boxes = _boxes(row, monkeypatch)
+    boxes, view = _drawing(row, monkeypatch)
     after = {
-        i: {j for j, b in enumerate(boxes) if j != i and kit_seating._before(a, b)}
+        i: {j for j, b in enumerate(boxes) if j != i and kit_seating._before(a, b, view)}
         for i, a in enumerate(boxes)
     }
     waiting = {i: sum(i in after[j] for j in after) for i in after}
@@ -179,18 +188,18 @@ def _sofa_bed_drawing(
     mechanism: str, seats: str, monkeypatch: pytest.MonkeyPatch
 ) -> tuple[list[kit_seating.Box], list[str], kit_seating._Sheet]:
     """A sofa bed's blocks, the marks its ``extra`` adds on the fitted sheet, and the sheet."""
-    seen: list[tuple[list[kit_seating.Box], object]] = []
+    seen: list[tuple[list[kit_seating.Box], object, kit_seating.View]] = []
     real = kit_seating._draw
 
-    def spy(boxes, paint, fill, extra=None):
-        seen.append((boxes, extra))
-        return real(boxes, paint, fill, extra)
+    def spy(boxes, paint, fill, extra=None, view=kit_seating.CHAIR):
+        seen.append((boxes, extra, view))
+        return real(boxes, paint, fill, extra, view=view)
 
     monkeypatch.setattr(kit_seating, "_draw", spy)
     fill = kit.Fill("solid", "#123456", "#654321")
     kit.render("sofa_bed", fill, params={"mechanism": mechanism, "seats": seats})
-    boxes, extra = seen[-1]
-    sheet = kit_seating._Sheet(boxes)
+    boxes, extra, view = seen[-1]
+    sheet = kit_seating._Sheet(boxes, view)
     return boxes, (extra(sheet) if extra else []), sheet
 
 
@@ -270,13 +279,13 @@ def test_the_painters_order_draws_the_nearer_higher_and_left_block_later(
 ) -> None:
     """The oracle does not call ``_before``: of two blocks whose outlines overlap, the one
     that is higher (larger y), else nearer (smaller z), else further left is drawn later."""
-    boxes = _boxes(row, monkeypatch)
-    place = {id(b): i for i, b in enumerate(kit_seating._order(boxes))}
+    boxes, view = _drawing(row, monkeypatch)
+    place = {id(b): i for i, b in enumerate(kit_seating._order(boxes, view))}
     wrong = 0
     checked = 0
     for a in boxes:
         for b in boxes:
-            if a is b or not kit_seating._overlap(a, b):
+            if a is b or not kit_seating._overlap(a, b, view):
                 continue
             if not _drawn_after(a, b):
                 continue

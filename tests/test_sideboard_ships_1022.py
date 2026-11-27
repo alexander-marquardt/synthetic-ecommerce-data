@@ -21,7 +21,12 @@ import pytest
 from retail_ceiling import ceiling_build  # noqa: E402
 from synthetic_ecommerce_data.core import noncopy
 from synthetic_ecommerce_data.core.standard import check_catalog
-from synthetic_ecommerce_data.domains.retail import image_release, scale, type_registry
+from synthetic_ecommerce_data.domains.retail import (
+    image_release,
+    picture_products,
+    scale,
+    type_registry,
+)
 from synthetic_ecommerce_data.domains.retail.type_specs import sideboard
 
 #: The fields a sideboard SKU may carry: its code, its color, its price and its stock.
@@ -35,7 +40,14 @@ def ceiling():
 
 @pytest.fixture(scope="module")
 def sideboards(ceiling) -> list[dict]:
-    return [r for r in ceiling.records if r["product_type"] == "Sideboard"]
+    """The sideboard rows and their derived styles; the wands-inspired sideboards (gen#1093)
+    are ``tests/test_picture_products_ship_1093.py``'s."""
+    pictured = picture_products.ids()
+    return [
+        r
+        for r in ceiling.records
+        if r["product_type"] == "Sideboard" and r["product_id"] not in pictured
+    ]
 
 
 def _attrs(rec: dict) -> dict[str, str]:

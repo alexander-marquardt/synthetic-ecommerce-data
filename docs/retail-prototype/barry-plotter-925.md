@@ -174,7 +174,7 @@ department's share: one product in four of each type is reduced, in a pass of it
   | `barry` | No other product but the books. It is one letter from `berry`, so a spelling corrector may rewrite it. |
   | `berry` | A word of eight other products' text in the templates (five meads, oranges, a cake, a body mist), and inside a word of many more (strawberry, raspberry, blueberry). |
   | `plotter` | No other product but the books: the catalogue sells no pen plotter. |
-  | `plot` | Fenwold Nursery's "Plot" garden series, derived in the scaled builds (plants, trees, bulbs: "Fenwold Nursery Plot Woolly Thyme Plant"). A stemmer that takes `plotter` to `plot` meets them. |
+  | `plot` | Wrenfield's "Plot" garden series, derived in the scaled builds (garden chairs, planters, hand tools: "Wrenfield Plot Round Plastic Planter"). A stemmer that takes `plotter` to `plot` meets them. |
 
   Phrase matching has to keep the name together: elastic/prism-retail-and-industrial gets a
   special-phrase row for it (filed with this issue).

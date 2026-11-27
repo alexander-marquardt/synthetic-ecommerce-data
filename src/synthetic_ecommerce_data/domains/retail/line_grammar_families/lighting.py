@@ -11,6 +11,7 @@ from __future__ import annotations
 KINDS = (
     "Lampshade", "Ceiling Light", "Floor Lamp", "Table Lamp", "Wall Light", "Desk Lamp",
     "Night Light", "Light Bulb",
+    "Vanity Light",
 )  # fmt: skip
 #: The lead word of a model.
 LEADS = (

@@ -245,6 +245,12 @@ def deal(
 
     A split file (``SPLIT_FILES``) is in every shard and weighs a ``count``-th of its seconds
     in each; with one shard it is just a file. ``PlanError`` names the modules no shard can hold.
+
+    A shard with a heavy module runs ``HEAVY_WORKERS``, one with none ``LIGHT_WORKERS``
+    (``workers``), so the heavy modules go to the first ``k`` shards only, and each file goes to
+    the shard it ends soonest on: its seconds over its workers. ``k`` is the one whose slowest
+    shard ends first (#1035): spread one or two to a shard, they took the third worker from 11
+    of 12. A shard is not dealt past ``SHARD_BUDGET_SECONDS`` while another can take the file.
     """
     if count < 1:
         raise ValueError("a run needs at least one shard")
@@ -256,21 +262,66 @@ def deal(
     if concurrent_peak(divided, peaks, spread)[0] > SHARD_PEAK_MB:
         raise PlanError(_refusal(divided, count, peaks, spread))
     weight = {name: weights.get(name, DEFAULT_SECONDS) for name in files}
+    heavy = frozenset(name for name in files if peaks.get(name, UNMEASURED_MB) > HEAVY_MB)
+    if count == 1 or not heavy & set(whole) or heavy & set(divided):
+        # Every shard has the same workers: the deal by seconds alone.
+        return _deal_into(whole, divided, count, count, weight, heavy, peaks, spread)[0]
+    best: tuple[tuple[float, float, int], list[list[str]]] | None = None
+    # From every shard down: the slowest shard ends sooner as the heavy modules gather, until
+    # the memory bound or the budget pushes back; the first k whose slowest shard is slower ends
+    # the search, a tie does not.
+    for k in range(count, 0, -1):
+        try:
+            shards, load = _deal_into(whole, divided, count, k, weight, heavy, peaks, spread)
+        except PlanError:
+            if best is None:
+                raise
+            break
+        walls = [
+            load[i] / (HEAVY_WORKERS if heavy.intersection(shard) else LIGHT_WORKERS)
+            for i, shard in enumerate(shards)
+        ]
+        score = (round(max(walls), 6), round(max(load), 6), -k)
+        if best is not None and score[0] > best[0][0]:
+            break
+        if best is None or score < best[0]:
+            best = (score, shards)
+    assert best is not None
+    return best[1]
+
+
+def _deal_into(
+    whole: list[str],
+    divided: list[str],
+    count: int,
+    k: int,
+    weight: dict[str, float],
+    heavy: frozenset[str],
+    peaks: dict[str, int],
+    spread: frozenset[str],
+) -> tuple[list[list[str]], list[float]]:
+    """``deal`` with the heavy files on the first ``k`` shards: each shard's files, and seconds."""
     shards: list[list[str]] = [list(divided) for _ in range(count)]
     load = [sum(weight[name] for name in divided) / count] * count
+    speed = [HEAVY_WORKERS if i < k else LIGHT_WORKERS for i in range(count)]
     for name in sorted(whole, key=lambda f: (-weight[f], f)):
+        room = range(k) if name in heavy else range(count)
         fits = [
             i
-            for i in range(count)
+            for i in room
             if concurrent_peak([*shards[i], name], peaks, spread)[0] <= SHARD_PEAK_MB
         ]
         if not fits:
-            best = min(shards, key=lambda shard: concurrent_peak([*shard, name], peaks, spread)[0])
+            best = min(
+                (shards[i] for i in room),
+                key=lambda shard: concurrent_peak([*shard, name], peaks, spread)[0],
+            )
             raise PlanError(_refusal([*best, name], count, peaks, spread))
-        lightest = min(fits, key=lambda i: (load[i], i))
-        shards[lightest].append(name)
-        load[lightest] += weight[name]
-    return [sorted(shard) for shard in shards]
+        within = [i for i in fits if load[i] + weight[name] <= SHARD_BUDGET_SECONDS] or fits
+        soonest = min(within, key=lambda i: ((load[i] + weight[name]) / speed[i], load[i], i))
+        shards[soonest].append(name)
+        load[soonest] += weight[name]
+    return [sorted(shard) for shard in shards], load
 
 
 @functools.lru_cache(

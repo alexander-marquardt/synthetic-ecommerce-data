@@ -37,6 +37,7 @@ MODULES = (furniture, seating, home_furniture, storage_furniture)
 FURNITURE_SHAPES: tuple[str, ...] = (
     *(s for m in MODULES for name in orientation._SETS for s in getattr(m, name, ())),
     "bed_frame",
+    "bench",
     "chairbed",
     "sofa",
 )
