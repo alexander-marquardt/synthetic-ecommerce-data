@@ -18,6 +18,7 @@ from synthetic_ecommerce_data.core import emit, noise, typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import DOMAIN, compat
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 SET_SCREW = "set_screws_hex_socket"
 LOCK_NUT = "lock_nuts_nylon_insert"
@@ -36,7 +37,7 @@ def _published(doc: dict) -> dict[str, str]:
 
 
 def _of(docs: list[dict], key: str) -> list[dict]:
-    return [d for d in docs if d["product_type"] == key]
+    return [d for d in docs if type_key_of(d) == key]
 
 
 # --- the two types the issue names ---------------------------------------------

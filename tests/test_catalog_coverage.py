@@ -42,6 +42,7 @@ from published import authored_name
 from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial import compat, series, standards
+from type_key import type_key_of
 
 GOLDEN_DIR = Path(__file__).resolve().parents[1] / "golden-catalog"
 REBUILD = "uv run ecom-generate build --out golden-catalog"
@@ -111,7 +112,7 @@ def _milling_dias_mm(docs: list[dict]) -> list[tuple[float, str]]:
     filter on, not the magnitude the generator started from.
     """
     return [
-        (doc["facets_num"]["milling_dia"] * MM_PER_INCH, doc["product_type"])
+        (doc["facets_num"]["milling_dia"] * MM_PER_INCH, type_key_of(doc))
         for doc in docs
         if "milling_dia" in doc.get("facets_num", {})
     ]
@@ -216,7 +217,7 @@ def _line_standard(doc: dict) -> str:
     ``Standards`` attribute is drawn at a presence of 0.40, so keying on
     it would leave most lines out of the sweep.
     """
-    spec = SPECS.get(doc["product_type"])
+    spec = SPECS.get(type_key_of(doc))
     if spec is not None and spec.sizes and spec.line_standard is None:
         # Its provenance is a sentence naming the one table each dimension was
         # read from (``... read from the ISO 7040 table``); two thin series
@@ -227,7 +228,7 @@ def _line_standard(doc: dict) -> str:
     if spec is None or spec.line_standard is None:
         return doc["dimension_provenance"]
     return spec.line_standard(
-        {authored_name(doc["product_type"], a["name"]): a["value"] for a in doc["attributes"]}
+        {authored_name(type_key_of(doc), a["name"]): a["value"] for a in doc["attributes"]}
     )
 
 
@@ -284,7 +285,7 @@ def test_a_declared_size_no_line_reaches_is_a_problem(flat_docs: list[dict]) -> 
         doc
         for doc in flat_docs
         if not (
-            doc["product_type"] == "set_screws_hex_socket"
+            type_key_of(doc) == "set_screws_hex_socket"
             and doc["facets"]["dia_thread_size"][0].split("x")[0].rsplit("-", 1)[0] in ("M24", "1")
         )
     ]
@@ -306,7 +307,7 @@ def test_a_declared_standard_no_line_was_built_to_is_swept_whole(flat_docs: list
         doc
         for doc in flat_docs
         if not (
-            doc["product_type"] == "set_screws_hex_socket"
+            type_key_of(doc) == "set_screws_hex_socket"
             and (sentence_case("Point Type"), "Dog Point")
             in [(a["name"], a["value"]) for a in doc["attributes"]]
         )
@@ -330,7 +331,7 @@ def _lock_nuts(docs: list[dict], *, built_to: str = "", sizes: tuple[str, ...] =
     return [
         doc
         for doc in docs
-        if doc["product_type"] == LOCK_NUT
+        if type_key_of(doc) == LOCK_NUT
         and built_to in doc["dimension_provenance"]
         and (not sizes or any(v in sizes for v in doc["facets"]["thread_size"]))
     ]
@@ -391,7 +392,7 @@ def _thread_sizes(doc: dict) -> list[str]:
     """
     facets = doc["facets"]
     values = list(facets.get("dia_thread_size", []))
-    spec = SPECS.get(doc["product_type"])
+    spec = SPECS.get(type_key_of(doc))
     if spec is not None and spec.sizes:
         values += facets.get("thread_size", [])
     return values
@@ -450,7 +451,7 @@ def test_the_thread_size_the_reference_parametric_query_names_exists(
         doc for doc in flat_docs if REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
     ]
     assert rows, f"no document publishes {REFERENCE_THREAD}"
-    hex_rows = [doc for doc in rows if doc["product_type"] == HEX_BOLT_TYPE]
+    hex_rows = [doc for doc in rows if type_key_of(doc) == HEX_BOLT_TYPE]
     assert hex_rows, (
         f"{len(rows)} document(s) publish {REFERENCE_THREAD} and none of them is a "
         f"hex head bolt, which is the product the reference distributor's query names"
@@ -473,7 +474,7 @@ def test_the_lengths_published_for_that_size_are_the_standards_own(
     stray: list[tuple[str, str]] = []
     checked = 0
     for doc in flat_docs:
-        if doc["product_type"] != HEX_BOLT_TYPE:
+        if type_key_of(doc) != HEX_BOLT_TYPE:
             continue
         if REFERENCE_THREAD not in doc["facets"].get("dia_thread_size", []):
             continue
@@ -508,7 +509,7 @@ def test_the_reference_parametric_query_has_an_answer(flat_docs: list[dict]) -> 
     answers = [
         doc
         for doc in flat_docs
-        if doc["product_type"] == HEX_BOLT_TYPE
+        if type_key_of(doc) == HEX_BOLT_TYPE
         and REFERENCE_THREAD in doc["facets"].get("dia_thread_size", [])
         and "Grade 8" in doc["facets"].get("grade", [])
         and "Zinc Plated" in doc["facets"].get("finish", [])
@@ -553,7 +554,7 @@ def test_one_thread_size_is_not_locked_to_one_grading_or_one_finish(
     """
     lines: dict[str, dict[str, set[str]]] = {}
     for doc in flat_docs:
-        if doc["product_type"] != HEX_BOLT_TYPE:
+        if type_key_of(doc) != HEX_BOLT_TYPE:
             continue
         sizes = doc["facets"].get("dia_thread_size", [])
         if not sizes:
@@ -654,9 +655,9 @@ def test_no_document_carries_a_grading_from_the_other_measurement_system(
         own_iso += system == "metric" and has_iso
         own_sae += system == "inch" and has_sae
         if system == "inch" and has_iso:
-            iso_on_inch.append((doc["product_type"], doc["sku"]))
+            iso_on_inch.append((type_key_of(doc), doc["sku"]))
         if system == "metric" and has_sae:
-            sae_on_metric.append((doc["product_type"], doc["sku"]))
+            sae_on_metric.append((type_key_of(doc), doc["sku"]))
     assert inch > 1000 and metric > 1000, (
         f"only {inch} inch and {metric} metric documents were classified by thread size; "
         f"the check is proving little"

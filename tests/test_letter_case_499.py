@@ -31,6 +31,7 @@ from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
 from synthetic_ecommerce_data.core.letter_case import PROPER_NOUNS, apply, sentence_case
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.retail import export
+from type_key import type_key_of
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -335,7 +336,7 @@ def truth_and_catalog() -> tuple[dict[str, Any], Any]:
 def _published_names(docs: Any) -> dict[str, set[str]]:
     by_type: dict[str, set[str]] = defaultdict(set)
     for doc in docs:
-        by_type[doc["product_type"]].update(a["name"] for a in doc["attributes"])
+        by_type[type_key_of(doc)].update(a["name"] for a in doc["attributes"])
     return by_type
 
 

@@ -158,7 +158,9 @@ def _whole_list_stress(config: GeneratorConfig) -> dict[str, bytes]:
     run |= {"base_keys": len(bases), "copies_per_attribute": copies}
     figures = {"config": run, "census": stress.census(expanded)}
     return {
-        "flat.jsonl": lines(row for doc in expanded for row in standard.flat_documents(doc)),
+        "flat.jsonl": lines(
+            row for doc in expanded for row in standard.flat_documents(doc, leaf_type=True)
+        ),
         "mapping.flat.json": (json.dumps(emit.FLAT_MAPPING, indent=1) + "\n").encode(),
         "mapping.nested.json": (json.dumps(emit.NESTED_MAPPING, indent=1) + "\n").encode(),
         "nested.jsonl": lines(expanded),
@@ -243,7 +245,8 @@ def test_a_refusal_after_types_were_written_leaves_out_untouched(
 def _row(product: str, value: str) -> dict:
     return {
         "product_id": product,
-        "product_type": "probe_type",
+        "product_type": "Probes",
+        "image_id": f"nut_hex/{product}/{value}",
         "facets": {"probe": [value]},
         "facets_num": {},
         "attributes": [{"name": "Probe", "key": "probe", "value": value}],

@@ -16,6 +16,7 @@ import re
 import pytest
 
 from retail_ceiling import ceiling_build
+from sized import with_size
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     accessory_rows,
@@ -54,7 +55,7 @@ def _keys(row: accessory_rows.ARow) -> set[str]:
     doc = export.standard_document(row.doc())
     keys = {e["key"] for e in doc["attributes"]}
     keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-    return keys | attribute_cleanup.withheld(row.doc()["attributes"])
+    return with_size(keys | attribute_cleanup.withheld(row.doc()["attributes"]))
 
 
 def _conditional(row: accessory_rows.ARow) -> set[str]:

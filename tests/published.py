@@ -21,6 +21,7 @@ from pathlib import Path
 
 from synthetic_ecommerce_data.core.entry import published
 from synthetic_ecommerce_data.core.letter_case import AUTHORED_NAMES_FILE
+from type_key import type_key_of
 
 _AUTHORED = Path(__file__).resolve().parents[1] / "golden-catalog" / AUTHORED_NAMES_FILE
 
@@ -49,7 +50,7 @@ def authored_entries(doc: dict) -> list[dict]:
     with each ``name`` mapped back to the one its type authored: for a test that reads a
     value by the name the type's table or census states (``entry["Pin Dia."]``)."""
     return [
-        entry | {"name": authored_name(doc["product_type"], entry["name"])}
+        entry | {"name": authored_name(type_key_of(doc), entry["name"])}
         for entry in doc["attributes"]
     ]
 
@@ -58,6 +59,6 @@ def authored_attributes(doc: dict) -> list[dict[str, str]]:
     """:func:`published_attributes` with each name mapped back to the one its type authored,
     for a test that feeds the attributes to type code or compares them with a type's literals."""
     return [
-        {"name": authored_name(doc["product_type"], a["name"]), "value": a["value"]}
+        {"name": authored_name(type_key_of(doc), a["name"]), "value": a["value"]}
         for a in published_attributes(doc)
     ]

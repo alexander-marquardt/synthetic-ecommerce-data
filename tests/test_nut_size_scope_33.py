@@ -21,6 +21,7 @@ from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from test_catalog_facts import _realistic_only
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -64,7 +65,7 @@ def _nominal(thread: str) -> tuple[bool, Fraction | None]:
 def _nuts(docs: list[dict]) -> list[tuple[dict, dict[str, list[str]]]]:
     out = []
     for doc in docs:
-        if doc["product_type"] != "nut_hex":
+        if type_key_of(doc) != "nut_hex":
             continue
         by_name: dict[str, list[str]] = {}
         for attribute in authored_attributes(doc):

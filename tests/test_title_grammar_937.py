@@ -26,6 +26,7 @@ from synthetic_ecommerce_data.core.naming import Segment, build_title
 from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
 from synthetic_ecommerce_data.domains.industrial.title_attributes import TITLE_ATTRIBUTES
 from synthetic_ecommerce_data.domains.industrial.titles import TitleMixin
+from type_key import type_key_of
 
 #: The grammar's opening: a type with no comma and no colon, then ``": "``.
 TYPE_COLON = re.compile(r"^[^:,]+: ")
@@ -54,7 +55,7 @@ def _undeclared(doc: dict) -> list[str]:
 
     A piece names a declared attribute when it ends with that attribute's abbreviation, or,
     for an attribute declared with none, when it is a value the record publishes for it."""
-    declared = TITLE_ATTRIBUTES.get(doc["product_type"], ())
+    declared = TITLE_ATTRIBUTES.get(type_key_of(doc), ())
     published = _published(doc)
     rest = doc["title"].split(": ", 1)[1] if ": " in doc["title"] else ""
     bad = []
@@ -79,10 +80,10 @@ def test_every_title_attribute_is_one_its_type_declares(docs: list[dict]) -> Non
     its misleading words alone (``Claw Hammer: Hickory Creek``), which name no attribute by
     design: the facts gate exempts it by the same predicate (:mod:`.hammers`)."""
     decoys = [d for d in docs if is_incidental_decoy_title(d["title"])]
-    assert decoys and all(d["product_type"].startswith("hammer_") for d in decoys)
+    assert decoys and all(type_key_of(d).startswith("hammer_") for d in decoys)
     assert len(decoys) < len(docs) / 100, f"{len(decoys)} decoy titles is no exception"
     off = [
-        (d["product_type"], d["title"], bad)
+        (type_key_of(d), d["title"], bad)
         for d in docs
         if not is_incidental_decoy_title(d["title"]) and (bad := _undeclared(d))
     ]

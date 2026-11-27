@@ -19,6 +19,7 @@ from synthetic_ecommerce_data.core import bundle
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import muststock
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -55,7 +56,7 @@ def _golden_records() -> tuple[tuple[str, dict[str, str]], ...]:
     out = []
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
-        out.extend((parent["product_type"], r) for r in bundle.records(parent, facets_by_sku))
+        out.extend((type_key_of(parent), r) for r in bundle.records(parent, facets_by_sku))
     return tuple(out)
 
 

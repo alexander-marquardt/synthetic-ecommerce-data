@@ -42,6 +42,7 @@ from synthetic_ecommerce_data.domains.industrial.geometry.palette import (
     MATERIAL_ATTRIBUTES,
 )
 from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
+from type_key import type_key_of
 
 REPO = Path(__file__).resolve().parents[1]
 GOLDEN = REPO / "golden-catalog"
@@ -253,7 +254,7 @@ def test_rebuild_called_directly_draws_a_breadth_product(tmp_path):
     """
     nested = [json.loads(line) for line in (GOLDEN / "nested.jsonl").read_text().splitlines()]
     breadth_types = set(all_type_keys("breadth"))
-    parent = next(p for p in nested if p["product_type"] in breadth_types)
+    parent = next(p for p in nested if type_key_of(p) in breadth_types)
     skus = {variant["sku"] for variant in parent["variants"]}
     (tmp_path / "nested.jsonl").write_text(json.dumps(parent) + "\n")
     for name in ("flat.jsonl", "images.jsonl"):
@@ -400,9 +401,9 @@ def test_siblings_whose_drawn_values_differ_never_draw_alike():
                 parent,
                 variant,
                 _facets()[variant["sku"]],
-                _facets().authored.get(parent["product_type"]),
+                _facets().authored.get(type_key_of(parent)),
             )
-            data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+            data, _ = draw_sku(type_key_of(parent), parent["brand"], record)
             shown = {k: v for k, v in record.items() if k not in NOT_DRAWN_BY_ANY_FIGURE}
             if data in drawn and drawn[data] != shown:
                 offenders.append(parent["product_id"])
@@ -457,7 +458,7 @@ def _golden_products():
     """(type, product_id, [(sku, figure)], largest size_in) for every committed product."""
     for line in (GOLDEN / "nested.jsonl").read_text("utf-8").splitlines():
         parent = json.loads(line)
-        figure_fn, _ = FIGURES[parent["product_type"]]
+        figure_fn, _ = FIGURES[type_key_of(parent)]
         figures = [
             (variant["sku"], figure_fn(record).figure)
             for variant, record in zip(
@@ -465,7 +466,7 @@ def _golden_products():
             )
         ]
         largest = max(figure.size_in for _, figure in figures)
-        yield parent["product_type"], parent["product_id"], figures, largest, parent
+        yield type_key_of(parent), parent["product_id"], figures, largest, parent
 
 
 GOLDEN_PRODUCTS = list(_golden_products())
@@ -587,7 +588,7 @@ def _golden_singles():
     """Every committed SKU but a pack card, whose fan is wider than the one part ``_drawn_size``
     measures (gen#14: ``tests/test_pack_axis_14.py``)."""
     for parent, variant, record in _golden_skus():
-        if parent["product_type"] not in pack.AXES or record.get("Units per Pack") == "1":
+        if type_key_of(parent) not in pack.AXES or record.get("Units per Pack") == "1":
             yield parent, variant, record
 
 
@@ -595,7 +596,7 @@ def test_the_lens_appears_exactly_when_the_rule_says():
     """Over every committed SKU: a lens iff the part is drawn w <= 1/5 AND h <= 1/6 of the sheet."""
     wrong, lensed, plain = [], 0, 0
     for parent, variant, record in _golden_singles():
-        type_key = parent["product_type"]
+        type_key = type_key_of(parent)
         data, _ = draw_sku(type_key, parent["brand"], record)
         expected = _too_small(*_drawn_size(type_key, record))
         if _has_lens(data) != expected:
@@ -635,7 +636,7 @@ def test_every_lens_enlarges_at_least_the_measured_floor_and_is_handle_less_only
     pinned: set[str] = set()
     candidates = []
     for parent, variant, record in _golden_skus():
-        width, height = _drawn_size(parent["product_type"], record)
+        width, height = _drawn_size(type_key_of(parent), record)
         mag = magnifier(width, height)
         candidates.append((parent, variant, mag is not None and not mag.handle))
         if mag is None:
@@ -690,9 +691,9 @@ def test_long_thin_parts_never_get_a_lens():
     """A long drill, a long screw and a long hex key are thin but not small."""
     checked = 0
     for parent, _, record in _golden_skus():
-        width, height = _drawn_size(parent["product_type"], record)
+        width, height = _drawn_size(type_key_of(parent), record)
         if max(width, height) > 300 / 6 and min(width, height) < 200 / 6:
-            data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+            data, _ = draw_sku(type_key_of(parent), parent["brand"], record)
             assert not _has_lens(data), parent["product_id"]
             checked += 1
     assert checked > 1000
@@ -717,7 +718,7 @@ def test_the_lens_shows_the_same_part_enlarged():
 
     checked = 0
     for parent, variant, record in _golden_singles():
-        type_key = parent["product_type"]
+        type_key = type_key_of(parent)
         width, height = _drawn_size(type_key, record)
         mag = magnifier(width, height)
         if mag is None:
@@ -820,7 +821,7 @@ def test_no_outline_is_thinner_than_the_minimum_stroke():
     assert MIN_STROKE * 180 / 200 >= 2.0
     thinnest = 99.0
     for parent, variant, record in _golden_skus():
-        data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+        data, _ = draw_sku(type_key_of(parent), parent["brand"], record)
         for element in ET.fromstring(data):
             width = element.attrib.get("stroke-width")
             if width is None or "stroke-opacity" in element.attrib:
@@ -842,9 +843,9 @@ def test_a_hairline_drill_is_drawn_with_a_visible_outline():
     hairline = golden_pins.load()["lens"]["skus"]["hairline_drill"]
     for parent, variant, record in _golden_skus():
         if variant["sku"] == hairline:
-            width, _ = _drawn_size(parent["product_type"], record)
+            width, _ = _drawn_size(type_key_of(parent), record)
             assert width < 2.3
-            data, _ = draw_sku(parent["product_type"], parent["brand"], record)
+            data, _ = draw_sku(type_key_of(parent), parent["brand"], record)
             outlines = [
                 e for e in _true_scale_copy(data) if e.attrib.get("stroke-linejoin") == "round"
             ]

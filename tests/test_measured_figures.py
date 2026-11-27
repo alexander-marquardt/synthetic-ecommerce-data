@@ -27,6 +27,7 @@ import pytest
 from synthetic_ecommerce_data.core import price
 from synthetic_ecommerce_data.core.entry import UNIT_FOR_SUFFIX
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
+from type_key import type_key_of
 
 ROOT = Path(__file__).resolve().parents[1]
 GOLDEN = ROOT / "golden-catalog"
@@ -85,7 +86,7 @@ def test_the_catalog_and_drawing_figures_are_the_committed_catalogs(stats: dict)
         "bytes": sum(image["bytes"] for image in images),
         "geometry": dict(sorted(Counter(image["geometry"] for image in images).items())),
         "largest_bytes": largest["bytes"],
-        "largest_product_type": largest["product_type"],
+        "largest_product_type": type_key_of(largest),
     }
 
 

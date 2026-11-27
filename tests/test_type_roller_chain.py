@@ -41,6 +41,7 @@ from test_catalog_brands_voice import (
 )
 from test_sku_drawings import MAX_DRAWING_BYTES
 from test_type_seam import _by_type, _moved_by_removing
+from type_key import type_key_of
 
 KEY = "roller_chain"
 
@@ -134,7 +135,7 @@ def _pitch_entries(rows: list[dict], type_key: str) -> list[dict]:
     return [
         a
         for row in rows
-        if row["product_type"] == type_key
+        if type_key_of(row) == type_key
         for a in authored_entries(row)
         if a["name"] in ("Pitch", "Thread Pitch")
     ]
@@ -142,7 +143,7 @@ def _pitch_entries(rows: list[dict], type_key: str) -> list[dict]:
 
 def test_a_chains_pitch_is_keyed_chain_pitch_in_inches(default_rows):
     entries = _pitch_entries(default_rows, KEY)
-    chains = [row for row in default_rows if row["product_type"] == KEY]
+    chains = [row for row in default_rows if type_key_of(row) == KEY]
     assert len(entries) == len(chains), (len(entries), len(chains))
     assert {a["key"] for a in entries} == {"chain_pitch"}
     assert {a["unit_code"] for a in entries} == {"INH"}

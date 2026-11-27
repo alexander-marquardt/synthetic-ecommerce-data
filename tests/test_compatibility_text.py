@@ -23,6 +23,7 @@ from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial import compat
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 MM = 25.4
@@ -173,7 +174,7 @@ def sentence_errors(docs: list[dict]) -> list[tuple[str, str]]:
     for doc in docs:
         values = _published(doc)
         for match in compatibility_sentences(doc["text"]):
-            ok = _sentence_holds(match, doc["product_type"], values)
+            ok = _sentence_holds(match, type_key_of(doc), values)
             if not ok or match.group(0) not in doc.get("text", match.group(0)):
                 bad.append((doc["sku"], match.group(0)))
     return bad
@@ -262,14 +263,14 @@ def test_a_planted_false_sentence_is_caught(golden):
 def test_no_record_carries_another_products_attributes(docs):
     """The cross-reference is text: a key never publishes a thread size."""
     for doc in docs:
-        if doc["product_type"] in ("hex_key", "drill_jobber", "washer_flat"):
+        if type_key_of(doc) in ("hex_key", "drill_jobber", "washer_flat"):
             assert not {"Thread Size", "Dia./Thread Size"} & set(_published(doc)), doc["sku"]
 
 
 def test_a_size_query_reaches_more_than_one_product_type(docs):
     """What the sentences are for: ``M12`` is in the searchable text of screws,
     bolts, nuts, taps, washers and keys, and ``10.2mm``'s drill names M12x1.75."""
-    types = {d["product_type"] for d in docs if re.search(r"\bM12\b|M12x", d["text"])}
+    types = {type_key_of(d) for d in docs if re.search(r"\bM12\b|M12x", d["text"])}
     assert {
         "screw_socket_head",
         "bolt_hex",
@@ -325,7 +326,7 @@ def _series(thread: str) -> str | None:
 
 def test_every_thread_is_a_real_designation_and_its_thread_type_says_which(docs):
     for doc in docs:
-        name = THREADED.get(doc["product_type"])
+        name = THREADED.get(type_key_of(doc))
         values = _published(doc)
         if name is None or name not in values:
             continue
@@ -356,14 +357,14 @@ def test_a_diameter_query_has_a_pitch_to_choose(docs):
         series = {
             _series(_published(d)[name])
             for d in docs
-            if d["product_type"] == type_key and name in _published(d)
+            if type_key_of(d) == type_key and name in _published(d)
         }  # noqa: E501
         wanted = {"Metric Coarse", "Metric Fine", "UNC", "UNF"} - NO_FINE_PITCH.get(type_key, set())
         assert wanted <= series, (type_key, series)
     m12 = {
         _published(d)["Dia./Thread Size"]
         for d in docs
-        if d["product_type"] == "screw_socket_head"
+        if type_key_of(d) == "screw_socket_head"
         and _published(d).get("Dia./Thread Size", "").startswith("M12x")
     }
     assert m12 == {"M12x1.75", "M12x1.5", "M12x1.25"}, m12
@@ -372,7 +373,7 @@ def test_a_diameter_query_has_a_pitch_to_choose(docs):
 def test_a_fine_pitch_metric_screw_claims_no_coarse_thread_standard(docs):
     for doc in docs:
         values = _published(doc)
-        if doc["product_type"].startswith("screw_") and values.get("Thread Type") == "Metric Fine":
+        if type_key_of(doc).startswith("screw_") and values.get("Thread Type") == "Metric Fine":
             assert "Meets/Exceeds" not in values, doc["sku"]
             assert "fine-pitch" in doc["dimension_provenance"], doc["sku"]
 
@@ -383,7 +384,7 @@ def test_a_fine_pitch_metric_screw_claims_no_coarse_thread_standard(docs):
 def test_no_screw_publishes_a_length_under_head(docs):
     """Merged into ``Length`` (#497): the countersunk screw never had one, and on the
     others it repeated the nominal length."""
-    screws = [d for d in docs if d["product_type"].startswith("screw_")]
+    screws = [d for d in docs if type_key_of(d).startswith("screw_")]
     assert screws
     assert all("Length under Head" not in _published(d) for d in screws)
 

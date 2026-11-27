@@ -21,6 +21,7 @@ from synthetic_ecommerce_data.prism.derive import (
     quantity_sources,
 )
 from synthetic_ecommerce_data.prism.field_map import render
+from type_key import type_key_of
 
 SERIES = 13
 #: How a brand feed writes the n-th size: four spellings of one magnitude.
@@ -43,6 +44,7 @@ def _series_rows(products: int, spellings: int) -> list[dict]:
             {
                 "product_id": f"P{p}",
                 "product_type": "probe_type",
+                "image_id": f"nut_hex/P{p}/x",  # the type key a figure counts by (gen#125)
                 "facets": {"probe_span": [f"{magnitude:.4f} spelled {spelling}"]},
                 "facets_num": {"probe_span": magnitude},
                 "attributes": [{"name": "Probe", "key": "probe_span", "value": "x"}],
@@ -123,7 +125,7 @@ def test_a_brand_feed_never_rounds_a_chain_dimension_into_a_second_magnitude(
         "roller_dia": {float(roller) for _, _, roller, _ in roller_chain.ANSI if roller},
         "inside_width": {float(width) for _, _, _, width in roller_chain.ANSI},
     }
-    chains = [row for row in default_rows if row["product_type"] == "roller_chain"]
+    chains = [row for row in default_rows if type_key_of(row) == "roller_chain"]
     assert chains, "no roller chains in the default build"
     for key, sizes in table.items():
         published = {row["facets_num"][key] for row in chains if key in row["facets_num"]}

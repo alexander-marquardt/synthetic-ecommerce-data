@@ -786,8 +786,9 @@ attributes (head weight, handle material, face diameter, overall length). To add
 add a `HammerKind` to `domains/industrial/hammers.py` and a three-line module under
 `product_types/hand_tools/` named for the key (`SPEC = hammers.spec(hammers.<KIND>)`).
 A node that holds several types is declared in `taxonomy.SHARED_LEAVES`, which relaxes the
-one-type-per-leaf and two-word rules for that node alone. A `product_type` is a snake_case
-id (`hammer_claw`), never a display name (`Claw Hammer`);
+one-type-per-leaf and two-word rules for that node alone. A type key, the nested
+`product_type`, is a snake_case id (`hammer_claw`), never a display name (`Claw Hammer`); the flat
+file's `product_type` is the category leaf (`Hammers`) and the key stays in `image_id` (gen#125);
 `tests/test_hammers_305.py` refuses a hammer that is not under the node and a leaf whose
 products mix the two formats.
 

@@ -132,7 +132,7 @@ def industrial_records() -> list[dict]:
     built = generate.generate(generate.GeneratorConfig())
     return [
         {"title": d["title"], "description": d.get("description", ""),
-         "product_id": str(d["sku"]), "product_type": d["product_type"], "industrial": True,
+         "product_id": str(d["sku"]), "product_type": emit.flat_type_key(d), "industrial": True,
          "attributes": [{"key": k, "value": v} for k, vs in d["facets"].items() for v in vs]}
         for line in built.lines
         for d in emit.flat_documents(built, line)

@@ -47,6 +47,7 @@ from dataclasses import dataclass
 from functools import cache
 from typing import Any
 
+from synthetic_ecommerce_data.core.emit import flat_type_key
 from synthetic_ecommerce_data.core.entry import flat_key
 from synthetic_ecommerce_data.core.letter_case import sentence_case
 from synthetic_ecommerce_data.domains.industrial.breadth import SPEC_QUALITY
@@ -455,7 +456,7 @@ def measure(rows: Iterable[dict[str, Any]]) -> dict[str, AttributeStats]:
                     f"product {current!r} is met again after another product: measure() reads "
                     "a product's documents one after another"
                 )
-        product_type = row["product_type"]
+        product_type = flat_type_key(row)  # the type key: a flat product_type is the leaf
         type_sizes[product_type] += 1
         for key, vals in row["facets"].items():
             present[key] += 1

@@ -15,6 +15,7 @@ import re
 
 import pytest
 
+from sized import with_size
 from synthetic_ecommerce_data.core.standard import check_catalog
 from synthetic_ecommerce_data.domains.retail import (
     attribute_cleanup,
@@ -127,7 +128,7 @@ def test_every_key_attribute_is_a_structured_entry_in_the_export(ptype: str) -> 
         doc = export.standard_document(row.doc())
         keys = {e["key"] for e in doc["attributes"]}
         keys |= {e["key"] for v in doc["variants"] for e in v["attributes"]}
-        keys |= attribute_cleanup.withheld(row.doc()["attributes"])
+        keys = with_size(keys | attribute_cleanup.withheld(row.doc()["attributes"]))
         want = {attribute_cleanup.published(k, ptype) for k in KEYS[ptype]}
         if want - keys:
             missing[row.code] = sorted(want - keys)
@@ -140,7 +141,7 @@ def test_every_sku_states_its_size_color_and_pack(ptype: str) -> None:
     for row in (r for r in ROWS if r.product_type == ptype):
         doc = export.standard_document(row.doc())
         for v in doc["variants"]:
-            got = {e["key"] for e in v["attributes"]}
+            got = with_size({e["key"] for e in v["attributes"]})
             if VARIANT_KEYS[ptype] - got:
                 short[row.code] = sorted(VARIANT_KEYS[ptype] - got)
     assert short == {}

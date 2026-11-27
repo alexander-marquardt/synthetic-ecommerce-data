@@ -624,6 +624,7 @@ def _rows_of(products: int, variants: int, value_of) -> list[dict]:
                 {
                     "product_id": f"P{p}",
                     "product_type": "probe_type",
+                    "image_id": f"nut_hex/P{p}/{v}",  # the type key a figure counts by (gen#125)
                     "facets": {"load": [str(value)]},
                     "facets_num": {"load": float(value)},
                     "attributes": [{"name": "Load", "value": str(value)}],
@@ -732,6 +733,7 @@ def _terms_rows(name: str, values_of: dict[str, list[str]]) -> list[dict]:
         {
             "product_id": product,
             "product_type": "probe_type",
+            "image_id": f"nut_hex/{product}/x",  # the type key a figure counts by (gen#125)
             "facets": {emit.sanitize(name): list(values)},
             "facets_num": {},
             "attributes": [{"name": name, "value": value} for value in values],

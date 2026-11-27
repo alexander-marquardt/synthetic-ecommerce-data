@@ -74,11 +74,12 @@ def test_a_cushion_is_one_product_sold_by_color_and_size(pair) -> None:
     _rec, doc = pair
     assert tuple(doc["category_path"]) == CUSHIONS
     assert doc["product_type"] == "Cushion"
-    colors, sizes = _values(doc, "color"), _values(doc, "size")
+    # A cushion's ``45 x 45cm`` is its dimensions, no size system (gen#125).
+    colors, sizes = _values(doc, "color"), _values(doc, "dimensions")
     assert "Blue" in colors
     assert set(sizes) == SIZES
     assert doc["variant_count"] == len(set(colors)) * len(SIZES)
-    assert doc["variant_axes"] == ["color", "size"]
+    assert doc["variant_axes"] == ["color", "dimensions"]
     assert len({v["title"] for v in doc["variants"]}) == 1
     assert len(_style(doc, "fabric")) == 1
 
