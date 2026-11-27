@@ -2,7 +2,8 @@
 
 Each row puts one of the redraw's lines back (the shared size ladder, a small round mirror, a
 bookcase or a chair with no light and shade, a long sofa seen as a short one, a sofa with no
-shadow, an armchair or a footstool in its old small box) and names the test that must go red.
+shadow, an armchair or a footstool in its old small box, a low sideboard, a sideboard with no
+ground shadow) and names the test that must go red.
 A row is
 ``(name, file, old, new, tests, property)``.
 """
@@ -118,6 +119,22 @@ ROWS: list[tuple[str, str, str, str, str, str]] = [
         "view = CHAIR",
         f"{_T} -k a_seat_stands_on_a_ground_shadow",
         "a swivel chair's shadow shows under its foot",
+    ),
+    (
+        "a sideboard is low",
+        "kit_storage_furniture.py",
+        "SIDEBOARD = (296.0, 180.0, 36.0)",
+        "SIDEBOARD = (296.0, 120.0, 36.0)",
+        f"{_FILL}[sideboard]",
+        "a sideboard fills half of the product area",
+    ),
+    (
+        "a sideboard has no ground shadow",
+        "kit_storage_furniture.py",
+        "out = [ground_shadow.ellipse(x0 + (w + d) / 2, FLOOR, (w + d) / 2 + 4, 8.0)]",
+        "out = []",
+        f"{_T} -k a_sideboard_stands_on_a_ground_shadow",
+        "a sideboard stands on a ground shadow",
     ),
 ]
 

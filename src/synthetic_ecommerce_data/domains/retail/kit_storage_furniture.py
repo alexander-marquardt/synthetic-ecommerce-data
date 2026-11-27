@@ -1,7 +1,8 @@
 """Own-kind shapes for the storage furniture the kit could not draw (gen#1022, slice 2).
 
-Sideboards, bar cabinets, office storage cabinets, shoe storage and wall shelves, each a flat
-front drawing in the kit's house style with the record's fill on the main surface, drawn from
+Sideboards, bar cabinets, office storage cabinets, shoe storage and wall shelves, each a front
+drawing in the kit's house style with the record's fill on the main surface (a sideboard also
+shows its top and right side, lit and shaded, on a ground shadow: gen#1214), drawn from
 the attributes a record states, as slice 1's shapes (:mod:`kit_home_furniture`) are: the variant
 axis that changes how the piece looks is a param, and the drawn count of doors, drawers,
 shelves, tiers and stools is the stated count.
@@ -36,11 +37,13 @@ these shapes in a finish; no generator product uses them yet.
 
 from __future__ import annotations
 
+from synthetic_ecommerce_data.domains.retail import ground_shadow
 from synthetic_ecommerce_data.domains.retail.kit import (
     INK,
     LW,
     LW_DETAIL,
     Fill,
+    _highlight,
     _line,
     _path,
     _shade,
@@ -51,11 +54,16 @@ from synthetic_ecommerce_data.domains.retail.kit_furniture import (
     BOOKS,
     GLASS,
     METAL,
+    _dim,
     _drawer_fronts,
+    _front,
     _grain,
     _knob,
     _legs,
+    _lit,
+    _quad,
     _rect,
+    _side,
 )
 from synthetic_ecommerce_data.domains.retail.kit_home_furniture import FLOOR, _group, _slab
 
@@ -104,30 +112,65 @@ def _shoe(x: float, base: float, color: str) -> str:
     return _path(f"M{x:.1f},{base:.1f} L{x:.1f},{base - 16:.1f} L{x + 12:.1f},{base - 16:.1f} Q{x + 18:.1f},{base - 8:.1f} {x + 34:.1f},{base - 7:.1f} Q{x + 40:.1f},{base - 5:.1f} {x + 40:.1f},{base:.1f} Z", color, 1.0)
 
 
+#: The sideboard's front (width, height), the depth its top and right side recede, and its legs' height.
+SIDEBOARD = (296.0, 180.0, 36.0)
+SIDEBOARD_LEGS = {"tapered": 40.0, "plinth": 14.0, "hairpin": 40.0}
+
+
 def sideboard(paint: str, fill: Fill, label: str | None, doors: str = "2", drawers: str = "2", legs: str = "tapered") -> list[str]:
-    """A long low cabinet: a band of exactly ``drawers`` drawer fronts (``class="drawer"``) over
-    exactly ``doors`` door fronts (``class="door"``); with no door the lower part is an open bay
-    with a board across it. On ``tapered`` legs, a ``plinth`` or ``hairpin`` legs."""
+    """A long low cabinet seen from in front, a little above and to the right, as the kit's other
+    cabinets are (:func:`.kit_furniture._cabinet`): its top and right side show, lit from the left,
+    and it stands on a ground shadow (:func:`.ground_shadow.ellipse`), so it fills half the product
+    area (gen#1214). A band of exactly ``drawers`` drawer fronts (``class="drawer"``) over exactly
+    ``doors`` door fronts (``class="door"``), each door with a recessed panel; with no door the lower
+    part is an open bay with a board across it. On ``tapered`` legs, a ``plinth`` or ``hairpin`` legs."""
     _valid("sideboard", doors=doors, drawers=drawers, legs=legs)
     nd, nr = int(doors), int(drawers)
-    x0, w, y0 = 40, 320, 168
-    y1 = FLOOR - (14 if legs == "plinth" else 40)
-    out = [_rect(x0, y0, w, y1 - y0, paint), _slab(x0 - 8, y0 - 12, 16 + w, 12, paint), _grain(x0 - 8, y0 - 12, 16 + w, 12, paint)]
-    band = 40 if nr else 0
-    if nr:
-        out += _drawer_fronts(x0 + 4, y0 + 4, w - 8, band, nr, paint, cols=nr)
-    lo = y0 + 4 + band
-    if nd:
-        out += _doors(x0 + 4, lo, w - 8, y1 - lo - 4, nd, paint)
-    else:
-        out.append(_rect(x0 + 8, lo + 4, w - 16, y1 - lo - 12, _shade(paint, 0.1), LW_DETAIL))
-        out.append(_line(f"M{x0 + 10},{(lo + y1) / 2:.1f} L{x0 + w - 10},{(lo + y1) / 2:.1f}", 4, stroke=_shade(paint, 0.2)))
+    w, h, d = SIDEBOARD
+    lip = 6.0
+    x0 = 200 - (w + 2 * lip + d) / 2 + lip
+    x1 = x0 + w
+    y1 = FLOOR - SIDEBOARD_LEGS[legs]
+    y0 = y1 - h
+    rise = d * 0.4
+    side = _shade(paint, 0.17)
+    out = [ground_shadow.ellipse(x0 + (w + d) / 2, FLOOR, (w + d) / 2 + 4, 8.0)]
+    # The back right leg shows under the side; the others stand at the front corners.
     if legs == "tapered":
-        out += _legs([x0 + 18, x0 + w - 18], y1, FLOOR, paint, 14)
+        out += _legs([x1 + d - 12], y1 - d * 0.5, FLOOR - d * 0.5, side, 12)
+    elif legs == "hairpin":
+        out.append(_line(f"M{x1 + d - 22:.1f},{y1 - d * 0.5:.1f} L{x1 + d - 10:.1f},{FLOOR - d * 0.5:.1f} L{x1 + d + 2:.1f},{y1 - d * 0.5:.1f}", 4, stroke=METAL))
+    out.append(_side(x1, y0, h, d, paint))
+    out.append(_dim(_quad((x1, y0), (x1 + d, y0 - rise), (x1 + d, y1 - d * 0.5), (x1, y1)), 0.12))
+    out.append(_rect(x0, y0, w, h, paint))
+    # The top: a lip proud of the body, its surface receding to the back, lit from the left.
+    t0 = y0 - 12
+    top = _quad((x0 - lip, t0), (x0 - lip + d, t0 - rise), (x1 + lip + d, t0 - rise), (x1 + lip, t0))
+    out += [_path(top, _tint(paint, 0.08), LW_DETAIL), _lit(_quad((x0, t0 - 2), (x0 + d * 0.6, t0 - rise + 2), (x0 + w * 0.45, t0 - rise + 2), (x0 + w * 0.35, t0 - 2)), 0.35)]
+    out.append(_path(_quad((x1 + lip, t0), (x1 + lip + d, t0 - rise), (x1 + lip + d, y0 - rise), (x1 + lip, y0)), side, LW_DETAIL))
+    out += [_rect(x0 - lip, t0, w + 2 * lip, 12, paint, LW_DETAIL), _grain(x0 - lip, t0, w + 2 * lip, 12, paint), _highlight(f"M{x0:.1f},{t0 + 2:.1f} L{x0 + w * 0.4:.1f},{t0 + 2:.1f}", 2.5, 0.8)]
+    out.append(_dim(_quad((x0 + 2, y0 + 2), (x1 - 2, y0 + 2), (x1 - 2, y0 + 8), (x0 + 2, y0 + 8)), 0.12))  # the shade under the lip
+    band = 48 if nr else 0
+    if nr:
+        out += _drawer_fronts(x0 + 6, y0 + 8, w - 12, band, nr, paint, cols=nr)
+        out += _front(x0 + 6, y0 + 8, w - 12, band)
+    lo = y0 + 8 + band
+    if nd:
+        out += _doors(x0 + 6, lo, w - 12, y1 - lo - 6, nd, paint)
+        bay = (w - 12) / nd
+        for i in range(nd):
+            out.append(_rect(x0 + 6 + i * bay + 16, lo + 18, bay - 32, y1 - lo - 42, _shade(paint, 0.06), 1.0, rx=1))
+        out += _front(x0 + 6, lo, w - 12, y1 - lo - 6)
+    else:
+        out.append(_rect(x0 + 10, lo + 4, w - 20, y1 - lo - 14, _shade(paint, 0.12), LW_DETAIL))
+        out.append(_dim(_quad((x0 + 10, lo + 4), (x1 - 10, lo + 4), (x1 - 10, lo + 20), (x0 + 10, lo + 28)), 0.18))
+        out.append(_line(f"M{x0 + 12:.1f},{(lo + y1) / 2:.1f} L{x1 - 12:.1f},{(lo + y1) / 2:.1f}", 5, stroke=_shade(paint, 0.25)))
+    if legs == "tapered":
+        out += _legs([x0 + 18, x1 - 18], y1, FLOOR, paint, 14)
     elif legs == "plinth":
-        out.append(_rect(x0 + 10, y1, w - 20, 14, _shade(paint, 0.1), LW_DETAIL))
+        out += [_path(_quad((x1 - 10, y1), (x1 - 10 + d * 0.8, y1 - d * 0.4), (x1 - 10 + d * 0.8, y1 - d * 0.4 + 14), (x1 - 10, FLOOR)), side, LW_DETAIL), _rect(x0 + 10, y1, w - 20, 14, _shade(paint, 0.1), LW_DETAIL)]
     else:  # hairpin: two rods per end, meeting at the floor
-        pins = " ".join(f"M{x - 12},{y1} L{x},{FLOOR} L{x + 12},{y1}" for x in (x0 + 28, x0 + w - 28))
+        pins = " ".join(f"M{x - 12:.1f},{y1:.1f} L{x:.1f},{FLOOR} L{x + 12:.1f},{y1:.1f}" for x in (x0 + 28, x1 - 28))
         out.append(_line(pins, 4, stroke=METAL))
     return out
 

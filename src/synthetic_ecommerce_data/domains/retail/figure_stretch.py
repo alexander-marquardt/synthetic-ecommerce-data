@@ -11,19 +11,23 @@ if TYPE_CHECKING:
 def figure_at(draw, stretch: tuple[float, float], defs: str):
     """``draw`` with its parts in one ``<g class="figure">``, scaled ``stretch`` (x, y) about the
     bottom center of the box they cover (gen#1022): a 90-inch sideboard draws longer for its
-    height than a 60-inch one, and stands on the same floor. ``defs`` holds what the parts refer
-    to, so they can be measured."""
+    height than a 60-inch one, and stands on the same floor. The box leaves out a ground shadow
+    (``class="ground"``), which reaches below the floor and is drawn again outside the figure
+    (gen#1214). ``defs`` holds what the parts refer to, so they can be measured."""
 
     def drawn(paint: str, fill: Fill, label: str | None, **params) -> list[str]:
         parts = draw(paint, fill, label, **params)
         sx, sy = stretch
         if (sx, sy) == (1.0, 1.0):
             return ['<g class="figure">', *parts, "</g>"]
+        # deferred: these measure what the kit draws
         from synthetic_ecommerce_data.domains.retail import (
-            sheet_extent,  # deferred: sheet_extent measures what this kit draws
+            ground_shadow,
+            sheet_extent,
         )
 
-        svg = f'<svg xmlns="http://www.w3.org/2000/svg"><defs>{defs}</defs>{"".join(parts)}</svg>'
+        body = ground_shadow.GROUND.sub("", "".join(parts))
+        svg = f'<svg xmlns="http://www.w3.org/2000/svg"><defs>{defs}</defs>{body}</svg>'
         box = sheet_extent.reach(svg)
         if box is None:
             return ['<g class="figure">', *parts, "</g>"]

@@ -3,7 +3,7 @@
 Before gen#1214 the seven types of `kit_furniture` were flat front views, small on the sheet:
 87% of their SKUs painted under half of the product area, the smallest size of a ladder
 bookcase 4%. Slice 1 redraws the seven types, slice 2 the sofas, slice 3 the armchair and the
-footstool (below); the sideboard follows.
+footstool, slice 4 the sideboard of `kit_storage_furniture` (below).
 
 **Each piece is drawn as it is sold**, from in front and a little above: a table shows its top
 and its near edge (`kit_furniture._flat_slab`, `_ellipse_slab`), a cabinet its front, side and top
@@ -109,3 +109,26 @@ armchair and footstool SKU to 50%, a highlight and a shadow, and checks each for
 stands on a ground shadow that the measure skips.
 
 ![Each armchair style and footstool form before and after](../images/seat-fill-1214.png)
+
+## Slice 4: the sideboard
+
+Before slice 4, 9 of the 15 sideboard SKUs painted under half of the product area (43.9% to
+44.7% on legs, 54.8% on a plinth), and none carried a highlight: a flat front, one color over
+almost all of it, with no shadow under it.
+
+**A sideboard is seen as the kit's other cabinets are** (`kit_storage_furniture.sideboard`): from
+in front, a little above and to the right, its top (a lip proud of the body, its surface lit from
+the left) and its right side (`_side`, shaded) show, and it stands on a ground shadow
+(`ground_shadow.ellipse`). The front is larger (`SIDEBOARD`: 296 by 180 units, 36 deep), each
+door carries a recessed panel and the light and shade of `_front`, and a back leg shows under the
+side. The count of doors and drawers, and an open bay when there is no door, are as before.
+
+| type | doors, drawers, legs | before, smallest to largest | now, smallest to largest |
+|---|---|---|---|
+| Sideboard | 3 and 3 tapered, 2 and 0 hairpin, 4 and 0 plinth, 0 and 4 tapered, 1 and 2 plinth | 43.9% to 54.8% | 60.1% to 63.2% |
+
+`tests/test_furniture_fill_1214.py` holds every sideboard SKU to 50%, a highlight and a shadow,
+and checks each built form stands on a ground shadow that the measure skips. With it, the test
+holds every type of gen#1214's list.
+
+![One SKU of each built sideboard before and after](../images/sideboard-fill-1214.png)

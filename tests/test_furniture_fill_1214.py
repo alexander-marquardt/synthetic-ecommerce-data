@@ -4,7 +4,8 @@ Every SKU of every built template that draws one of these shapes is rendered as 
 and measured with #1129's sweep (``picture_fill_1129.measure``): the share of the product area
 (``house_styles.TURN_AREA``) it paints, its highlight and its shadow. A product sold in sizes or
 packs is measured at each of them. Slice 1 is ``kit_furniture``'s seven types, slice 2 the sofas
-of ``kit_seating``, slice 3 its armchair and footstool."""
+of ``kit_seating``, slice 3 its armchair and footstool, slice 4 ``kit_storage_furniture``'s
+sideboard: with it the test holds every type of the issue's list."""
 
 from __future__ import annotations
 
@@ -41,6 +42,7 @@ TYPES = {
     "sofa_bed": "Sofa Bed",
     "armchair": "Armchair",
     "footstool": "Footstool",
+    "sideboard": "Sideboard",
 }
 #: The SKUs a shape's built templates hold at least, so an emptied shape cannot pass unseen.
 FEWEST = {"u_sofa": 4}
@@ -104,3 +106,16 @@ def test_a_seat_stands_on_a_ground_shadow_the_fill_does_not_count(rec):
     assert b'class="ground"' in svg
     counted = pf.measure(svg, pf.TURN_AREA, skip=()).cover
     assert pf.measure(svg, pf.TURN_AREA).cover < counted, "the shadow shows past the seat's edge"
+
+
+def _sideboard_id(rec: dict) -> str:
+    p = rec["drawing"]["params"]
+    return f"{p['doors']}doors-{p['drawers']}drawers-{p['legs']}"
+
+
+@pytest.mark.parametrize("rec", _forms("sideboard"), ids=_sideboard_id)
+def test_a_sideboard_stands_on_a_ground_shadow_the_fill_does_not_count(rec):
+    svg = image_release.render(rec, rec["skus"][0], styled=False)
+    assert b'class="ground"' in svg
+    counted = pf.measure(svg, pf.TURN_AREA, skip=()).cover
+    assert pf.measure(svg, pf.TURN_AREA).cover < counted, "its shadow shows past the sideboard"
