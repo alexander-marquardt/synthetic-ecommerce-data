@@ -324,7 +324,19 @@ image at `/opt/shuffled-pass/shuffled_pass.py`; this repository keeps no copy
 
 ```sh
 uv sync --locked
-python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest"
+python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest --deselect tests/test_merge_pr.py --deselect tests/test_merge_pr_github_ci_348.py"
+```
+
+The `--deselect`s come from `over_budget`, a named list in the step: the changed test files that
+take over 5 minutes alone, serially. A seed gets 10 minutes (`SEED_TIMEOUT_S` in agent-ops
+`vm/shuffled_pass.py`), and that cap is not raised to go green ("Do not raise the timeout to go
+green", elastic/prism#15203). Today the list holds the merge-script tests,
+`tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`, so order dependence in those
+two files goes unchecked until #1035 makes them fit (or deletes them with `scripts/merge_pr.sh`);
+a file leaves the list when it does. The step writes the list to the summary and the log first:
+
+```
+shuffled pass: left out (over the seed budget): tests/test_merge_pr.py tests/test_merge_pr_github_ci_348.py
 ```
 
 The seeds follow from the head sha, so a rerun of one head tries the same orders. Each seed's

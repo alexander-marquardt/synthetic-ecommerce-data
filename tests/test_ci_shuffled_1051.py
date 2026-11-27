@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -24,6 +25,10 @@ CI = REPO / ".github" / "workflows" / "ci.yaml"
 CONFIG = REPO / "scripts" / "merge_pr" / "config.sh"
 IMAGE_PASS = "/opt/shuffled-pass/shuffled_pass.py"
 BASE, HEAD = "73fb676d40e6", "391c047b3d0c"
+#: The files the step leaves out of the pass: each takes over 5 min alone and a seed gets 10.
+OVER_BUDGET = ["tests/test_merge_pr.py", "tests/test_merge_pr_github_ci_348.py"]
+LEFT_OUT = "shuffled pass: left out (over the seed budget): " + " ".join(OVER_BUDGET)
+PYTEST = "uv run -q --locked pytest" + "".join(f" --deselect {f}" for f in OVER_BUDGET)
 
 sys.path.insert(0, str(REPO / "scripts"))
 import local_ci_jobs  # noqa: E402
@@ -98,11 +103,9 @@ def test_a_failing_seed_fails_the_job_and_the_summary_names_the_seed(tmp_path):
     )
     status, out, summary, rec = _run(tmp_path, installed=True, last=last, rc=1)
     assert status == 1, out
-    assert summary.strip() == last
+    assert summary.splitlines() == [LEFT_OUT, last]
     assert "2 failed, 15 passed" in out and last in out
-    assert rec["argv"] == [
-        "--base", BASE, "--key", HEAD, "--pytest", "uv run -q --locked pytest",
-    ]  # fmt: skip
+    assert rec["argv"] == ["--base", BASE, "--key", HEAD, "--pytest", PYTEST]
     # One process per seed: the local run's exported -n never reaches the pass.
     assert rec["addopts"] is None
     assert (tmp_path / "uv.log").read_text().split("\n")[0] == "uv sync --locked"
@@ -112,14 +115,14 @@ def test_a_green_pass_passes_and_the_summary_names_the_seeds(tmp_path):
     last = "shuffled pass: success: shuffled 1 test file, 8 seeds 2927495..2927502 ok (14s)"
     status, out, summary, _ = _run(tmp_path, installed=True, last=last, rc=0)
     assert status == 0, out
-    assert summary.strip() == last
+    assert summary.splitlines() == [LEFT_OUT, last]
 
 
 def test_a_pass_that_errors_fails_the_job(tmp_path):
     last = "shuffled pass: error: shuffled seed 2927495: pytest exited 4"
     status, out, summary, _ = _run(tmp_path, installed=True, last=last, rc=2)
     assert status == 2, out
-    assert summary.strip() == last
+    assert summary.splitlines() == [LEFT_OUT, last]
 
 
 def test_a_runner_without_the_pass_says_so_and_passes(tmp_path):
@@ -128,3 +131,17 @@ def test_a_runner_without_the_pass_says_so_and_passes(tmp_path):
     assert "shuffled pass: not installed on this runner" in out
     assert summary.strip() == "shuffled pass: not installed on this runner"
     assert rec is None and not (tmp_path / "uv.log").exists()
+
+
+def test_the_over_budget_merge_script_files_are_deselected_and_the_summary_names_them(tmp_path):
+    """A seed gets 10 min and the cap stays ("Do not raise the timeout to go green",
+    elastic/prism#15203); the merge-script test files take over 5 min alone, so the pass's pytest
+    deselects them until #1035 makes them fit, and the summary and the log say which."""
+    last = "shuffled pass: success: shuffled 3 test files, 8 seeds 2927495..2927502 ok (40s)"
+    status, out, summary, rec = _run(tmp_path, installed=True, last=last, rc=0)
+    assert status == 0, out
+    pytest = shlex.split(rec["argv"][rec["argv"].index("--pytest") + 1])
+    deselected = [pytest[i + 1] for i, arg in enumerate(pytest) if arg == "--deselect"]
+    assert deselected == OVER_BUDGET
+    assert summary.splitlines()[0] == LEFT_OUT
+    assert LEFT_OUT in out
