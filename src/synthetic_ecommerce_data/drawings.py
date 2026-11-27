@@ -49,8 +49,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from synthetic_ecommerce_data.core.drawing import product_look
+from synthetic_ecommerce_data.domains.retail import ground_shadow, kit, orientation
 from synthetic_ecommerce_data.domains.retail import house_styles as hs
-from synthetic_ecommerce_data.domains.retail import kit, orientation
 
 FINISHES: tuple[str, ...] = ("unbranded", "brand")
 DIMENSIONS: tuple[str, ...] = ("width", "height", "depth")
@@ -201,12 +201,15 @@ def _uid(product_id: str) -> str:
 
 def figure(type_: str, attributes: Mapping[str, Any]) -> str:
     """The figure alone, as the ``<g class="figure">`` both finishes draw: the shape, its params,
-    the color as its fill and its proportions, with no sheet, frame, angle or finish."""
+    the color as its fill and its proportions, with no sheet, frame, angle or finish. A ground
+    shadow the shape draws is left out: :func:`render` draws it outside the figure
+    (:func:`.ground_shadow.turned`), as it does for every kit (gen#1214)."""
     fill, dims, params = _split(type_, attributes)
     pid = "fill-figure"
     defs = kit.pattern_defs(fill, pid)
     draw = kit.figure_at(_draw_of(type_), _stretch(type_, dims), defs)
-    return "".join(kit._drawn(draw, kit._paint(fill, pid), fill, None, params))
+    drawn = "".join(kit._drawn(draw, kit._paint(fill, pid), fill, None, params))
+    return ground_shadow.GROUND.sub("", drawn)
 
 
 def render(

@@ -265,7 +265,7 @@ buttons or bites in a window and spilled in front), hot chocolate a `hot_chocola
 lidded tub, a mug of glossy cocoa in front) and the chocolate orange a `chocolate_orange` (a
 ball of segments in its opened foil;
 [chocolate-fill-1125](retail-prototype/chocolate-fill-1125.md)); tables, chairs, bookcases,
-wardrobes, mirrors, sofas, armchairs and footstools fill their picture too
+wardrobes, mirrors, sofas, armchairs, footstools and sideboards fill their picture too
 ([furniture-fill-1214](retail-prototype/furniture-fill-1214.md)). The build makes
 one drawing per style, except the pizza: its `flavor` (the toppings) and
 `pack_size` (the inches, so the diameter) are per-SKU drawing params, so a pizza

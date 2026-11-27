@@ -40,7 +40,9 @@ style) are each refused.
 
 `drawings.figure(type, attributes)` is the figure alone: the shape, its params, the color and the
 proportions, in one `<g class="figure">`. Both finishes draw that identical figure; only what is
-around it changes.
+around it changes. A ground shadow the shape draws (`class="ground"`) is not part of it: a render
+draws the shadow outside the figure (`ground_shadow.turned`), so `figure` leaves it out too
+(gen#1214).
 
 | Finish | What it draws |
 |---|---|
@@ -55,8 +57,9 @@ generator drawing is.
 `drawings.PROPORTIONS` gives each type its view and its nominal width, height and depth in
 inches. A `front` type draws its width against its height. A `top` type (a rug) draws its width
 against its depth. The figure is scaled about its bottom center (`kit.figure_at`), with the
-larger axis kept at full size and neither axis squeezed below 40%. So a 90-inch sideboard draws
-longer for its height than a 60-inch one and stands on the same floor.
+larger axis kept at full size and neither axis squeezed below 40%. The bottom is the piece's own
+(its legs or plinth), not its ground shadow's, which reaches below it. So a 90-inch sideboard
+draws longer for its height than a 60-inch one and stands on the same floor.
 
 | Type | View | Width | Height | Depth |
 |---|---|---|---|---|
