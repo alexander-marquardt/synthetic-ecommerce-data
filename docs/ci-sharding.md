@@ -324,7 +324,7 @@ image at `/opt/shuffled-pass/shuffled_pass.py`; this repository keeps no copy
 
 ```sh
 uv sync --locked
-python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest --deselect tests/test_merge_pr.py --deselect tests/test_merge_pr_github_ci_348.py --deselect tests/test_merge_pr_local_ci_guard_366.py --deselect tests/test_merge_pr_red_log_453.py"
+python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest --deselect tests/test_merge_pr.py --deselect tests/test_merge_pr_github_ci_348.py --deselect tests/test_merge_pr_local_ci_guard_366.py --deselect tests/test_merge_pr_red_log_453.py --deselect tests/test_type_seam.py --deselect tests/test_nails_751.py"
 ```
 
 The `--deselect`s come from `over_budget`, a named list in the step: the test files that take
@@ -336,13 +336,19 @@ side by side, so one file alone is the wrong measure: on #1288 a seed holding
 elastic/prism#15203). Today the list holds four of the eight merge-script test files
 (`tests/test_merge_pr*.py`): `tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`
 (each over 5 minutes) and the two above. The other four stay in the pass (`_shape_539` 47 s,
-`_step_log_912` 26 s, `_product_pins_1035` 3 s, `_wording_700` under 1 s). Order dependence in the
+`_step_log_912` 26 s, `_product_pins_1035` 3 s, `_wording_700` under 1 s). The list also holds
+`tests/test_type_seam.py` (254 s alone) and `tests/test_nails_751.py` (131 s alone), which #790
+changed with 47 other test files. The pass starts no new round after 60 s, so such a set gets one
+round of 8 seeds, and what binds is that round against the 10 minute seed timeout and the runner
+container's `--cpus 4 --memory 6g`. With the nails file in, a seed peaked at 0.8 to 1 GB and the
+container killed one (`pytest exited 137`); without the two, the round took 484 s a seed in those
+caps (measured in a cgroup of the same limits). Order dependence in the
 listed files goes unchecked until #1035 makes them fit (or deletes them with
 `scripts/merge_pr.sh`); a file leaves the list when it does. The step writes the list to the
 summary and the log first:
 
 ```
-shuffled pass: left out (over the seed budget): tests/test_merge_pr.py tests/test_merge_pr_github_ci_348.py tests/test_merge_pr_local_ci_guard_366.py tests/test_merge_pr_red_log_453.py
+shuffled pass: left out (over the seed budget): tests/test_merge_pr.py tests/test_merge_pr_github_ci_348.py tests/test_merge_pr_local_ci_guard_366.py tests/test_merge_pr_red_log_453.py tests/test_type_seam.py tests/test_nails_751.py
 ```
 
 A seed that runs out of time is red with no order dependence at all: the pass prints `shuffled
@@ -395,6 +401,11 @@ What a heavy file most often repeats is a build the worker could share:
   and the `templates` share from 317 s to 29 s (a loaded machine; the sum of the calls, not wall).
 * `tests/test_type_seam.py` builds the small catalogue once per worker (`_small_build()`), and
   the 40-odd type files that compare against it share that build.
+* Each type gate file built the whole small catalogue less its own type, and an uncached whole
+  default build beside it: 49 items each, 1,765 s and 801 s of the 15,097 worker-seconds of
+  push-to-main run 45957873124. `test_type_seam.py` now checks the property they share once,
+  for every type at both sizes: every type built alone is its slice of the whole build
+  (`test_every_type_built_alone_is_its_slice_of_the_whole_build`, #790).
 
 A shared object is read, never edited. A test that edits one leaks the edit into every later
 test on that worker. Copy the object before editing it.

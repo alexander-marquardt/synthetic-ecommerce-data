@@ -26,11 +26,10 @@ from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.drawing import svg_problems
 from synthetic_ecommerce_data.domains.industrial import names, tabletype, taxonomy
-from synthetic_ecommerce_data.domains.industrial.generate import generate, generate_type
+from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.product_types.fasteners import nail_framing
 from test_attribute_names import CENSUS, OBSERVED
 from test_catalog_brands_voice import same_product_duplicates
-from test_type_seam import _by_type, _moved_by_removing
 
 SLICES = Path(__file__).parent / "data" / "golden_slices"
 COLUMNS = ("Length", "Shank Dia.", "Head Dia.")
@@ -214,28 +213,10 @@ def test_the_committed_golden_slice_is_a_fresh_build(key):
 
 
 @pytest.mark.parametrize("key", KEYS)
-def test_every_other_type_is_byte_identical_with_this_type_left_out(key):
-    moved = _moved_by_removing(key)
-    assert not moved, f"building {key} changed {moved[:8]}"
-
-
-@pytest.mark.parametrize("key", KEYS)
 def test_every_other_type_builds_as_the_committed_golden_has_it(key):
     report = type_gates.others_moved_from_the_golden(key)
     if report:
         pytest.fail(report)
-
-
-@pytest.fixture(scope="module")
-def whole_by_type() -> dict[str, list[str]]:
-    """The whole default build by type, once for the module, not once per nail type (#1035)."""
-    return _by_type(generate().lines)
-
-
-@pytest.mark.parametrize("key", KEYS)
-def test_the_whole_build_carries_exactly_this_types_own_build(key, whole_by_type):
-    alone = _by_type(generate_type(GeneratorConfig(), key))
-    assert whole_by_type[key] == alone[key]
 
 
 @pytest.mark.parametrize("key", KEYS)
