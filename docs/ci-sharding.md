@@ -324,7 +324,7 @@ image at `/opt/shuffled-pass/shuffled_pass.py`; this repository keeps no copy
 
 ```sh
 uv sync --locked
-python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest --deselect tests/test_merge_pr.py --deselect tests/test_merge_pr_github_ci_348.py --deselect tests/test_merge_pr_local_ci_guard_366.py --deselect tests/test_merge_pr_red_log_453.py"
+python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest --deselect tests/test_merge_pr.py --deselect tests/test_merge_pr_github_ci_348.py --deselect tests/test_merge_pr_local_ci_guard_366.py --deselect tests/test_merge_pr_red_log_453.py --deselect tests/test_type_seam.py"
 ```
 
 The `--deselect`s come from `over_budget`, a named list in the step: the test files that take
@@ -336,13 +336,15 @@ side by side, so one file alone is the wrong measure: on #1288 a seed holding
 elastic/prism#15203). Today the list holds four of the eight merge-script test files
 (`tests/test_merge_pr*.py`): `tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`
 (each over 5 minutes) and the two above. The other four stay in the pass (`_shape_539` 47 s,
-`_step_log_912` 26 s, `_product_pins_1035` 3 s, `_wording_700` under 1 s). Order dependence in the
+`_step_log_912` 26 s, `_product_pins_1035` 3 s, `_wording_700` under 1 s). The list also holds
+`tests/test_type_seam.py` (254 s alone, #790): #790 changed it with 48 other test files, which take
+215 s a seed without it, and 24 seeds of all 49 would not have fit the job's 25 minutes. Order dependence in the
 listed files goes unchecked until #1035 makes them fit (or deletes them with
 `scripts/merge_pr.sh`); a file leaves the list when it does. The step writes the list to the
 summary and the log first:
 
 ```
-shuffled pass: left out (over the seed budget): tests/test_merge_pr.py tests/test_merge_pr_github_ci_348.py tests/test_merge_pr_local_ci_guard_366.py tests/test_merge_pr_red_log_453.py
+shuffled pass: left out (over the seed budget): tests/test_merge_pr.py tests/test_merge_pr_github_ci_348.py tests/test_merge_pr_local_ci_guard_366.py tests/test_merge_pr_red_log_453.py tests/test_type_seam.py
 ```
 
 A seed that runs out of time is red with no order dependence at all: the pass prints `shuffled
