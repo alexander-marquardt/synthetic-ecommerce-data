@@ -626,8 +626,13 @@ each other there. Unsetting the variable sends every job back to
 hosted runners with no commit. A push to `main` can have its own runners. When the repository variable `SYNTH_CI_MAIN_RUNNER` is
 `true`, a push event's jobs request `[self-hosted, synth-ci-main]` instead, and so do the jobs of
 the merge train's batch run: a `workflow_dispatch` on a `ci/batch-*` ref (agent-ops
-`coordinator/gen_train.sh`, #1031). Pull requests and the other dispatched runs (including
-`merge_pr.sh --github-ci` on `ci/merge-<N>`) keep `[self-hosted, synth-ci]`. The VM
+`coordinator/gen_train.sh`, #1031). A pull request the fleet runs first asks for them too
+(#1027): a red main's fix, titled `fix(main-red)...` or labelled `main-red-fix` (agent-ops#1720),
+and a PR v3 labels `ci-first` (agent-ops#1876). These are the launcher's `FIRST_LABELS`, and the
+launcher counts their queued jobs as main jobs. A fork's pull request stays on `ubuntu-latest`
+whatever its title. Every other pull request and dispatched run (including
+`merge_pr.sh --github-ci` on `ci/merge-<N>`) keeps `[self-hosted, synth-ci]`. A run reads its
+title and labels when it starts: a label set later moves only the PR's next run. The VM
 registers the last `--main-jobs N` slots with the `synth-ci-main` label (agent-ops
 `vm/ci_runner/README.md`), so neither a merge's main run nor a batch run waits behind pull-request runs. A
 full run is 20 jobs (12 of them `tests` shards; a push run is 16) of roughly 135 to 165 job-minutes, so N sets its duration: about 135/N + 3
