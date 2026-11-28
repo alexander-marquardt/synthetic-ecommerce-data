@@ -23,7 +23,6 @@ dev = [
     # it from the network on every run.
     "hatchling>=1.25",
     "pytest>=8.0",
-    "pytest-timeout>=2.3",
     # ``pytest -n 2``: the full suite runs in about 22 minutes on two workers.
     "pytest-xdist>=3.6",
     "pyyaml>=6.0.3",
@@ -75,11 +74,14 @@ testpaths = ["tests"]
 # group): a plain ``-n 2`` would scatter a module over both workers, and each would load the
 # module's fixture (#140). Without ``-n`` it does nothing. Tests run in file order unless
 # ``--order-seed=<n>`` shuffles them (``tests/conftest.py``, #1107), which is what a dispatched
-# run's ``random_seed`` passes (#539).
-addopts = "--dist loadgroup"
+# run's ``random_seed`` passes (#539). ``-p per_test_timeout`` loads the per-test limit
+# (``tests/per_test_timeout.py``, #1103) from ``pythonpath``, which pytest adds before it loads
+# a ``-p`` plugin: a ``--noconftest`` run, as the checked-in mutant tables make, keeps the limit.
+addopts = "--dist loadgroup -p per_test_timeout"
+pythonpath = ["tests"]
 # No ``-q`` here: it stacks with the caller's ``-q`` into ``-qq``, and pytest at that level
 # prints no ``N passed`` line (#49). Say ``-q`` on the command line.
-# Per-test limit in seconds (pytest-timeout), fixture setup included. The
+# Per-test limit in seconds (tests/per_test_timeout.py, #1103), fixture setup included. The
 # slowest test measured runs 46 s locally and the 100k-catalog fixture builds
 # in 31 s, so 300 s leaves room for a slower CI runner and still stops a hang
 # or a runaway. A slow test raises its own limit with

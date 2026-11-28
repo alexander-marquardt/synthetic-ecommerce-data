@@ -95,7 +95,8 @@ def repo(tmp_path: Path) -> Path:
         shutil.copy2(ROOT / name, root / name)
     (root / ".ignore").write_text("vendor/\n", encoding="utf-8")
     (root / "tests").mkdir()
-    for name in SCAN_TESTS.split():
+    # pyproject's ``addopts`` loads the per-test limit from ``tests/``: it goes with the config.
+    for name in ("tests/per_test_timeout.py", *SCAN_TESTS.split()):
         shutil.copy2(ROOT / name, root / name)
     _lines(root, "docs/big.md", BIG)
     (root / "src").mkdir()
@@ -528,6 +529,7 @@ def test_every_row_runs_the_command_its_ci_job_runs() -> None:
         "lint",
         "file-size",
         "tree-scans",
+        "(left to CI)",
         "(left to CI)",
         "(left to CI)",
         "(left to CI)",

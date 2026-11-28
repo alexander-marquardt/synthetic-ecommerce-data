@@ -38,6 +38,7 @@ _OTHERS_GREEN = {
     "commit-messages": "true",
     "file-size": "true",
     "red-commit-proof": "true",
+    "shuffled": "true",
     "customer-name-check": "true",
     "no-derived-files": "true",
     "dependency-review": "true",

@@ -37,19 +37,6 @@
       "use": "Test runner",
       "verdict": "keep"
     },
-    "PyPI:pytest-timeout": {
-      "fetched": {
-        "latest": "2.4.0",
-        "licence": "MIT License",
-        "released": "2025-05-05",
-        "version": "2.4.0",
-        "vulnerabilities": []
-      },
-      "note": "the latest release, 2.4.0, is of 2025-05-05, over 18 months ago, so `import-tool` does not keep it; tracked by #1103",
-      "rule": "gate-maintained",
-      "use": "The per-test limit, `timeout` in `pyproject.toml` (pytest plugin, no import)",
-      "verdict": "replace"
-    },
     "PyPI:pytest-xdist": {
       "fetched": {
         "latest": "3.8.0",

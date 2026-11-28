@@ -45,7 +45,7 @@ line to stderr: `merge_pr.sh: <UTC time> +<seconds since the start>s step <n> st
 A run that stalls, or a test of the script that times out, then shows which step was running
 and since when: a stalled step is told from a slow host (#912). `tests/test_merge_pr.py`'s
 `_run` keeps the script's output in files, not a pipe, and prints it when the call ends in an
-exception, a pytest-timeout included; it also stops the script's process group.
+exception, a per-test timeout included; it also stops the script's process group.
 
 ## Step 5 with `--local-ci`
 

@@ -34,8 +34,8 @@ outside it. A new directory of tests goes in `testpaths`, `TEST_DIRS` and `_TEST
 `scripts/ci_select.py`.
 
 `tests/test_ci_shards_348.py` is the guard: every collected test file is in exactly one
-shard (a split file's test ids are), the matrix is `1..N`, no CI job runs pytest on one worker, and the shards stay
-balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`,
+shard (a split file's test ids are), the matrix is `1..N`, no CI job but `shuffled` (serial by design, #1051)
+runs pytest on one worker, and the shards stay balanced by the weights. A module's tests stay on one worker (`--dist loadgroup`,
 `tests/xdist_groups.py`), so one module is the floor of a shard's time.
 
 ## The order the files are listed in
@@ -310,6 +310,62 @@ gh workflow run ci.yaml --ref <branch> -f random_seed=<n>
 ```
 
 Run one file the same way here with `uv run pytest --order-seed=<n> tests/<file>`.
+
+### The `shuffled` job: a pull request's changed test files in seeded orders (#1051)
+
+The `tests` job runs its files in one fixed order, so a test that passes only after another test
+ran in its process passes on its pull request and fails on main once the shard plan or the order
+changes: on 2026-11-16 `tests/test_retail_food_pantry_964.py` (#988) read an owner table only
+another test filled, and main went red (#1040, fixed by #1041). The `shuffled` job runs the test
+files the pull request adds, changes or renames again, alone, in one process per seed, each seed
+a different random order. The pass is agent-ops' (agent-ops#1936), root-owned in the CI runner
+image at `/opt/shuffled-pass/shuffled_pass.py`; this repository keeps no copy
+(elastic/prism#15855). The job runs
+
+```sh
+uv sync --locked
+python3 /opt/shuffled-pass/shuffled_pass.py --base <base sha> --key <head sha> --pytest "uv run -q --locked pytest --deselect tests/test_merge_pr.py --deselect tests/test_merge_pr_github_ci_348.py --deselect tests/test_merge_pr_local_ci_guard_366.py --deselect tests/test_merge_pr_red_log_453.py"
+```
+
+The `--deselect`s come from `over_budget`, a named list in the step: the test files that take
+over 1 minute alone, serially. A seed gets 10 minutes (`SEED_TIMEOUT_S` in agent-ops
+`vm/shuffled_pass.py`) for every changed test file at once, and the runner runs up to 8 seeds
+side by side, so one file alone is the wrong measure: on #1288 a seed holding
+`tests/test_merge_pr_local_ci_guard_366.py` (356 s alone) and `tests/test_merge_pr_red_log_453.py`
+(121 s) timed out. The cap is not raised to go green ("Do not raise the timeout to go green",
+elastic/prism#15203). Today the list holds four of the eight merge-script test files
+(`tests/test_merge_pr*.py`): `tests/test_merge_pr.py` and `tests/test_merge_pr_github_ci_348.py`
+(each over 5 minutes) and the two above. The other four stay in the pass (`_shape_539` 47 s,
+`_step_log_912` 26 s, `_product_pins_1035` 3 s, `_wording_700` under 1 s). Order dependence in the
+listed files goes unchecked until #1035 makes them fit (or deletes them with
+`scripts/merge_pr.sh`); a file leaves the list when it does. The step writes the list to the
+summary and the log first:
+
+```
+shuffled pass: left out (over the seed budget): tests/test_merge_pr.py tests/test_merge_pr_github_ci_348.py tests/test_merge_pr_local_ci_guard_366.py tests/test_merge_pr_red_log_453.py
+```
+
+A seed that runs out of time is red with no order dependence at all: the pass prints `shuffled
+pass: error: shuffled seed <n> timed out after 10 min`. A pull request whose changed test files,
+none on the list, add up past the cap goes red the same way, and the job's red cancels the run's
+`tests` shards through `cancel-on-red-shuffled`, so the suite is unverified at that head until the
+list or the files change.
+
+The seeds follow from the head sha, so a rerun of one head tries the same orders. Each seed's
+output is in the log after the command that reproduces it, and the pass's last line (the state,
+the seed or seeds, the file count) is the check's summary:
+
+```
+shuffled pass: failure: shuffled order fails at seed 2927495 (1 test file; log has the command)
+shuffled pass: success: shuffled 1 test file, 8 seeds 2927495..2927502 ok (14s)
+```
+
+A red names the seed: run the reproduce line from the log to see the order fail. A runner without
+the pass (a GitHub-hosted runner, a VM whose image is not yet rebuilt from an agent-ops checkout
+with the pass, or `merge_pr.sh --local-ci`) prints `shuffled pass: not installed on this runner`
+and passes. The job is a required check (`REQUIRED_CI`), runs on a pull request and on
+`merge_pr.sh --github-ci`'s dispatched run, and has its cancel-on-red job (below).
+`tests/test_ci_shuffled_1051.py` runs its step with a planted pass.
 
 ## No test file over 3 minutes (#1035)
 

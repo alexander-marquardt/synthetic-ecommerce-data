@@ -98,6 +98,8 @@ LEFT_TO_CI: dict[str, str] = {
     " yet; tests/test_ci_select_495.py and tests/test_ci_plan_1035.py run the emitted step",
     "red-commit-proof": "it runs each declared red test in a worktree of its commit, and its"
     " range is the pull request's base and head, which a push does not have yet",
+    "shuffled": "it runs the pull request's changed test files once per seed from the runner"
+    " image's pass, minutes of pytest; tests/test_ci_shuffled_1051.py runs its step",
     "no-derived-files": "it reads the pull request's base and head, as red-commit-proof does,"
     " which a"
     " push does not have yet; tests/test_no_derived_files_536.py runs its command",

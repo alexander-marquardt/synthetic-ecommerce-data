@@ -72,6 +72,7 @@ verdict() {
   j 4 commit-messages success
   if [ "$mode" != no-file-size ]; then j 5 file-size success; fi
   j 6 red-commit-proof success
+  j 12 shuffled success
   j 7 customer-name-check success
   j 9 no-derived-files success
   j 11 dependency-review success
@@ -394,7 +395,7 @@ def test_the_real_workflow_s_pr_jobs_can_be_dispatched_with_the_range_as_inputs(
     assert set(inputs) == {"base", "head", "pr", "random_seed"}
     jobs = (
         "commit-messages", "file-size", "red-commit-proof", "customer-name-check",
-        "no-derived-files",
+        "no-derived-files", "shuffled",
     )  # fmt: skip
     for job in jobs:
         condition = document["jobs"][job]["if"]

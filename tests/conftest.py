@@ -8,6 +8,7 @@ import zlib
 import pytest
 
 import ci_shard_split
+import per_test_timeout
 import templates_memo
 import type_reads
 import worker_peak
@@ -47,7 +48,10 @@ def retail_figures_measured() -> dict:
     return retail_figures.figures()
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser, pluginmanager):
+    """The per-test limit, for a run that clears ``addopts`` (#1103); pyproject loads it first."""
+    if not pluginmanager.has_plugin("per_test_timeout"):
+        pluginmanager.register(per_test_timeout, "per_test_timeout")
     parser.addoption(
         "--order-seed", type=int, default=None, metavar="N",
         help="run the tests in an order shuffled from N; off by default (#1107)",
