@@ -466,8 +466,10 @@ jobs:
           # min (SEED_TIMEOUT_S in agent-ops vm/shuffled_pass.py) for every changed file at once,
           # with 8 seeds side by side, a cap that stays ("Do not raise the timeout to go green",
           # elastic/prism#15203): a seed holding the local-CI guard and red-log files (356 s and
-          # 121 s alone) timed out. tests/test_type_seam.py takes 254 s alone (#790): the 48 other
-          # files #790 changes take 215 s a seed without it. Order dependence in them goes
+          # 121 s alone) timed out. tests/test_type_seam.py takes 254 s alone and
+          # tests/test_nails_751.py 131 s (#790); with nails in, 8 seeds of #790's other changed
+          # files peaked at 0.8-1 GB each and the 6g container killed one (exit 137). Without
+          # both, 8 seeds took 484 s each in those caps. Order dependence in them goes
           # unchecked until #1035 makes them fit; a file leaves this list when it does.
           # docs/ci-sharding.md.
           over_budget=(
@@ -476,6 +478,7 @@ jobs:
             tests/test_merge_pr_local_ci_guard_366.py
             tests/test_merge_pr_red_log_453.py
             tests/test_type_seam.py
+            tests/test_nails_751.py
           )
           pytest="uv run -q --locked pytest"
           for f in "${over_budget[@]}"; do pytest="$pytest --deselect $f"; done

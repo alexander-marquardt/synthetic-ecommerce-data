@@ -28,13 +28,15 @@ BASE, HEAD = "73fb676d40e6", "391c047b3d0c"
 #: The files the step leaves out of the pass: each takes over 1 min alone, serially. A seed gets
 #: 10 min for all the changed files at once, with 8 seeds side by side: on this PR a seed holding
 #: test_merge_pr_local_ci_guard_366.py (356 s) and test_merge_pr_red_log_453.py (121 s) timed out.
-#: test_type_seam.py takes 254 s alone; #790's 48 other changed files take 215 s a seed without it.
+#: test_type_seam.py takes 254 s alone and test_nails_751.py 131 s (#790); with nails in, 8 seeds
+#: of #790's other changed files ran out of the runner's 6g (exit 137).
 OVER_BUDGET = [
     "tests/test_merge_pr.py",
     "tests/test_merge_pr_github_ci_348.py",
     "tests/test_merge_pr_local_ci_guard_366.py",
     "tests/test_merge_pr_red_log_453.py",
     "tests/test_type_seam.py",
+    "tests/test_nails_751.py",
 ]
 LEFT_OUT = "shuffled pass: left out (over the seed budget): " + " ".join(OVER_BUDGET)
 PYTEST = "uv run -q --locked pytest" + "".join(f" --deselect {f}" for f in OVER_BUDGET)
