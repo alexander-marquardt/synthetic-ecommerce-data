@@ -8,6 +8,9 @@ that only the last slots of the VM register with, so a merge's run does not queu
 requests' jobs. A ``push`` asks for it, and so does the merge train's batch run (a
 ``workflow_dispatch`` on a ``ci/batch-*`` ref, synthetic-ecommerce-data#1031), only while
 ``SYNTH_CI_MAIN_RUNNER`` is ``true``. merge_pr.sh's dispatch on ``ci/merge-<N>`` keeps the pool.
+So does a pull request, but for one the fleet runs first (synthetic-ecommerce-data#1027): a red
+main's fix, titled ``fix(main-red)...`` or labelled ``main-red-fix`` (agent-ops#1720), and a PR
+v3 labels ``ci-first`` (agent-ops#1876). The labels are the launcher's ``FIRST_LABELS``.
 """
 import json
 import re
@@ -23,32 +26,55 @@ RUNS_ON = (
     "${{ vars.SYNTH_CI_SELF_HOSTED == 'true' && (github.event_name != 'pull_request' || "
     "github.event.pull_request.head.repo.full_name == github.repository) && "
     "fromJSON((github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && "
-    "startsWith(github.ref_name, 'ci/batch-'))) && vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
+    "startsWith(github.ref_name, 'ci/batch-')) || (github.event_name == 'pull_request' && "
+    "(startsWith(github.event.pull_request.title, 'fix(main-red)') || "
+    "contains(github.event.pull_request.labels.*.name, 'main-red-fix') || "
+    "contains(github.event.pull_request.labels.*.name, 'ci-first')))) && "
+    "vars.SYNTH_CI_MAIN_RUNNER == 'true' && "
     "'[\"self-hosted\",\"synth-ci-main\"]' || '[\"self-hosted\",\"synth-ci\"]') "
     "|| 'ubuntu-latest' }}"
 )
 
 
-def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r", ref="main"):
-    """What the expression gives: GitHub's ``&&`` and ``||`` return an operand, as Python's do."""
-    body = re.fullmatch(r"\$\{\{ (.*) \}\}", RUNS_ON).group(1)
+def _contains(seq, item):
+    """GitHub's ``contains``: an array holds an equal item, a string a substring; case ignored."""
+    if isinstance(seq, list):
+        return any(str(x).lower() == item.lower() for x in seq)
+    return item.lower() in (seq or "").lower()
+
+
+def runs_on(event, *, self_hosted="true", main="true", head="o/r", repo="o/r", ref="main",
+            title="feat(x): y", labels=()):
+    """What ci.yaml's expression gives: GitHub's ``&&`` and ``||`` return an operand, as Python's.
+
+    It evaluates the ``lint`` job's ``runs-on`` as ci.yaml holds it, so a row here fails when the
+    file routes a run wrong; ``test_every_job_runs_on_the_one_expression`` holds every job to it.
+    """
+    template = yaml.safe_load(CI.read_text())["jobs"]["lint"]["runs-on"]
+    body = re.fullmatch(r"\$\{\{ (.*) \}\}", template).group(1)
     for gh, py in [
         (r"vars\.SYNTH_CI_SELF_HOSTED", "SELF_HOSTED"),
         (r"vars\.SYNTH_CI_MAIN_RUNNER", "MAIN"),
         (r"github\.event\.pull_request\.head\.repo\.full_name", "HEAD"),
+        (r"github\.event\.pull_request\.title", "TITLE"),
+        (r"github\.event\.pull_request\.labels\.\*\.name", "LABELS"),
         (r"github\.repository", "REPO"),
         (r"github\.event_name", "EVENT"),
         (r"github\.ref_name", "REF_NAME"),
         (r"fromJSON", "json.loads"),
         (r"startsWith", "starts_with"),
+        (r"contains", "contains_"),
         (r"&&", " and "),
         (r"\|\|", " or "),
     ]:
         body = re.sub(gh, py, body)
     names = {"json": json, "SELF_HOSTED": self_hosted, "MAIN": main, "HEAD": head, "REPO": repo}
-    # GitHub's startsWith ignores case; the refs here are lower case.
-    names["starts_with"] = lambda s, prefix: s.lower().startswith(prefix.lower())
-    return eval(body, {**names, "EVENT": event, "REF_NAME": ref})
+    # GitHub's startsWith ignores case and reads a missing value (a push has no PR title) as "".
+    names["starts_with"] = lambda s, prefix: (s or "").lower().startswith(prefix.lower())
+    names["contains_"] = _contains
+    pr = event == "pull_request"
+    return eval(body, {**names, "EVENT": event, "REF_NAME": ref,
+                       "TITLE": title if pr else None, "LABELS": list(labels) if pr else []})
 
 
 #: The jobs that cancel a red pull request run (#1175) are hosted, so they never queue behind the
@@ -91,7 +117,20 @@ def test_the_expression_keeps_fork_pull_requests_on_hosted_runners():
     ("push", {}, MAIN),
     ("push", {"main": "false"}, POOL),                         # the variable is the switch
     ("push", {"main": ""}, POOL),                              # unset
-    ("pull_request", {}, POOL),                                # a pull request never asks for it
+    ("pull_request", {}, POOL),                                # a pull request asks only when first
+    # a red main's fix (agent-ops#1720) and a ci-first PR (agent-ops#1876) ask, #1027
+    ("pull_request", {"title": "fix(main-red): revert 52a262da"}, MAIN),
+    ("pull_request", {"title": "Fix(Main-Red): revert"}, MAIN),     # startsWith ignores case
+    ("pull_request", {"labels": ["main-red-fix"]}, MAIN),
+    ("pull_request", {"labels": ["sev:1", "ci-first"]}, MAIN),
+    ("pull_request", {"labels": ["main-red"]}, POOL),          # another label keeps the pool
+    ("pull_request", {"labels": ["priority:1000", "sev:1"]}, POOL),
+    ("pull_request", {"title": "fix(main): red tests"}, POOL),  # only the fix(main-red) prefix
+    ("pull_request", {"title": "feat(x): fix(main-red) later"}, POOL),  # the prefix starts it
+    ("pull_request", {"labels": ["main-red-fix"], "main": "false"}, POOL),  # the switch holds
+    ("pull_request", {"title": "fix(main-red): x", "main": ""}, POOL),
+    ("pull_request", {"labels": ["ci-first"], "head": "fork/r"}, "ubuntu-latest"),  # a fork
+    ("pull_request", {"title": "fix(main-red): x", "self_hosted": "false"}, "ubuntu-latest"),
     ("workflow_dispatch", {"ref": "ci/merge-12"}, POOL),       # merge_pr.sh --github-ci runs here
     ("workflow_dispatch", {}, POOL),                           # a dispatch on main by hand
     # the merge train's batch run (agent-ops coordinator/gen_train.sh, #1031)
@@ -105,7 +144,7 @@ def test_the_expression_keeps_fork_pull_requests_on_hosted_runners():
     ("push", {"self_hosted": "false"}, "ubuntu-latest"),       # the #596 switch still wins
     ("pull_request", {"self_hosted": "false"}, "ubuntu-latest"),
 ])
-def test_only_a_push_or_a_batch_dispatch_with_the_variable_set_asks_for_the_reserved_runners(
+def test_a_push_a_batch_dispatch_or_a_first_pull_request_asks_for_the_reserved_runners(
     event, kw, want
 ):
     assert runs_on(event, **kw) == want
