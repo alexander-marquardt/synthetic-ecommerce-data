@@ -27,9 +27,10 @@ The top level of every ``category_path`` (and of each ``category_paths`` entry) 
 on core's closed list (:mod:`.departments`): the department is the path's top level, never a
 field of its own.
 
-A size is ``size_uk``, ``size_eu`` and ``size_us`` together, read from one row of a core
-chart (:mod:`.size_charts`); a variant that states one without the other two, or a triple that
-is no chart's row, breaks the standard.
+A size in a core chart is ``size_uk``, ``size_eu`` and ``size_us`` together, read from one row
+(:mod:`.size_charts`); a variant that states ``size_eu`` or ``size_us`` without the other two, or
+a triple that is no chart's row, breaks the standard. A lone ``size_uk`` (a dress's ``12``) is a
+size in one system and passes; a size of another system has its own key (``size_letter``, ...).
 
 :func:`check_catalog` is the validator: every way a catalog breaks the standard,
 empty when it holds. ``tests/test_output_standard.py`` runs it over each domain.
@@ -441,6 +442,8 @@ def flat_documents(
     doc: Mapping[str, Any],
     numeric_keys: frozenset[str] = frozenset(),
     text_skip: frozenset[str] = frozenset(),
+    *,
+    leaf_type: bool = False,
 ) -> list[dict[str, Any]]:
     """The flat one-document-per-SKU shape of one nested document, the shape
     industrial's ``emit.flat_documents`` writes and prism-industrial-products loads.
@@ -454,6 +457,8 @@ def flat_documents(
     ``text_skip`` is still a facet and an attribute, but its values stay out of ``text``.
     A product filed at several paths (``category_paths``) is searchable by each: ``text``
     holds the primary path, then the nodes each further path adds, each once.
+    With ``leaf_type`` the flat ``product_type`` is the category leaf, as industrial's flat file
+    writes it (gen#125): its nested ``product_type`` is the type key the drawing reads.
     """
     product = {k: doc[k] for k in _FLAT_PRODUCT_FIELDS if k in doc}
     nodes = dict.fromkeys(
@@ -479,7 +484,7 @@ def flat_documents(
         words.append(doc.get("fibre_content"))
         out.append(
             {"sku": variant["sku"], "product_id": doc["product_id"]}
-            | {"product_type": doc["product_type"]}
+            | {"product_type": doc["category_path"][-1] if leaf_type else doc["product_type"]}
             | {"product_type_label": doc["product_type_label"], "title": variant["title"]}
             | {k: variant[k] for k in ("description", "mfr_part_number") if k in variant}
             | {"parent_title": doc["title"]}

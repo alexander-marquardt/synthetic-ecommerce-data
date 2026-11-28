@@ -45,8 +45,13 @@ SNAKE = re.compile(r"^[a-z][a-z0-9]*(_[a-z0-9]+)*$")
 
 @pytest.fixture(scope="module")
 def tools() -> list[dict]:
+    """The golden flat rows, each ``product_type`` the type key: a flat row's ``product_type`` is
+    its category leaf (``Hammers``) and the key is the first segment of ``image_id`` (gen#125).
+    Read off the id without the type registry, so the file stays in ``scripts/ci_type_free.json``.
+    """
     with (ROOT / "golden-catalog" / "flat.jsonl").open() as f:
-        return [json.loads(line) for line in f]
+        rows = [json.loads(line) for line in f]
+    return [row | {"product_type": row["image_id"].split("/", 1)[0]} for row in rows]
 
 
 @pytest.fixture(scope="module")

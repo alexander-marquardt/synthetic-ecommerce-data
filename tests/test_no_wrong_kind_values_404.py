@@ -32,6 +32,7 @@ from synthetic_ecommerce_data.core.config import SMALL
 from synthetic_ecommerce_data.core.dimensions import parse_length
 from synthetic_ecommerce_data.domains.industrial.generate import generate
 from synthetic_ecommerce_data.domains.industrial.vocab import VOCAB
+from type_key import type_key_of
 
 #: The quantity kind a published unit mark means, written down here.
 KIND_OF_MARK = {
@@ -81,7 +82,7 @@ def _entries(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def test_the_sample_holds_every_product_type(docs):
-    assert {d["product_type"] for d in docs if "facets" in d} == set(VOCAB)
+    assert {type_key_of(d) for d in docs if "facets" in d} == set(VOCAB)
 
 
 def test_each_flat_facet_key_holds_one_quantity_kind(docs):

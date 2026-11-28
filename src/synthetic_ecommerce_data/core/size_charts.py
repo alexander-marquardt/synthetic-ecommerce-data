@@ -7,8 +7,10 @@ one size in every system, ``(UK, EU, US)``; a variant states its size as the thr
 entries :data:`KEYS`, all three from ONE row, so they can never disagree.
 
 :func:`problems` is the standard's size rule (:func:`.standard.check_document` runs it on every
-variant): a variant that carries one of :data:`KEYS` carries all three, and its three values are
-a row of a chart in :data:`CHARTS`. Which sizes a product is cut in (a jean's leg lengths, a bra's
+variant): a variant that carries ``size_eu`` or ``size_us`` carries all three of :data:`KEYS`, and
+its three values are a row of a chart in :data:`CHARTS`. A lone ``size_uk`` (a dress's ``12``, a
+bra's ``32B``) is a size in one system, no chart's row, and passes (the 2026-11-20 ruling, gen#125).
+Which sizes a product is cut in (a jean's leg lengths, a bra's
 band and cup rules) is the domain's choice; the row a size reads is not.
 """
 
@@ -142,7 +144,7 @@ def problems(where: str, attributes: Iterable[Any]) -> list[str]:
     held = {
         e["key"]: e.get("value") for e in attributes if isinstance(e, dict) and e.get("key") in KEYS
     }
-    if not held:
+    if not held or set(held) == {"size_uk"}:
         return []
     missing = [k for k in KEYS if k not in held]
     if missing:

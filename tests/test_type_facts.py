@@ -25,6 +25,7 @@ from synthetic_ecommerce_data.core import typespec
 from synthetic_ecommerce_data.domains.industrial import conformance
 from synthetic_ecommerce_data.domains.industrial.generate import all_type_keys
 from test_catalog_facts import untitled_keys, wrong_claims
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 BREADTH_QUALITY = "fast_and_cheap"
@@ -58,10 +59,11 @@ def _socket_screw_docs(count: int) -> list[dict]:
     docs = []
     with (GOLDEN / "flat.jsonl").open(encoding="utf-8") as handle:
         for line in handle:
-            if '"screw_socket_head"' not in line:
+            # A flat line names the type key only as its image_id's first segment (gen#125).
+            if '"screw_socket_head/' not in line:
                 continue
             doc = json.loads(line)
-            if doc["product_type"] == "screw_socket_head" and any(
+            if type_key_of(doc) == "screw_socket_head" and any(
                 a["name"] == "Standards" for a in authored_entries(doc)
             ):
                 docs.append(doc)
@@ -78,8 +80,11 @@ def test_a_planted_type_is_held_to_the_facts_it_declares(monkeypatch: pytest.Mon
     assert type_facts.title_key().get(PLANTED) == ("Dia./Thread Size",)
 
     # The planted type has no authored-name map, so the names are mapped back before the rename.
+    # ``image_id`` is dropped: ``type_key_of`` reads a flat row's key off it (gen#125), which
+    # would still name the socket screw the row was drawn from, not the planted type.
     docs = [
-        dict(doc, product_type=PLANTED, attributes=authored_entries(doc))
+        {k: v for k, v in doc.items() if k != "image_id"}
+        | {"product_type": PLANTED, "attributes": authored_entries(doc)}
         for doc in _socket_screw_docs(80)
     ]
     assert len(docs) == 80
@@ -132,7 +137,7 @@ def test_each_types_declared_size_is_its_size_in_the_committed_catalog() -> None
             for line in handle:
                 doc = json.loads(line)
                 if doc["spec_quality"] != BREADTH_QUALITY:
-                    counted[doc["product_type"]][slot] += 1
+                    counted[type_key_of(doc)][slot] += 1
     assert {key: tuple(pair) for key, pair in counted.items()} == type_facts.default_size()
 
 

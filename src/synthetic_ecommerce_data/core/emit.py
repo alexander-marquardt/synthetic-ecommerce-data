@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Mapping
 from pathlib import Path
 from typing import Any, TextIO
 
@@ -77,6 +77,14 @@ def image_path(image_id: str) -> str:
     """
     product_type_for_image(image_id)
     return f"{image_id}.svg"
+
+
+def flat_type_key(row: Mapping[str, Any]) -> str:
+    """The type key of an industrial flat *row*, read off its ``image_id``.
+
+    A flat row's ``product_type`` is its category leaf (gen#125), and one leaf can hold several
+    types (``Hammers`` holds seven); a figure counted per type reads the key here."""
+    return product_type_for_image(row["image_id"])
 
 
 def image_url(image_id: str, base_url: str) -> str:
@@ -335,10 +343,13 @@ def flat_documents(
             if attribute.value_num is not None:
                 numeric.setdefault(key, attribute.value_num)
         numeric["merchandising_score"] = score
-        yield letter_case.apply({
+        row = letter_case.apply({
             "sku": child.sku,
             "product_id": line.product_id,
-            "product_type": line.type_key,
+            # The shopper's word, the category leaf (``Flap discs``, set below once letter case
+            # has run), not the type key, which stays in ``image_id`` (gen#125, the 2026-11-20
+            # ruling; :func:`flat_type_key`).
+            "product_type": line.category[-1],
             "product_type_label": line.type_label,
             "title": child.title,
             # The SKU's own copy, and the LINE's title beside it. They are two
@@ -376,6 +387,8 @@ def flat_documents(
             "facets_num": numeric,
             "text": _searchable_text(line, child, merged),
         })
+        row["product_type"] = row["category_leaf"]
+        yield row
 
 
 def iter_nested(

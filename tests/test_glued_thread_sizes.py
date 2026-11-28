@@ -27,6 +27,7 @@ from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.core.naming import thread_parts
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 
@@ -71,7 +72,7 @@ def unsplit(docs: list[dict]) -> tuple[list[tuple[str, str]], collections.Counte
         hits = GLUED.findall(f"{doc['title']} {_copy(doc)}")
         if not hits:
             continue
-        checked[doc["product_type"]] += 1
+        checked[type_key_of(doc)] += 1
         tokens = _tokens(_copy(doc))
         for dia, pitch in hits:
             if f"m{dia}" not in tokens or pitch not in tokens:
@@ -109,7 +110,7 @@ def test_a_tap_drill_for_m12_is_found_by_m12(docs):
     drills = [
         doc
         for doc in docs
-        if doc["product_type"] == "drill_jobber" and "for M12x1.75 threads" in doc["text"]
+        if type_key_of(doc) == "drill_jobber" and "for M12x1.75 threads" in doc["text"]
     ]
     assert drills, "no drill names the M12x1.75 tap drill"
     assert [d["sku"] for d in drills if "m12" not in _tokens(d["text"])] == []

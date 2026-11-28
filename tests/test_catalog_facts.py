@@ -30,6 +30,7 @@ from synthetic_ecommerce_data.core.naming import states_value
 from synthetic_ecommerce_data.domains.industrial import newtypes
 from synthetic_ecommerce_data.domains.industrial.generate import Generator, generate
 from synthetic_ecommerce_data.domains.industrial.hammers import is_incidental_decoy_title
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parents[1] / "golden-catalog"
 LBF_PER_KN = 224.809
@@ -259,7 +260,7 @@ def _inches(value: str) -> float | None:
 def test_every_bearing_is_rated_by_its_table(docs):
     checked = 0
     for doc in docs:
-        if doc["product_type"] != "bearing_radial_ball":
+        if type_key_of(doc) != "bearing_radial_ball":
             continue
         v = _values(doc)
         dynamic, static, speed = RATINGS[v["Bearing Number"]]
@@ -320,7 +321,7 @@ def test_every_metric_bearing_has_its_iso_15_boundary_dimensions(docs):
     bores: set[int] = set()
     wrong = []
     for doc in docs:
-        if doc["product_type"] != "bearing_radial_ball":
+        if type_key_of(doc) != "bearing_radial_ball":
             continue
         v = _values(doc)
         number = v["Bearing Number"]
@@ -350,10 +351,10 @@ def wrong_claims(docs: list[dict]) -> list[tuple[str, str, str]]:
     declared ``may_claim`` (``type_facts``)."""
     may_claim = type_facts.may_claim()
     return [
-        (doc["sku"], doc["product_type"], a["value"])
+        (doc["sku"], type_key_of(doc), a["value"])
         for doc in docs
         for a in authored_attributes(doc)
-        if a["name"] == "Standards" and a["value"] not in may_claim[doc["product_type"]]
+        if a["name"] == "Standards" and a["value"] not in may_claim[type_key_of(doc)]
     ]
 
 
@@ -414,7 +415,7 @@ def test_a_nut_claims_only_the_standard_its_dimensions_are(docs):
 def test_a_nut_says_which_table_each_dimension_came_from(docs):
     """A nut claiming ISO 4032 must not say no standard fixes its values, which
     every hex nut said until the review of PR #60."""
-    nuts = [doc for doc in docs if doc["product_type"] == "nut_hex"]
+    nuts = [doc for doc in docs if type_key_of(doc) == "nut_hex"]
     problems, checked = type_gates.provenance_problems(
         nuts, NUT_DIMENSIONS, ("Width Across Flats", "Height")
     )
@@ -427,7 +428,7 @@ def wrong_nut_standards(docs: list[dict]) -> tuple[list, int]:
     claims were checked."""
     wrong, checked = [], 0
     for doc in docs:
-        if doc["product_type"] != "nut_hex":
+        if type_key_of(doc) != "nut_hex":
             continue
         values = _values(doc)
         claimed = [
@@ -457,7 +458,7 @@ def wrong_nut_standards(docs: list[dict]) -> tuple[list, int]:
 def test_an_inch_bearing_claims_no_metric_bearing_standard(docs):
     wrong, metric = [], 0
     for doc in docs:
-        if doc["product_type"] != "bearing_radial_ball":
+        if type_key_of(doc) != "bearing_radial_ball":
             continue
         claimed = {a["value"] for a in authored_attributes(doc) if a["name"] == "Standards"}
         if _values(doc)["Bearing Number"].isdigit():
@@ -487,7 +488,7 @@ def test_an_end_mill_title_names_its_diameter_and_length_of_cut_alone(docs):
     pair = re.compile(r"^[^:,]+: (?:[^,]+ Dia, [^,]+ LOC|[^,]+ Dia|[^,]+ LOC)$")
     wrong, named = [], collections.Counter()
     for doc in docs:
-        shape = END_MILL_SHAPE.get(doc["product_type"])
+        shape = END_MILL_SHAPE.get(type_key_of(doc))
         if shape is None:
             continue
         named[shape] += 1
@@ -634,7 +635,7 @@ def untitled_keys(docs: list[dict]) -> list[tuple[str, str, str, str]]:
             continue
         v = _values(doc)
         left = _axis_values(doc) if leaves_axis_to_field(doc) else set()
-        for name in keys[doc["product_type"]]:
+        for name in keys[type_key_of(doc)]:
             if name in v and v[name] not in left and not _in_title(v[name], doc["title"]):
                 missing.append((doc["sku"], name, v[name], doc["title"]))
     return missing
@@ -650,7 +651,7 @@ def test_a_brand_titles_a_type_one_way(docs):
     flap discs lead with a key dimension that is never labelled.)"""
     styles: dict[tuple[str, str], set[bool]] = collections.defaultdict(set)
     for doc in docs:
-        if doc["product_type"] in (
+        if type_key_of(doc) in (
             "bearing_radial_ball",
             "wheel_depressed_center",
             "abrasive_flap_disc",
@@ -662,7 +663,7 @@ def test_a_brand_titles_a_type_one_way(docs):
         if len(parts) < 2:
             continue
         first = parts[1].strip()
-        styles[(doc["brand"], doc["product_type"])].add(not _BARE.match(first))
+        styles[(doc["brand"], type_key_of(doc))].add(not _BARE.match(first))
     mixed = {k: v for k, v in styles.items() if len(v) > 1}
     assert mixed == {}, sorted(mixed)[:10]
     assert len(styles) > 150
@@ -714,7 +715,7 @@ def test_a_brand_names_a_secondary_dimension_on_every_title_or_none(monkeypatch)
 
 
 def test_kit_titles_say_what_the_kit_is(docs):
-    kits = [d for d in docs if d["product_type"] == "kit_assortment"]
+    kits = [d for d in docs if type_key_of(d) == "kit_assortment"]
     assert kits
     for doc in kits:
         kind = _values(doc)["Type"]

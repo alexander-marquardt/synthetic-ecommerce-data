@@ -25,6 +25,7 @@ from synthetic_ecommerce_data.core.dimensions import (
 from synthetic_ecommerce_data.domains.industrial import plain_screws
 from synthetic_ecommerce_data.domains.industrial.drawing.plain_screw import HEADS, plain_screw
 from synthetic_ecommerce_data.domains.industrial.generate import Generator
+from type_key import type_key_of
 
 GOLDEN = Path(__file__).resolve().parent.parent / "golden-catalog"
 DOCS = [json.loads(line) for line in (GOLDEN / "flat.jsonl").read_text("utf-8").splitlines()]
@@ -47,7 +48,7 @@ def _facts(doc: dict) -> dict[str, str]:
 
 
 def _docs(key: str) -> list[dict]:
-    return [doc for doc in DOCS if doc["product_type"] == key]
+    return [doc for doc in DOCS if type_key_of(doc) == key]
 
 
 def _products(key: str) -> list[list[dict]]:
@@ -59,7 +60,7 @@ def _products(key: str) -> list[list[dict]]:
 
 @pytest.mark.parametrize("key", KINDS)
 def test_a_plain_screw_sits_beside_the_lag_screw(key):
-    lag = next(doc for doc in DOCS if doc["product_type"] == "lag_screws")
+    lag = next(doc for doc in DOCS if type_key_of(doc) == "lag_screws")
     docs = _docs(key)
     assert docs, f"the catalog sells no {key}"
     for doc in docs:
@@ -105,7 +106,7 @@ def test_a_product_varies_by_length_with_its_gauge_or_thread_and_pack():
     """Read from the large build: the committed catalog's few lines are mostly one size."""
     products: dict[str, list[dict]] = defaultdict(list)
     for doc in hundred_k_flat():
-        if doc["product_type"] in KINDS:
+        if type_key_of(doc) in KINDS:
             products[doc["product_id"]].append(_facts(doc))
 
     def varies(name: str) -> bool:

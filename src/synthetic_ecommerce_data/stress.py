@@ -211,7 +211,7 @@ def write(
         for doc in _spooled(out / SPOOL):
             expanded = expand_product(doc, copies, max_copies)
             emit.append_jsonl((expanded,), nested)
-            emit.append_jsonl(standard.flat_documents(expanded), flat)
+            emit.append_jsonl(standard.flat_documents(expanded, leaf_type=True), flat)
             tally.add(expanded)
     (out / SPOOL).unlink()
     for name, mapping in mappings.items():

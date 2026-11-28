@@ -20,6 +20,7 @@ import pytest
 from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import SMALL, GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 GOLDEN_FLAT = Path(__file__).resolve().parents[1] / "golden-catalog" / "flat.jsonl"
 
@@ -47,7 +48,7 @@ SOURCES = {
 @pytest.fixture(scope="module", params=sorted(SOURCES))
 def end_mills(request: pytest.FixtureRequest) -> list[dict[str, Any]]:
     docs = SOURCES[request.param]()
-    return [d for d in docs if d["product_type"].startswith("end_mill")]
+    return [d for d in docs if type_key_of(d).startswith("end_mill")]
 
 
 def test_every_displayed_helix_angle_has_its_numeric_facet(end_mills):

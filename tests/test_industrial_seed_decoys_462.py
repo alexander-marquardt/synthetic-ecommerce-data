@@ -17,6 +17,7 @@ from synthetic_ecommerce_data.core import emit
 from synthetic_ecommerce_data.core.config import GeneratorConfig
 from synthetic_ecommerce_data.domains.industrial import seed_decoys
 from synthetic_ecommerce_data.domains.industrial.generate import generate
+from type_key import type_key_of
 
 DECOY_DIR = (
     Path(__file__).resolve().parents[1]
@@ -47,7 +48,7 @@ def _skus_by_type() -> dict[str, tuple[dict, ...]]:
     """Every emitted SKU row, by the type key that made it (a decoy type is one product line)."""
     rows: dict[str, list[dict]] = {}
     for row in emit.iter_flat(generate(GeneratorConfig(lines=1, new_type_share={}))):
-        rows.setdefault(row["product_type"], []).append(row)
+        rows.setdefault(type_key_of(row), []).append(row)
     return {key: tuple(value) for key, value in rows.items()}
 
 
